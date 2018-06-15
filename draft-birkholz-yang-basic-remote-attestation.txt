@@ -67,6 +67,7 @@ Table of Contents
      1.1.  Requirements notation . . . . . . . . . . . . . . . . . .   2
    2.  The YANG Module for Basic Remote Attestation Procedures . . .   2
      2.1.  Tree format . . . . . . . . . . . . . . . . . . . . . . .   2
+     2.2.  Raw Format  . . . . . . . . . . . . . . . . . . . . . . .   4
    3.  Security Considerations . . . . . . . . . . . . . . . . . . .  11
    4.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  11
    5.  Change Log  . . . . . . . . . . . . . . . . . . . . . . . . .  11
@@ -93,19 +94,18 @@ Table of Contents
 
 2.1.  Tree format
 
-<CODE BEGINS>
-module: basic-remote-attestation
-    +--rw rats-support-structures
-       +--rw supported-algos*           uint16
-       +--rw endorsement-certificate?   binary
+   <CODE BEGINS>
+   module: basic-remote-attestation
+       +--rw rats-support-structures
+          +--rw supported-algos*           uint16
+          +--rw endorsement-certificate?   binary
 
-  rpcs:
-    +---x tpm2-challenge-repsonse-attestation
-    |  +---w input
-    |  |  +---w tpm2-attestation-challange
-    |  |     +---w pcr-list*
-    |  |     |  +---w pcr
-    |  |     |     +---w pcr-numbers*            uint8
+     rpcs:
+       +---x tpm2-challenge-repsonse-attestation
+       |  +---w input
+       |  |  +---w tpm2-attestation-challange
+       |  |     +---w pcr-list*
+       |  |     |  +---w pcr
 
 
 
@@ -114,54 +114,54 @@ Birkholz & Eckel        Expires December 17, 2018               [Page 2]
 Internet-Draft                    BRAT                         June 2018
 
 
-    |  |     |     +---w (algo-registry-type)?
-    |  |     |        +--:(tcg)
-    |  |     |        |  +---w tcg-hash-algo-id?       uint16
-    |  |     |        +--:(ietf)
-    |  |     |           +---w ietf-ni-hash-algo-id?   uint8
-    |  |     +---w nonce-value?            binary
-    |  |     +---w (signature-identifier-type)?
-    |  |     |  +--:(TPM_ALG_ID)
-    |  |     |  |  +---w TPM_ALG_ID-value?       uint16
-    |  |     |  +--:(COSE_Algorithm)
-    |  |     |     +---w COSE_Algorithm-value?   int32
-    |  |     +---w (key-identifier)?
-    |  |        +--:(public-key)
-    |  |        |  +---w pub-key-id?             binary
-    |  |        +--:(uuid)
-    |  |           +---w uuid-value?             string
-    |  +--ro output
-    |     +--ro tpm2-attestation-response
-    |        +--ro tpms-attest
-    |        |  +--ro pcrdigest?            binary
-    |        |  +--ro pcrdigest-length?     uint32
-    |        |  +--ro tpms-attest-result?   binary
-    |        +--ro tpmt-signature?   binary
-    +---x simple-trust-establishment
-    |  +---w input
-    |  |  +---w nonce-value?            binary
-    |  |  +---w pcr-list*
-    |  |  |  +---w pcr
-    |  |  |     +---w pcr-numbers*            uint8
-    |  |  |     +---w (algo-registry-type)?
-    |  |  |        +--:(tcg)
-    |  |  |        |  +---w tcg-hash-algo-id?       uint16
-    |  |  |        +--:(ietf)
-    |  |  |           +---w ietf-ni-hash-algo-id?   uint8
-    |  |  +---w (signature-identifier-type)?
-    |  |     +--:(TPM_ALG_ID)
-    |  |     |  +---w TPM_ALG_ID-value?       uint16
-    |  |     +--:(COSE_Algorithm)
-    |  |        +---w COSE_Algorithm-value?   int32
-    |  +--ro output
-    |     +--ro attesation-certificate?   binary
-    |     +--ro (key-identifier)?
-    |        +--:(public-key)
-    |        |  +--ro pub-key-id?               binary
-    |        +--:(uuid)
-    |           +--ro uuid-value?               string
-    +---x log-retrieval
-       +---w input
+       |  |     |     +---w pcr-numbers*            uint8
+       |  |     |     +---w (algo-registry-type)?
+       |  |     |        +--:(tcg)
+       |  |     |        |  +---w tcg-hash-algo-id?       uint16
+       |  |     |        +--:(ietf)
+       |  |     |           +---w ietf-ni-hash-algo-id?   uint8
+       |  |     +---w nonce-value?            binary
+       |  |     +---w (signature-identifier-type)?
+       |  |     |  +--:(TPM_ALG_ID)
+       |  |     |  |  +---w TPM_ALG_ID-value?       uint16
+       |  |     |  +--:(COSE_Algorithm)
+       |  |     |     +---w COSE_Algorithm-value?   int32
+       |  |     +---w (key-identifier)?
+       |  |        +--:(public-key)
+       |  |        |  +---w pub-key-id?             binary
+       |  |        +--:(uuid)
+       |  |           +---w uuid-value?             string
+       |  +--ro output
+       |     +--ro tpm2-attestation-response
+       |        +--ro tpms-attest
+       |        |  +--ro pcrdigest?            binary
+       |        |  +--ro pcrdigest-length?     uint32
+       |        |  +--ro tpms-attest-result?   binary
+       |        +--ro tpmt-signature?   binary
+       +---x simple-trust-establishment
+       |  +---w input
+       |  |  +---w nonce-value?            binary
+       |  |  +---w pcr-list*
+       |  |  |  +---w pcr
+       |  |  |     +---w pcr-numbers*            uint8
+       |  |  |     +---w (algo-registry-type)?
+       |  |  |        +--:(tcg)
+       |  |  |        |  +---w tcg-hash-algo-id?       uint16
+       |  |  |        +--:(ietf)
+       |  |  |           +---w ietf-ni-hash-algo-id?   uint8
+       |  |  +---w (signature-identifier-type)?
+       |  |     +--:(TPM_ALG_ID)
+       |  |     |  +---w TPM_ALG_ID-value?       uint16
+       |  |     +--:(COSE_Algorithm)
+       |  |        +---w COSE_Algorithm-value?   int32
+       |  +--ro output
+       |     +--ro attesation-certificate?   binary
+       |     +--ro (key-identifier)?
+       |        +--:(public-key)
+       |        |  +--ro pub-key-id?               binary
+       |        +--:(uuid)
+       |           +--ro uuid-value?               string
+       +---x log-retrieval
 
 
 
@@ -170,21 +170,21 @@ Birkholz & Eckel        Expires December 17, 2018               [Page 3]
 Internet-Draft                    BRAT                         June 2018
 
 
-       |  +---w (index-type)?
-       |     +--:(last-entry)
-       |     |  +---w last-entry-value?       binary
-       |     +--:(index)
-       |        +---w index-numer?            uint64
-       |        +---w chunk-size?             uint64
-       |        +---w measurement-log-type?   identityref
-       +--ro output
-          +--ro log-result*   binary
+          +---w input
+          |  +---w (index-type)?
+          |     +--:(last-entry)
+          |     |  +---w last-entry-value?       binary
+          |     +--:(index)
+          |        +---w index-numer?            uint64
+          |        +---w chunk-size?             uint64
+          |        +---w measurement-log-type?   identityref
+          +--ro output
+             +--ro log-result*   binary
 
-<CODE ENDS>
+   <CODE ENDS>
 
-## Raw Format
+2.2.  Raw Format
 
-~~~ YANG
 <CODE BEGINS>
 module basic-remote-attestation {
   namespace "urn:ietf:params:xml:ns:yang:brat";
