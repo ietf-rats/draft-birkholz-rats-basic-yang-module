@@ -1,7 +1,7 @@
 ---
 title: YANG Module for Basic Challenge-Response-based Remote Attestation Procedures
 abbrev: BRAT
-docname: draft-birkholz-reference-ra-interaction-model-latest
+docname: draft-birkholz-yang-basic-remote-attestation-latest
 wg: TBD
 stand_alone: true
 ipr: trust200902
