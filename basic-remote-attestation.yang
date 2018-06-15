@@ -1,4 +1,4 @@
-module yang-basic-remote-attestation {
+module basic-remote-attestation {
   namespace "urn:ietf:params:xml:ns:yang:brat";
   prefix "yang-brat";
   organization

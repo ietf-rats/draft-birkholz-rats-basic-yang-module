@@ -58,8 +58,19 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 
 # The YANG Module for Basic Remote Attestation Procedures
 
-~~~ CDDL
+## Tree format
+
+~~~ YANG
+<CODE BEGINS>
+{::include basic-remote-attestation.tree}
+<CODE ENDS>
+
+## Raw Format
+
+~~~ YANG
+<CODE BEGINS>
 {::include basic-remote-attestation.yang}
+<CODE ENDS>
 ~~~
 
 #  Security Considerations
