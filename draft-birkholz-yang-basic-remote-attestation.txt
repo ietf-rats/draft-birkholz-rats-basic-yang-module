@@ -66,13 +66,14 @@ Table of Contents
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
      1.1.  Requirements notation . . . . . . . . . . . . . . . . . .   2
    2.  The YANG Module for Basic Remote Attestation Procedures . . .   2
-   3.  Security Considerations . . . . . . . . . . . . . . . . . . .  10
-   4.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  10
-   5.  Change Log  . . . . . . . . . . . . . . . . . . . . . . . . .  10
-   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  10
-     6.1.  Normative References  . . . . . . . . . . . . . . . . . .  10
-     6.2.  Informative References  . . . . . . . . . . . . . . . . .  10
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  10
+     2.1.  Tree format . . . . . . . . . . . . . . . . . . . . . . .   2
+   3.  Security Considerations . . . . . . . . . . . . . . . . . . .  11
+   4.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  11
+   5.  Change Log  . . . . . . . . . . . . . . . . . . . . . . . . .  11
+   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  11
+     6.1.  Normative References  . . . . . . . . . . . . . . . . . .  11
+     6.2.  Informative References  . . . . . . . . . . . . . . . . .  12
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  12
 
 1.  Introduction
 
@@ -90,7 +91,102 @@ Table of Contents
 
 2.  The YANG Module for Basic Remote Attestation Procedures
 
-module yang-basic-remote-attestation {
+2.1.  Tree format
+
+<CODE BEGINS>
+module: basic-remote-attestation
+    +--rw rats-support-structures
+       +--rw supported-algos*           uint16
+       +--rw endorsement-certificate?   binary
+
+  rpcs:
+    +---x tpm2-challenge-repsonse-attestation
+    |  +---w input
+    |  |  +---w tpm2-attestation-challange
+    |  |     +---w pcr-list*
+    |  |     |  +---w pcr
+    |  |     |     +---w pcr-numbers*            uint8
+
+
+
+Birkholz & Eckel        Expires December 17, 2018               [Page 2]
+
+Internet-Draft                    BRAT                         June 2018
+
+
+    |  |     |     +---w (algo-registry-type)?
+    |  |     |        +--:(tcg)
+    |  |     |        |  +---w tcg-hash-algo-id?       uint16
+    |  |     |        +--:(ietf)
+    |  |     |           +---w ietf-ni-hash-algo-id?   uint8
+    |  |     +---w nonce-value?            binary
+    |  |     +---w (signature-identifier-type)?
+    |  |     |  +--:(TPM_ALG_ID)
+    |  |     |  |  +---w TPM_ALG_ID-value?       uint16
+    |  |     |  +--:(COSE_Algorithm)
+    |  |     |     +---w COSE_Algorithm-value?   int32
+    |  |     +---w (key-identifier)?
+    |  |        +--:(public-key)
+    |  |        |  +---w pub-key-id?             binary
+    |  |        +--:(uuid)
+    |  |           +---w uuid-value?             string
+    |  +--ro output
+    |     +--ro tpm2-attestation-response
+    |        +--ro tpms-attest
+    |        |  +--ro pcrdigest?            binary
+    |        |  +--ro pcrdigest-length?     uint32
+    |        |  +--ro tpms-attest-result?   binary
+    |        +--ro tpmt-signature?   binary
+    +---x simple-trust-establishment
+    |  +---w input
+    |  |  +---w nonce-value?            binary
+    |  |  +---w pcr-list*
+    |  |  |  +---w pcr
+    |  |  |     +---w pcr-numbers*            uint8
+    |  |  |     +---w (algo-registry-type)?
+    |  |  |        +--:(tcg)
+    |  |  |        |  +---w tcg-hash-algo-id?       uint16
+    |  |  |        +--:(ietf)
+    |  |  |           +---w ietf-ni-hash-algo-id?   uint8
+    |  |  +---w (signature-identifier-type)?
+    |  |     +--:(TPM_ALG_ID)
+    |  |     |  +---w TPM_ALG_ID-value?       uint16
+    |  |     +--:(COSE_Algorithm)
+    |  |        +---w COSE_Algorithm-value?   int32
+    |  +--ro output
+    |     +--ro attesation-certificate?   binary
+    |     +--ro (key-identifier)?
+    |        +--:(public-key)
+    |        |  +--ro pub-key-id?               binary
+    |        +--:(uuid)
+    |           +--ro uuid-value?               string
+    +---x log-retrieval
+       +---w input
+
+
+
+Birkholz & Eckel        Expires December 17, 2018               [Page 3]
+
+Internet-Draft                    BRAT                         June 2018
+
+
+       |  +---w (index-type)?
+       |     +--:(last-entry)
+       |     |  +---w last-entry-value?       binary
+       |     +--:(index)
+       |        +---w index-numer?            uint64
+       |        +---w chunk-size?             uint64
+       |        +---w measurement-log-type?   identityref
+       +--ro output
+          +--ro log-result*   binary
+
+<CODE ENDS>
+
+## Raw Format
+
+~~~ YANG
+<CODE BEGINS>
+module basic-remote-attestation {
   namespace "urn:ietf:params:xml:ns:yang:brat";
   prefix "yang-brat";
   organization
@@ -106,14 +202,6 @@ module yang-basic-remote-attestation {
   revision "2018-06-15" {
   description
     "Initial version";
-
-
-
-Birkholz & Eckel        Expires December 17, 2018               [Page 2]
-
-Internet-Draft                    BRAT                         June 2018
-
-
   reference
     "draft-birkholz-yang-basic-remote-attestation";
   }
@@ -130,6 +218,14 @@ Internet-Draft                    BRAT                         June 2018
         leaf tcg-hash-algo-id {
           description
             "This is an index referencing the TCG Algorithm
+
+
+
+Birkholz & Eckel        Expires December 17, 2018               [Page 4]
+
+Internet-Draft                    BRAT                         June 2018
+
+
             Registry based on TPM_ALG_ID.";
           type uint16;
         }
@@ -162,14 +258,6 @@ Internet-Draft                    BRAT                         June 2018
         }
       }
     }
-
-
-
-Birkholz & Eckel        Expires December 17, 2018               [Page 3]
-
-Internet-Draft                    BRAT                         June 2018
-
-
   }
 
   grouping nonce {
@@ -186,6 +274,14 @@ Internet-Draft                    BRAT                         June 2018
 
   grouping pcr-selection {
     description
+
+
+
+Birkholz & Eckel        Expires December 17, 2018               [Page 5]
+
+Internet-Draft                    BRAT                         June 2018
+
+
       "A Verifier can request one or more PCR values uses its
       individually created AC. The corresponding selection filter is
       represented in this grouping. Requesting a PCR value that is not in
@@ -218,14 +314,6 @@ Internet-Draft                    BRAT                         June 2018
       (non-migratable, tpm-resident) wrt one or more PCR values.
       The corresponding creation input is represented in this grouping.
       Requesting a PCR value that is not supported results in an error,
-
-
-
-Birkholz & Eckel        Expires December 17, 2018               [Page 4]
-
-Internet-Draft                    BRAT                         June 2018
-
-
       detailed exposure via error msg should be avoided.";
     list pcr-list {
       description
@@ -242,6 +330,14 @@ Internet-Draft                    BRAT                         June 2018
         }
         uses hash-algo;
       }
+
+
+
+Birkholz & Eckel        Expires December 17, 2018               [Page 6]
+
+Internet-Draft                    BRAT                         June 2018
+
+
     }
   }
 
@@ -274,14 +370,6 @@ Internet-Draft                    BRAT                         June 2018
   }
 
   grouping attestation-key-identifier {
-
-
-
-Birkholz & Eckel        Expires December 17, 2018               [Page 5]
-
-Internet-Draft                    BRAT                         June 2018
-
-
     choice key-identifier {
       description
         "Identifier for the attestation key to use for signing
@@ -298,6 +386,14 @@ Internet-Draft                    BRAT                         June 2018
       }
       case uuid {
         description
+
+
+
+Birkholz & Eckel        Expires December 17, 2018               [Page 7]
+
+Internet-Draft                    BRAT                         June 2018
+
+
           "Use a YANG agent generated (and maintained) attestation
           key UUID.";
         leaf uuid-value {
@@ -330,14 +426,6 @@ Internet-Draft                    BRAT                         June 2018
   grouping log-identifier {
     description
       "Identifier for type of log to be retrieved.";
-
-
-
-Birkholz & Eckel        Expires December 17, 2018               [Page 6]
-
-Internet-Draft                    BRAT                         June 2018
-
-
     leaf measurement-log-type {
       type identityref {
         base log-type;
@@ -354,6 +442,14 @@ Internet-Draft                    BRAT                         June 2018
     input {
       container tpm2-attestation-challange {
         description
+
+
+
+Birkholz & Eckel        Expires December 17, 2018               [Page 8]
+
+Internet-Draft                    BRAT                         June 2018
+
+
           "This container includes every information element defined
            in the reference challange-response interaction model for
            remote attestation. Corresponding values are based on
@@ -386,14 +482,6 @@ Internet-Draft                    BRAT                         June 2018
           leaf tpms-attest-result {
             description
               "The complete TPM generate structure including signature.";
-
-
-
-Birkholz & Eckel        Expires December 17, 2018               [Page 7]
-
-Internet-Draft                    BRAT                         June 2018
-
-
             type binary;
           }
         }
@@ -410,6 +498,14 @@ Internet-Draft                    BRAT                         June 2018
     description
       "This RPC creates a tpm-resident, non-migratable key to be used
       in TPM_Quote commands, an attestation certificate.";
+
+
+
+Birkholz & Eckel        Expires December 17, 2018               [Page 9]
+
+Internet-Draft                    BRAT                         June 2018
+
+
     input {
       uses nonce;
       uses pcr-selector;
@@ -442,14 +538,6 @@ Internet-Draft                    BRAT                         June 2018
           leaf last-entry-value {
             description
               "Content of the last entrey";
-
-
-
-Birkholz & Eckel        Expires December 17, 2018               [Page 8]
-
-Internet-Draft                    BRAT                         June 2018
-
-
             type binary;
           }
         }
@@ -466,6 +554,14 @@ Internet-Draft                    BRAT                         June 2018
               "The number of log entries to be returned. At the moment O means all of them.";
             type uint64;
           }
+
+
+
+Birkholz & Eckel        Expires December 17, 2018              [Page 10]
+
+Internet-Draft                    BRAT                         June 2018
+
+
           uses log-identifier;
         }
       }
@@ -493,18 +589,7 @@ Internet-Draft                    BRAT                         June 2018
     }
   }
 }
-
-
-
-
-
-
-
-
-Birkholz & Eckel        Expires December 17, 2018               [Page 9]
-
-Internet-Draft                    BRAT                         June 2018
-
+<CODE ENDS>
 
 3.  Security Considerations
 
@@ -521,6 +606,17 @@ Internet-Draft                    BRAT                         June 2018
 6.  References
 
 6.1.  Normative References
+
+
+
+
+
+
+
+Birkholz & Eckel        Expires December 17, 2018              [Page 11]
+
+Internet-Draft                    BRAT                         June 2018
+
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -557,4 +653,20 @@ Authors' Addresses
 
 
 
-Birkholz & Eckel        Expires December 17, 2018              [Page 10]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Birkholz & Eckel        Expires December 17, 2018              [Page 12]
