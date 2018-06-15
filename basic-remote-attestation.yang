@@ -1,0 +1,347 @@
+module yang-basic-remote-attestation {
+  namespace "urn:ietf:params:xml:ns:yang:brat";
+  prefix "yang-brat";
+  organization
+   "Fraunhofer SIT";
+  contact
+   "Henk Birkholz
+    Fraunhofer Institute for Secure Information Technology
+    Email: henk.birkholz@sit.fraunhofer.de";
+  description
+    "A YANG module to enable a TPM 2.0 based remote attestation
+     procedure.
+     Copyright (C) Fraunhofer SIT (2018).";
+  revision "2018-06-15" {
+  description
+    "Initial version";
+  reference
+    "draft-birkholz-yang-basic-remote-attestation";
+  }
+  
+  grouping hash-algo {
+    choice algo-registry-type {
+      description
+        "Unfortunatly both IETF and TCG have registries here.
+        Choose your weapon wisely.";
+      case tcg {
+        description
+          "you chose the east door, the tcg space opens up to
+          you.";
+        leaf tcg-hash-algo-id {
+          description
+            "This is an index referencing the TCG Algorithm
+            Registry based on TPM_ALG_ID.";
+          type uint16;
+        }
+      }
+      case ietf {
+        description
+          "you chose the west door, the ietf space opens up to
+          you.";
+        leaf ietf-ni-hash-algo-id {
+          description
+            "This is an index referencing the Named Information
+             Hash Algorithm Registry.";
+          type uint8;
+        }
+      }
+    }
+  }
+  
+  grouping hash {
+    list hash-digests {
+      container hash-digest {
+        description
+          "A hash value based on a hash algorithm registered by an
+          SDO.";
+        uses hash-algo;
+        leaf hash-value {
+          description
+            "The binary representaion of the hash value.";
+          type binary;
+        }
+      }
+    }
+  }
+  
+  grouping nonce {
+    leaf nonce-value {
+      description
+        "This nonce SHOULD be generated via a registered
+        cryptographic-strength algorithm. In consequence, the length
+        of the nonce depends on the hash algorithm used. The algorithm
+        used in this case is independent from the hash algorithm used to
+        create the hash-value in the response of the attestor.";
+      type binary;
+    }
+  }
+  
+  grouping pcr-selection {
+    description
+      "A Verifier can request one or more PCR values uses its
+      individually created AC. The corresponding selection filter is
+      represented in this grouping. Requesting a PCR value that is not in 
+      scope of the AC used, detailed exposure via error msg should be
+      avoided.";
+    list pcr-list {
+      description
+        "For each PCR in this list an individual list of banks (hash-algo)
+        can be requested. It depends on the datastore, if every bank in 
+        this grouping is included per PCR (crude), or if each requested
+        bank set is returned for each PCR individually (elegant).";
+      container pcr {
+        description
+          "The composite of a PCR number and corresponding bank numbers.";
+        leaf-list pcr-numbers {
+           description
+             "The number of the PCR. At the moment there this is limited
+             32";
+           type uint8;
+        }
+        uses hash-algo;
+      }
+    }
+  }
+  
+  grouping pcr-selector {
+    description
+      "A Verifier can request the generation of an attestation
+      certificate (a signed public attestation key
+      (non-migratable, tpm-resident) wrt one or more PCR values.
+      The corresponding creation input is represented in this grouping.
+      Requesting a PCR value that is not supported results in an error,
+      detailed exposure via error msg should be avoided.";
+    list pcr-list {
+      description
+        "For each PCR in this list an individual hash-algo can be
+        requested.";
+      container pcr {
+        description
+          "The composite of a PCR number and corresponding bank numbers.";
+        leaf-list pcr-numbers {
+           description
+             "The numbers of the PCRs that are associated with
+             the created key. At the moment the highest number is 32";
+           type uint8;
+        }
+        uses hash-algo;
+      }
+    }
+  }
+  
+  grouping signature-scheme {
+    choice signature-identifier-type {
+      description
+        "There are multiple ways to reference a signature type.
+        This used to select the signature algo to sign the quote
+        information response.";
+      case TPM_ALG_ID {
+        description
+          "This references the indices of table 9 in the TPM 2.0 structure specification.";
+        leaf TPM_ALG_ID-value {
+          description
+            "The TPM Algo ID.";
+          type uint16;
+        }
+      }
+      case COSE_Algorithm {
+        description
+          "This references the IANA COSE Algorithms Registry indices. Every index of this
+          registry to be used must be mapable to a TPM_ALG_ID value.";
+        leaf COSE_Algorithm-value {
+          description
+            "The TPM Algo ID.";
+          type int32;
+        }
+      }
+    }
+  }
+  
+  grouping attestation-key-identifier {
+    choice key-identifier {
+      description
+        "Identifier for the attestation key to use for signing
+        attestation evidence.";
+      case public-key {
+        description
+          "Use the public part of a key pair to identify the
+          attestation key.";
+        leaf pub-key-id {
+          description
+            "The value of the identifier for the public key.";
+          type binary;
+        }
+      }
+      case uuid {
+        description
+          "Use a YANG agent generated (and maintained) attestation
+          key UUID.";
+        leaf uuid-value {
+          description
+            "The UUID identifying the corresponding public key.";
+          type string;
+        }
+      }
+    }
+  }
+  
+
+  identity log-type {
+    description
+      "The type of logs available.";
+  }
+
+  identity bios {
+    base log-type;
+    description
+      "Measurement log created by the BIOS/UEFI.";
+  }
+
+  identity ima {
+    base log-type;
+    description
+      "Measurement log created by IMA.";
+  }
+
+  grouping log-identifier {
+    description
+      "Identifier for type of log to be retrieved.";
+    leaf measurement-log-type {
+      type identityref {
+        base log-type;
+      }
+    }
+  }
+  
+  rpc tpm2-challenge-repsonse-attestation {
+    description
+      "This RPC accepts the input for TSS commands of the managed device.
+      ComponentInde from the hardware manager YANG module to refer to 
+      dedicated TPM in composite devices, e.g. smart NICs, is still a 
+      TODO.";
+    input {
+      container tpm2-attestation-challange {
+        description
+          "This container includes every information element defined
+           in the reference challange-response interaction model for
+           remote attestation. Corresponding values are based on
+           TPM 2.0 structure defintions";
+        uses pcr-selection;
+        uses nonce;
+        uses signature-scheme;
+        uses attestation-key-identifier;
+      }
+    }
+    output {
+      container tpm2-attestation-response {
+        description
+          "The binary output of TPM2b_Quote. An TPMS_ATTEST structure
+          including a length, encapsulated in a signature";
+        container tpms-attest {
+          description
+            "A composite of value and length and list of selected
+            pcrs (original name: [type]attested)";
+          leaf pcrdigest {
+            description
+              "split out value of TPMS_QUOTE_INFO for convenience";
+            type binary;
+          }
+          leaf pcrdigest-length {
+            description
+              "split out length of digest for convenience";
+            type uint32;
+          }
+          leaf tpms-attest-result {
+            description
+              "The complete TPM generate structure including signature.";
+            type binary;
+          }
+        }
+        leaf tpmt-signature {
+          description
+             "split out value of the signature for convenience";
+          type binary;
+        }
+      }
+    }
+  }
+  
+  rpc simple-trust-establishment {
+    description
+      "This RPC creates a tpm-resident, non-migratable key to be used
+      in TPM_Quote commands, an attestation certificate.";
+    input {
+      uses nonce;
+      uses pcr-selector;
+      uses signature-scheme;
+    }
+    output {
+      leaf attesation-certificate {
+        description
+          "An individual signed public attestation occording to requested
+          capabilities.";
+        type binary;
+      }
+      uses attestation-key-identifier;
+    }
+  }
+  
+  rpc log-retrieval {
+    description
+      "Logs Entries are either identified via indices or via provideing
+      the last line received. The number of lines returned can be limited.
+      The type of log is a choice that can be
+      augmented.";
+    input {
+      choice index-type {
+        description
+          "Last-line or index.";
+        case last-entry {
+          description
+            "The last entry of the log already retreived";
+          leaf last-entry-value {
+            description
+              "Content of the last entrey";
+            type binary;
+          }
+        }
+        case index {
+          description
+            "Numeric index of the last log entry retreived.";
+          leaf index-numer {
+            description
+              "The numeric index number";
+            type uint64;
+          }
+          leaf chunk-size {
+            description
+              "The number of log entries to be returned. At the moment O means all of them.";
+            type uint64;
+          }
+          uses log-identifier;
+        }
+      }
+    }  
+    output {
+      leaf-list log-result {
+        description
+          "The requested entries of the corresponding log.";
+        type binary;
+      }
+    }
+  }
+  
+  container rats-support-structures {
+    leaf-list supported-algos {
+      description
+        "Supported TPM_ALG_ID values for the TPM in question.
+        Will include ComponentIndex soon.";
+      type uint16;
+    }
+    leaf endorsement-certificate {
+      description
+        "The signed pulic endorsement key and corresponding claims.";
+      type binary;
+    }
+  }
+}
