@@ -20,8 +20,9 @@ module basic-remote-attestation {
   
   grouping hash-algo {
     choice algo-registry-type {
+      mandatory true;
       description
-        "Unfortunatly both IETF and TCG have registries here.
+        "Unfortunately, both IETF and TCG have registries here.
         Choose your weapon wisely.";
       case tcg {
         description
@@ -66,6 +67,7 @@ module basic-remote-attestation {
   
   grouping nonce {
     leaf nonce-value {
+      mandatory true;
       description
         "This nonce SHOULD be generated via a registered
         cryptographic-strength algorithm. In consequence, the length
@@ -94,7 +96,7 @@ module basic-remote-attestation {
           "The composite of a PCR number and corresponding bank numbers.";
         leaf-list pcr-numbers {
            description
-             "The number of the PCR. At the moment there this is limited
+             "The number of the PCR. At the moment this is limited
              32";
            type uint8;
         }
@@ -131,6 +133,7 @@ module basic-remote-attestation {
   
   grouping signature-scheme {
     choice signature-identifier-type {
+      mandatory true;
       description
         "There are multiple ways to reference a signature type.
         This used to select the signature algo to sign the quote
@@ -179,7 +182,7 @@ module basic-remote-attestation {
         leaf uuid-value {
           description
             "The UUID identifying the corresponding public key.";
-          type string;
+          type binary;
         }
       }
     }
@@ -207,6 +210,7 @@ module basic-remote-attestation {
     description
       "Identifier for type of log to be retrieved.";
     leaf measurement-log-type {
+      mandatory true;
       type identityref {
         base log-type;
       }
@@ -216,16 +220,16 @@ module basic-remote-attestation {
   rpc tpm2-challenge-repsonse-attestation {
     description
       "This RPC accepts the input for TSS commands of the managed device.
-      ComponentInde from the hardware manager YANG module to refer to 
+      ComponentIndex from the hardware manager YANG module to refer to 
       dedicated TPM in composite devices, e.g. smart NICs, is still a 
       TODO.";
     input {
-      container tpm2-attestation-challange {
+      container tpm2-attestation-challenge {
         description
           "This container includes every information element defined
-           in the reference challange-response interaction model for
+           in the reference challenge-response interaction model for
            remote attestation. Corresponding values are based on
-           TPM 2.0 structure defintions";
+           TPM 2.0 structure definitions";
         uses pcr-selection;
         uses nonce;
         uses signature-scheme;
@@ -266,7 +270,7 @@ module basic-remote-attestation {
     }
   }
   
-  rpc simple-trust-establishment {
+  rpc basic-trust-establishment {
     description
       "This RPC creates a tpm-resident, non-migratable key to be used
       in TPM_Quote commands, an attestation certificate.";
@@ -276,9 +280,9 @@ module basic-remote-attestation {
       uses signature-scheme;
     }
     output {
-      leaf attesation-certificate {
+      leaf attestation-certificate {
         description
-          "An individual signed public attestation occording to requested
+          "An individual signed public attestation according to requested
           capabilities.";
         type binary;
       }
@@ -288,7 +292,7 @@ module basic-remote-attestation {
   
   rpc log-retrieval {
     description
-      "Logs Entries are either identified via indices or via provideing
+      "Logs Entries are either identified via indices or via providing
       the last line received. The number of lines returned can be limited.
       The type of log is a choice that can be
       augmented.";
@@ -298,10 +302,10 @@ module basic-remote-attestation {
           "Last-line or index.";
         case last-entry {
           description
-            "The last entry of the log already retreived";
+            "The last entry of the log already retrieved";
           leaf last-entry-value {
             description
-              "Content of the last entrey";
+              "Content of the last entry requested.";
             type binary;
           }
         }
@@ -313,15 +317,16 @@ module basic-remote-attestation {
               "The numeric index number";
             type uint64;
           }
-          leaf chunk-size {
-            description
-              "The number of log entries to be returned. At the moment O means all of them.";
-            type uint64;
-          }
-          uses log-identifier;
         }
       }
-    }  
+      uses log-identifier;
+      uses pcr-selection;
+      leaf chunk-size {
+        description
+         "The number of log entries to be returned. If omitted, it means all of them.";
+        type uint64;
+      }
+    } 
     output {
       leaf-list log-result {
         description
@@ -342,6 +347,7 @@ module basic-remote-attestation {
       description
         "The signed pulic endorsement key and corresponding claims.";
       type binary;
+      mandatory true;
     }
   }
 }
