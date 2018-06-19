@@ -311,8 +311,8 @@ module basic-remote-attestation {
         }
         case index {
           description
-            "Numeric index of the last log entry retreived.";
-          leaf index-numer {
+            "Numeric index of the last log entry retrieved.";
+          leaf index-number {
             description
               "The numeric index number";
             type uint64;
@@ -345,7 +345,7 @@ module basic-remote-attestation {
     }
     leaf endorsement-certificate {
       description
-        "The signed pulic endorsement key and corresponding claims.";
+        "The signed pulic endorsement key (EK) and corresponding claims (EK Certificate). In a TPM 2.0 the EK Certificate resides in a well-defined NVRAM location by the TPM vednor.";
       type binary;
       mandatory true;
     }
