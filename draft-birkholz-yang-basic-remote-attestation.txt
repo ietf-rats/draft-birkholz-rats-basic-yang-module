@@ -5,8 +5,10 @@
 TBD                                                          H. Birkholz
 Internet-Draft                                            Fraunhofer SIT
 Intended status: Standards Track                                M. Eckel
-Expires: December 21, 2018                                        Huawei
-                                                           June 19, 2018
+Expires: December 23, 2018                                        Huawei
+                                                             G. Fedorkow
+                                                                 Juniper
+                                                           June 21, 2018
 
 
    YANG Module for Basic Challenge-Response-based Remote Attestation
@@ -36,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 21, 2018.
+   This Internet-Draft will expire on December 23, 2018.
 
 Copyright Notice
 
@@ -48,16 +50,16 @@ Copyright Notice
    (https://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
-   to this document.  Code Components extracted from this document must
-   include Simplified BSD License text as described in Section 4.e of
 
 
 
-Birkholz & Eckel        Expires December 21, 2018               [Page 1]
+Birkholz, et al.        Expires December 23, 2018               [Page 1]
 
 Internet-Draft                    BRAT                         June 2018
 
 
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
    the Trust Legal Provisions and are provided without warranty as
    described in the Simplified BSD License.
 
@@ -68,7 +70,7 @@ Table of Contents
    2.  The YANG Module for Basic Remote Attestation Procedures . . .   2
      2.1.  Tree format . . . . . . . . . . . . . . . . . . . . . . .   2
      2.2.  Raw Format  . . . . . . . . . . . . . . . . . . . . . . .   4
-   3.  Security Considerations . . . . . . . . . . . . . . . . . . .  11
+   3.  Security Considerations . . . . . . . . . . . . . . . . . . .  12
    4.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  12
    5.  Change Log  . . . . . . . . . . . . . . . . . . . . . . . . .  12
    6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  12
@@ -104,16 +106,16 @@ Table of Contents
        +---x tpm2-challenge-repsonse-attestation
        |  +---w input
        |  |  +---w tpm2-attestation-challenge
-       |  |     +---w pcr-list*
-       |  |     |  +---w pcr
 
 
 
-Birkholz & Eckel        Expires December 21, 2018               [Page 2]
+Birkholz, et al.        Expires December 23, 2018               [Page 2]
 
 Internet-Draft                    BRAT                         June 2018
 
 
+       |  |     +---w pcr-list*
+       |  |     |  +---w pcr
        |  |     |     +---w pcr-numbers*            uint8
        |  |     |     +---w (algo-registry-type)
        |  |     |        +--:(tcg)
@@ -160,16 +162,16 @@ Internet-Draft                    BRAT                         June 2018
        |        +--:(public-key)
        |        |  +--ro pub-key-id?                binary
        |        +--:(uuid)
-       |           +--ro uuid-value?                binary
-       +---x log-retrieval
 
 
 
-Birkholz & Eckel        Expires December 21, 2018               [Page 3]
+Birkholz, et al.        Expires December 23, 2018               [Page 3]
 
 Internet-Draft                    BRAT                         June 2018
 
 
+       |           +--ro uuid-value?                binary
+       +---x log-retrieval
           +---w input
           |  +---w (index-type)?
           |  |  +--:(last-entry)
@@ -216,16 +218,16 @@ module basic-remote-attestation {
   grouping hash-algo {
     choice algo-registry-type {
       mandatory true;
-      description
-        "Unfortunately, both IETF and TCG have registries here.
 
 
 
-Birkholz & Eckel        Expires December 21, 2018               [Page 4]
+Birkholz, et al.        Expires December 23, 2018               [Page 4]
 
 Internet-Draft                    BRAT                         June 2018
 
 
+      description
+        "Unfortunately, both IETF and TCG have registries here.
         Choose your weapon wisely.";
       case tcg {
         description
@@ -272,16 +274,16 @@ Internet-Draft                    BRAT                         June 2018
     leaf nonce-value {
       mandatory true;
       description
-        "This nonce SHOULD be generated via a registered
-        cryptographic-strength algorithm. In consequence, the length
 
 
 
-Birkholz & Eckel        Expires December 21, 2018               [Page 5]
+Birkholz, et al.        Expires December 23, 2018               [Page 5]
 
 Internet-Draft                    BRAT                         June 2018
 
 
+        "This nonce SHOULD be generated via a registered
+        cryptographic-strength algorithm. In consequence, the length
         of the nonce depends on the hash algorithm used. The algorithm
         used in this case is independent from the hash algorithm used to
         create the hash-value in the response of the attestor.";
@@ -328,16 +330,16 @@ Internet-Draft                    BRAT                         June 2018
       description
         "For each PCR in this list an individual hash-algo can be
         requested.";
-      container pcr {
-        description
 
 
 
-Birkholz & Eckel        Expires December 21, 2018               [Page 6]
+Birkholz, et al.        Expires December 23, 2018               [Page 6]
 
 Internet-Draft                    BRAT                         June 2018
 
 
+      container pcr {
+        description
           "The composite of a PCR number and corresponding bank numbers.";
         leaf-list pcr-numbers {
            description
@@ -384,16 +386,16 @@ Internet-Draft                    BRAT                         June 2018
       description
         "Identifier for the attestation key to use for signing
         attestation evidence.";
-      case public-key {
-        description
 
 
 
-Birkholz & Eckel        Expires December 21, 2018               [Page 7]
+Birkholz, et al.        Expires December 23, 2018               [Page 7]
 
 Internet-Draft                    BRAT                         June 2018
 
 
+      case public-key {
+        description
           "Use the public part of a key pair to identify the
           attestation key.";
         leaf pub-key-id {
@@ -440,16 +442,16 @@ Internet-Draft                    BRAT                         June 2018
       mandatory true;
       type identityref {
         base log-type;
-      }
-    }
 
 
 
-Birkholz & Eckel        Expires December 21, 2018               [Page 8]
+Birkholz, et al.        Expires December 23, 2018               [Page 8]
 
 Internet-Draft                    BRAT                         June 2018
 
 
+      }
+    }
   }
 
   rpc tpm2-challenge-repsonse-attestation {
@@ -496,16 +498,16 @@ Internet-Draft                    BRAT                         June 2018
             type binary;
           }
         }
-        leaf tpmt-signature {
-          description
 
 
 
-Birkholz & Eckel        Expires December 21, 2018               [Page 9]
+Birkholz, et al.        Expires December 23, 2018               [Page 9]
 
 Internet-Draft                    BRAT                         June 2018
 
 
+        leaf tpmt-signature {
+          description
              "split out value of the signature for convenience";
           type binary;
         }
@@ -552,16 +554,16 @@ Internet-Draft                    BRAT                         June 2018
             type binary;
           }
         }
-        case index {
-          description
 
 
 
-Birkholz & Eckel        Expires December 21, 2018              [Page 10]
+Birkholz, et al.        Expires December 23, 2018              [Page 10]
 
 Internet-Draft                    BRAT                         June 2018
 
 
+        case index {
+          description
             "Numeric index of the last log entry retrieved.";
           leaf index-number {
             description
@@ -604,19 +606,21 @@ Internet-Draft                    BRAT                         June 2018
 }
 <CODE ENDS>
 
-3.  Security Considerations
-
-   There are always some.
 
 
 
 
 
 
-Birkholz & Eckel        Expires December 21, 2018              [Page 11]
+
+Birkholz, et al.        Expires December 23, 2018              [Page 11]
 
 Internet-Draft                    BRAT                         June 2018
 
+
+3.  Security Considerations
+
+   There are always some.
 
 4.  Acknowledgements
 
@@ -665,8 +669,60 @@ Authors' Addresses
 
 
 
+Birkholz, et al.        Expires December 23, 2018              [Page 12]
+
+Internet-Draft                    BRAT                         June 2018
+
+
+   Guy C. Fedorkow
+   Juniper Networks
+   10 Technology Park Drive
+   Westford, Massachusetts  01886
+
+   Email: gfedorkow@juniper.de
 
 
 
 
-Birkholz & Eckel        Expires December 21, 2018              [Page 12]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Birkholz, et al.        Expires December 23, 2018              [Page 13]
