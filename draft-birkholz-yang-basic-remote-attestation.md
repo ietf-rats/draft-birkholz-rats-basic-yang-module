@@ -32,6 +32,15 @@ author:
   code: '64293'
   city: Darmstadt
   country: Germany
+- ins: G. Fedorkow
+  name: Guy C. Fedorkow
+  org: Juniper Networks
+  abbrev: Juniper
+  email: gfedorkow@juniper.de
+  street: 10 Technology Park Drive
+  city: Westford
+  code: '01886'
+  region: Massachusetts
 
 normative:
   RFC2119:
