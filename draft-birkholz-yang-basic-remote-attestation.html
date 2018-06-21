@@ -293,7 +293,7 @@ ul.toc li {
   <meta name="generator" content="xml2rfc version 2.9.8 - https://tools.ietf.org/tools/xml2rfc" />
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
-  <meta name="dct.creator" content="Birkholz, H., Eckel, M., and G. Fedorkow" />
+  <meta name="dct.creator" content="Birkholz, H., Eckel, M., Fedorkow, G., Bhandari, S., Sulzen, B., and E. Voit" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-birkholz-yang-basic-remote-attestation-latest" />
   <meta name="dct.issued" scheme="ISO8601" content="2018-06-21" />
   <meta name="dct.abstract" content="This document defines YANG RPC and a minimal datastore required to retrieve integrity evidence about software from the device running the YANG datastore. The module presented requires a TPM 2.0 and corresponding Trusted Software Stack included in the system entity the YANG datastore is running on." />
@@ -329,6 +329,22 @@ ul.toc li {
 <tr>
 <td class="left"></td>
 <td class="right">Juniper</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">S. Bhandari</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">B. Sulzen</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">E. Voit</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">Cisco</td>
 </tr>
 <tr>
 <td class="left"></td>
@@ -403,35 +419,37 @@ ul.toc li {
 <pre>
 &lt;CODE BEGINS&gt;
 module: basic-remote-attestation
-    +--rw rats-support-structures
-       +--rw supported-algos*           uint16
-       +--rw endorsement-certificate    binary
+  +--rw rats-support-structures
+     +--rw supported-algos*           uint16
+     +--rw endorsement-certificate    binary
 
   rpcs:
     +---x tpm2-challenge-repsonse-attestation
     |  +---w input
     |  |  +---w tpm2-attestation-challenge
-    |  |     +---w pcr-list*
-    |  |     |  +---w pcr
-    |  |     |     +---w pcr-numbers*            uint8
-    |  |     |     +---w (algo-registry-type)
-    |  |     |        +--:(tcg)
-    |  |     |        |  +---w tcg-hash-algo-id?       uint16
-    |  |     |        +--:(ietf)
-    |  |     |           +---w ietf-ni-hash-algo-id?   uint8
-    |  |     +---w nonce-value             binary
-    |  |     +---w (signature-identifier-type)
-    |  |     |  +--:(TPM_ALG_ID)
-    |  |     |  |  +---w TPM_ALG_ID-value?       uint16
-    |  |     |  +--:(COSE_Algorithm)
-    |  |     |     +---w COSE_Algorithm-value?   int32
-    |  |     +---w (key-identifier)?
-    |  |        +--:(public-key)
-    |  |        |  +---w pub-key-id?             binary
-    |  |        +--:(uuid)
-    |  |           +---w uuid-value?             binary
+    |  |  |  +---w pcr-list* []
+    |  |  |  |  +---w pcr
+    |  |  |  |     +---w pcr-numbers*                  uint8
+    |  |  |  |     +---w (algo-registry-type)
+    |  |  |  |        +--:(tcg)
+    |  |  |  |        |  +---w tcg-hash-algo-id?       uint16
+    |  |  |  |        +--:(ietf)
+    |  |  |  |           +---w ietf-ni-hash-algo-id?   uint8
+    |  |  |  +---w nonce-value                   binary
+    |  |  |  +---w (signature-identifier-type)
+    |  |  |  |  +--:(TPM_ALG_ID)
+    |  |  |  |  |  +---w TPM_ALG_ID-value?       uint16
+    |  |  |  |  +--:(COSE_Algorithm)
+    |  |  |  |     +---w COSE_Algorithm-value?   int32
+    |  |  |  +---w (key-identifier)?
+    |  |  |     +--:(public-key)
+    |  |  |     |  +---w pub-key-id?             binary
+    |  |  |     +--:(uuid)
+    |  |  |        +---w uuid-value?             binary
+    |  |  +---w location?                     string
     |  +--ro output
-    |     +--ro tpm2-attestation-response
+    |     +--ro tpm2-attestation-response* [location]
+    |        +--ro location          string
     |        +--ro tpms-attest
     |        |  +--ro pcrdigest?            binary
     |        |  +--ro pcrdigest-length?     uint32
@@ -439,46 +457,81 @@ module: basic-remote-attestation
     |        +--ro tpmt-signature?   binary
     +---x basic-trust-establishment
     |  +---w input
-    |  |  +---w nonce-value             binary
-    |  |  +---w pcr-list*
+    |  |  +---w nonce-value                   binary
+    |  |  +---w pcr-list* []
     |  |  |  +---w pcr
-    |  |  |     +---w pcr-numbers*            uint8
+    |  |  |     +---w pcr-numbers*                  uint8
     |  |  |     +---w (algo-registry-type)
     |  |  |        +--:(tcg)
     |  |  |        |  +---w tcg-hash-algo-id?       uint16
     |  |  |        +--:(ietf)
     |  |  |           +---w ietf-ni-hash-algo-id?   uint8
     |  |  +---w (signature-identifier-type)
-    |  |     +--:(TPM_ALG_ID)
-    |  |     |  +---w TPM_ALG_ID-value?       uint16
-    |  |     +--:(COSE_Algorithm)
-    |  |        +---w COSE_Algorithm-value?   int32
+    |  |  |  +--:(TPM_ALG_ID)
+    |  |  |  |  +---w TPM_ALG_ID-value?       uint16
+    |  |  |  +--:(COSE_Algorithm)
+    |  |  |     +---w COSE_Algorithm-value?   int32
+    |  |  +---w location?                     string
     |  +--ro output
-    |     +--ro attestation-certificate?   binary
-    |     +--ro (key-identifier)?
-    |        +--:(public-key)
-    |        |  +--ro pub-key-id?                binary
-    |        +--:(uuid)
-    |           +--ro uuid-value?                binary
+    |     +--ro attestation-certificates* [location]
+    |        +--ro location                   string
+    |        +--ro attestation-certificate?   binary
+    |        +--ro (key-identifier)?
+    |           +--:(public-key)
+    |           |  +--ro pub-key-id?          binary
+    |           +--:(uuid)
+    |              +--ro uuid-value?          binary
     +---x log-retrieval
        +---w input
        |  +---w (index-type)?
        |  |  +--:(last-entry)
-       |  |  |  +---w last-entry-value?       binary
+       |  |  |  +---w last-entry-value?   binary
        |  |  +--:(index)
-       |  |     +---w index-numer?            uint64
-       |  +---w measurement-log-type    identityref
-       |  +---w pcr-list*
+       |  |     +---w index-number?       uint64
+       |  +---w measurement-log-type      identityref
+       |  +---w pcr-list* []
        |  |  +---w pcr
-       |  |     +---w pcr-numbers*            uint8
+       |  |     +---w pcr-numbers*                  uint8
        |  |     +---w (algo-registry-type)
        |  |        +--:(tcg)
        |  |        |  +---w tcg-hash-algo-id?       uint16
        |  |        +--:(ietf)
        |  |           +---w ietf-ni-hash-algo-id?   uint8
-       |  +---w chunk-size?             uint64
+       |  +---w chunk-size?               uint64
+       |  +---w location?                 string
        +--ro output
-          +--ro log-result*   binary
+          +--ro system-event-logs
+             +--ro node-data* [node-location]
+                +--ro node-location    string
+                +--ro up-time?         uint32
+                +--ro log-result
+                   +--ro (log-type)
+                      +--:(bios)
+                      |  +--ro bios-event-logs
+                      |     +--ro bios-event-entry* [event-number]
+                      |        +--ro event-number    uint32
+                      |        +--ro event-type?     uint32
+                      |        +--ro pcr-index?      uint16
+                      |        +--ro digest-list* []
+                      |        |  +--ro (algo-registry-type)
+                      |        |  |  +--:(tcg)
+                      |        |  |  |  +--ro tcg-hash-algo-id?       uint16
+                      |        |  |  +--:(ietf)
+                      |        |  |     +--ro ietf-ni-hash-algo-id?   uint8
+                      |        |  +--ro digest*                       binary
+                      |        +--ro event-size?     uint32
+                      |        +--ro event-data*     uint8
+                      +--:(ima)
+                         +--ro ima-event-logs
+                            +--ro ima-event-entry* [event-number]
+                               +--ro event-number               uint64
+                               +--ro ima-template?              string
+                               +--ro filename-hint?             string
+                               +--ro filedata-hash?             binary
+                               +--ro template-hash-algorithm?   string
+                               +--ro template-hash?             binary
+                               +--ro pcr-index?                 uint16
+                               +--ro signature?                 binary
 &lt;CODE ENDS&gt;
 </pre>
 <h1 id="rfc.section.2.2">
@@ -676,7 +729,19 @@ module basic-remote-attestation {
     }
   }
   
-
+ grouping node-location {
+   description
+     "In a distributed system get the data from a specific node
+      identified by the location. If this field is not specified
+      data associated with each node forming the system will be
+      returned.";
+   leaf location {
+      type string;
+      description
+      "Location of the node or All";
+   }
+ 
+ }
   identity log-type {
     description
       "The type of logs available.";
@@ -704,7 +769,146 @@ module basic-remote-attestation {
       }
     }
   }
-  
+
+
+grouping boot-event-log {
+  description
+    "Defines an event log corresponding to the event that extended the PCR";
+  leaf event-number {
+      type uint32;
+      description
+  "Unique event number of this event";
+  }
+  leaf event-type {
+      type uint32;
+      description
+  "log event type";
+  }
+  leaf pcr-index {
+     type uint16;
+     description
+ "Defines the PCR index that this event extended";
+  }
+  list digest-list {
+    description "Hash of event data";
+    uses hash-algo;
+    leaf-list digest {
+      type binary;
+      description
+      "The hash of the event data";
+    }
+  }
+   leaf event-size {
+     type uint32;
+     description
+     "Size of the event data";
+   }
+   leaf-list event-data {
+     type uint8;
+     description
+     "the event data size determined by event-size";
+   }
+}
+
+ grouping ima-event {
+   description
+     "Defines an hash log extend event for IMA measurements";
+   leaf event-number {
+       type uint64;
+       description
+  "Unique number for this event for sequencing";
+     }
+   leaf ima-template {
+     type string;
+     description
+     "Name of the template used for event logs
+     for e.g. ima, ima-ng";
+   }
+   leaf filename-hint {
+       type string;
+       description
+   "File that was measured";
+   }
+   leaf filedata-hash {
+       type binary;
+       description
+    "Hash of filedata";
+   }
+  leaf template-hash-algorithm {
+    type string;
+    description
+     "Algorithm used for template-hash";
+   }
+   leaf template-hash {
+  type binary;
+  description
+   " hash(filedata-hash, filename-hint)";
+   }
+   leaf pcr-index {
+      type uint16;
+      description
+  "Defines the PCR index that this event extended";
+   }
+   leaf signature {
+     type binary;
+     description
+     "The file signature";
+   }
+ }
+
+  grouping bios-event-log {
+    description
+    "Measurement log created by the BIOS/UEFI.";
+    list bios-event-entry {
+      key event-number;
+       description
+       "Ordered list of TCG described event log
+        that extended the PCRs in the order they
+        were logged";
+        uses boot-event-log;
+     }
+  }
+
+  grouping ima-event-log {
+    description
+      "Measurement log created by IMA.";
+    list ima-event-entry {
+      key event-number;
+      description
+      "Ordered list of ima event logs by event-number";
+       uses ima-event;
+     }
+  }
+
+  grouping event-logs {
+    choice log-type {
+      mandatory true;
+      description
+        "Event log type determines the event logs content.";
+      case bios {
+        description
+          "BIOS/UEFI event logs";
+        container bios-event-logs {
+          description
+            "This is an index referencing the TCG Algorithm
+            Registry based on TPM_ALG_ID.";
+          uses bios-event-log;
+        }
+      }
+      case ima {
+        description
+          "IMA event logs";
+        container ima-event-logs {
+          description
+            "This is an index referencing the TCG Algorithm
+            Registry based on TPM_ALG_ID.";
+          uses ima-event-log;
+        }
+      }
+    }
+  }
+
+
   rpc tpm2-challenge-repsonse-attestation {
     description
       "This RPC accepts the input for TSS commands of the managed device.
@@ -723,12 +927,15 @@ module basic-remote-attestation {
         uses signature-scheme;
         uses attestation-key-identifier;
       }
+      uses node-location;
     }
     output {
-      container tpm2-attestation-response {
+      list tpm2-attestation-response {
+        key location;
         description
           "The binary output of TPM2b_Quote. An TPMS_ATTEST structure
           including a length, encapsulated in a signature";
+        uses node-location;
         container tpms-attest {
           description
             "A composite of value and length and list of selected
@@ -766,8 +973,15 @@ module basic-remote-attestation {
       uses nonce;
       uses pcr-selector;
       uses signature-scheme;
+      uses node-location;
     }
     output {
+    list attestation-certificates {
+      key location;
+      description
+        "Attestation Certificate data of a node in a distributed system
+        identified by the location";
+      uses node-location;
       leaf attestation-certificate {
         description
           "An individual signed public attestation according to requested
@@ -775,6 +989,7 @@ module basic-remote-attestation {
         type binary;
       }
       uses attestation-key-identifier;
+    }
     }
   }
   
@@ -814,15 +1029,37 @@ module basic-remote-attestation {
          "The number of log entries to be returned. If omitted, it means all of them.";
         type uint64;
       }
+      uses node-location;
     } 
     output {
-      leaf-list log-result {
-        description
-          "The requested entries of the corresponding log.";
-        type binary;
-      }
+      container system-event-logs {
+         description
+         "The requested data of the measurement event logs";
+         list node-data {
+           key node-location;
+           description
+           "Event logs of a node in a distributed system
+            identified by the location";
+           leaf node-location {
+             type string;
+               description
+               "Location of the node in the distributed system";
+            }
+            leaf up-time {
+              type uint32;
+              description
+              "Uptime in seconds of this node reporting its data";
+            }
+       container log-result {
+          description
+            "The requested entries of the corresponding log.";
+            uses event-logs;
+         }
+       }
     }
-  }
+    }
+    }
+ 
   
   container rats-support-structures {
     leaf-list supported-algos {
@@ -934,6 +1171,69 @@ module basic-remote-attestation {
 	  <span class="country-name vcardline"></span>
 	</span>
 	<span class="vcardline">EMail: <a href="mailto:gfedorkow@juniper.de">gfedorkow@juniper.de</a></span>
+
+  </address>
+</div><div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Shwetha Bhandari</span> 
+	  <span class="n hidden">
+		<span class="family-name">Bhandari</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Cisco Systems</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:shwethab@cisco.com">shwethab@cisco.com</a></span>
+
+  </address>
+</div><div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Bill Sulzen</span> 
+	  <span class="n hidden">
+		<span class="family-name">Sulzen</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Cisco Systems</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:bsulzen@cisco.com">bsulzen@cisco.com</a></span>
+
+  </address>
+</div><div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Eric Voit</span> 
+	  <span class="n hidden">
+		<span class="family-name">Voit</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Cisco Systems</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:evoit@cisco.com">evoit@cisco.com</a></span>
 
   </address>
 </div>
