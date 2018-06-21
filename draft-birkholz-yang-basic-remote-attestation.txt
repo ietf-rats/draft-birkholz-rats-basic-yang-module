@@ -6,12 +6,12 @@ TBD                                                          H. Birkholz
 Internet-Draft                                            Fraunhofer SIT
 Intended status: Standards Track                                M. Eckel
 Expires: December 23, 2018                                        Huawei
-                                                             G. Fedorkow
-                                                                 Juniper
                                                              S. Bhandari
                                                                B. Sulzen
                                                                  E. Voit
                                                                    Cisco
+                                                             G. Fedorkow
+                                                                 Juniper
                                                            June 21, 2018
 
 
@@ -926,14 +926,6 @@ Authors' Addresses
    Email: michael.eckel@huawei.com
 
 
-   Guy C. Fedorkow
-   Juniper Networks
-   10 Technology Park Drive
-   Westford, Massachusetts  01886
-
-   Email: gfedorkow@juniper.de
-
-
    Shwetha Bhandari
    Cisco Systems
 
@@ -946,6 +938,14 @@ Authors' Addresses
    Email: bsulzen@cisco.com
 
 
+   Eric Voit
+   Cisco Systems
+
+   Email: evoit@cisco.com
+
+
+
+
 
 
 
@@ -954,12 +954,12 @@ Birkholz, et al.        Expires December 23, 2018              [Page 17]
 Internet-Draft                    BRAT                         June 2018
 
 
-   Eric Voit
-   Cisco Systems
+   Guy C. Fedorkow
+   Juniper Networks
+   10 Technology Park Drive
+   Westford, Massachusetts  01886
 
-   Email: evoit@cisco.com
-
-
+   Email: gfedorkow@juniper.de
 
 
 
