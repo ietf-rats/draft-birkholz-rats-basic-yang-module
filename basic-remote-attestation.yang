@@ -188,7 +188,19 @@ module basic-remote-attestation {
     }
   }
   
-
+ grouping node-location {
+   description
+     "In a distributed system get the data from a specific node
+      identified by the location. If this field is not specified
+      data associated with each node forming the system will be
+      returned.";
+   leaf location {
+      type string;
+      description
+      "Location of the node or All";
+   }
+ 
+ }
   identity log-type {
     description
       "The type of logs available.";
@@ -216,7 +228,146 @@ module basic-remote-attestation {
       }
     }
   }
-  
+
+
+grouping boot-event-log {
+  description
+    "Defines an event log corresponding to the event that extended the PCR";
+  leaf event-number {
+      type uint32;
+      description
+  "Unique event number of this event";
+  }
+  leaf event-type {
+      type uint32;
+      description
+  "log event type";
+  }
+  leaf pcr-index {
+     type uint16;
+     description
+ "Defines the PCR index that this event extended";
+  }
+  list digest-list {
+    description "Hash of event data";
+    uses hash-algo;
+    leaf-list digest {
+      type binary;
+      description
+      "The hash of the event data";
+    }
+  }
+   leaf event-size {
+     type uint32;
+     description
+     "Size of the event data";
+   }
+   leaf-list event-data {
+     type uint8;
+     description
+     "the event data size determined by event-size";
+   }
+}
+
+ grouping ima-event {
+   description
+     "Defines an hash log extend event for IMA measurements";
+   leaf event-number {
+       type uint64;
+       description
+  "Unique number for this event for sequencing";
+     }
+   leaf ima-template {
+     type string;
+     description
+     "Name of the template used for event logs
+     for e.g. ima, ima-ng";
+   }
+   leaf filename-hint {
+       type string;
+       description
+   "File that was measured";
+   }
+   leaf filedata-hash {
+       type binary;
+       description
+    "Hash of filedata";
+   }
+  leaf template-hash-algorithm {
+    type string;
+    description
+     "Algorithm used for template-hash";
+   }
+   leaf template-hash {
+  type binary;
+  description
+   " hash(filedata-hash, filename-hint)";
+   }
+   leaf pcr-index {
+      type uint16;
+      description
+  "Defines the PCR index that this event extended";
+   }
+   leaf signature {
+     type binary;
+     description
+     "The file signature";
+   }
+ }
+
+  grouping bios-event-log {
+    description
+    "Measurement log created by the BIOS/UEFI.";
+    list bios-event-entry {
+      key event-number;
+       description
+       "Ordered list of TCG described event log
+        that extended the PCRs in the order they
+        were logged";
+        uses boot-event-log;
+     }
+  }
+
+  grouping ima-event-log {
+    description
+      "Measurement log created by IMA.";
+    list ima-event-entry {
+      key event-number;
+      description
+      "Ordered list of ima event logs by event-number";
+       uses ima-event;
+     }
+  }
+
+  grouping event-logs {
+    choice log-type {
+      mandatory true;
+      description
+        "Event log type determines the event logs content.";
+      case bios {
+        description
+          "BIOS/UEFI event logs";
+        container bios-event-logs {
+          description
+            "This is an index referencing the TCG Algorithm
+            Registry based on TPM_ALG_ID.";
+          uses bios-event-log;
+        }
+      }
+      case ima {
+        description
+          "IMA event logs";
+	container ima-event-logs {
+          description
+            "This is an index referencing the TCG Algorithm
+            Registry based on TPM_ALG_ID.";
+          uses ima-event-log;
+        }
+      }
+    }
+  }
+
+
   rpc tpm2-challenge-repsonse-attestation {
     description
       "This RPC accepts the input for TSS commands of the managed device.
@@ -235,12 +386,15 @@ module basic-remote-attestation {
         uses signature-scheme;
         uses attestation-key-identifier;
       }
+      uses node-location;
     }
     output {
-      container tpm2-attestation-response {
+      list tpm2-attestation-response {
+        key location;
         description
           "The binary output of TPM2b_Quote. An TPMS_ATTEST structure
           including a length, encapsulated in a signature";
+	uses node-location;
         container tpms-attest {
           description
             "A composite of value and length and list of selected
@@ -278,8 +432,15 @@ module basic-remote-attestation {
       uses nonce;
       uses pcr-selector;
       uses signature-scheme;
+      uses node-location;
     }
     output {
+    list attestation-certificates {
+      key location;
+      description
+        "Attestation Certificate data of a node in a distributed system
+        identified by the location";
+      uses node-location;
       leaf attestation-certificate {
         description
           "An individual signed public attestation according to requested
@@ -287,6 +448,7 @@ module basic-remote-attestation {
         type binary;
       }
       uses attestation-key-identifier;
+    }
     }
   }
   
@@ -326,15 +488,37 @@ module basic-remote-attestation {
          "The number of log entries to be returned. If omitted, it means all of them.";
         type uint64;
       }
+      uses node-location;
     } 
     output {
-      leaf-list log-result {
-        description
-          "The requested entries of the corresponding log.";
-        type binary;
-      }
+      container system-event-logs {
+         description
+	 "The requested data of the measurement event logs";
+         list node-data {
+           key node-location;
+           description
+           "Event logs of a node in a distributed system
+            identified by the location";
+           leaf node-location {
+             type string;
+               description
+               "Location of the node in the distributed system";
+            }
+            leaf up-time {
+              type uint32;
+              description
+              "Uptime in seconds of this node reporting its data";
+            }
+       container log-result {
+          description
+            "The requested entries of the corresponding log.";
+	    uses event-logs;
+	 }
+       }
     }
-  }
+    }
+    }
+ 
   
   container rats-support-structures {
     leaf-list supported-algos {
