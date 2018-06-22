@@ -199,8 +199,18 @@ module basic-remote-attestation {
       description
       "Location of the node or All";
    }
- 
  }
+
+ grouping node-uptime {
+   description
+     "Uptime in seconds of the node.";
+   leaf up-time {
+     type uint32;
+     description
+     "Uptime in seconds of this node reporting its data";
+   }
+ }
+
   identity log-type {
     description
       "The type of logs available.";
@@ -218,6 +228,12 @@ module basic-remote-attestation {
       "Measurement log created by IMA.";
   }
 
+  identity ima-binary {
+    base log-type;
+    description
+      "Measurement log created by IMA in binary encoding.";
+  }
+    
   grouping log-identifier {
     description
       "Identifier for type of log to be retrieved.";
@@ -349,8 +365,7 @@ grouping boot-event-log {
           "BIOS/UEFI event logs";
         container bios-event-logs {
           description
-            "This is an index referencing the TCG Algorithm
-            Registry based on TPM_ALG_ID.";
+            "The requested entries of the bios log.";
           uses bios-event-log;
         }
       }
@@ -359,11 +374,19 @@ grouping boot-event-log {
           "IMA event logs";
 	container ima-event-logs {
           description
-            "This is an index referencing the TCG Algorithm
-            Registry based on TPM_ALG_ID.";
+            "The requested entries of the ima log.";
           uses ima-event-log;
         }
       }
+      case ima-binary {
+        description
+          "IMA event logs encoded in binary representation";
+        leaf-list ima-event-logs-compressed {
+          description
+            "The requested entries of the ima log.";
+            type binary;
+        }
+      }      
     }
   }
 
@@ -395,6 +418,7 @@ grouping boot-event-log {
           "The binary output of TPM2b_Quote. An TPMS_ATTEST structure
           including a length, encapsulated in a signature";
 	uses node-location;
+	uses node-uptime;
         container tpms-attest {
           description
             "A composite of value and length and list of selected
@@ -441,6 +465,7 @@ grouping boot-event-log {
         "Attestation Certificate data of a node in a distributed system
         identified by the location";
       uses node-location;
+      uses node-uptime;
       leaf attestation-certificate {
         description
           "An individual signed public attestation according to requested
@@ -459,25 +484,31 @@ grouping boot-event-log {
       The type of log is a choice that can be
       augmented.";
     input {
-      choice index-type {
+      list log-selector {
+        key location;
         description
-          "Last-line or index.";
-        case last-entry {
+	 "Selection of log entries to be reported.";
+	uses node-location;
+        choice index-type {
           description
-            "The last entry of the log already retrieved";
-          leaf last-entry-value {
+            "Last-line or index.";
+          case last-entry {
             description
-              "Content of the last entry requested.";
-            type binary;
+              "The last entry of the log already retrieved";
+            leaf last-entry-value {
+              description
+                "Content of the last entry requested.";
+              type binary;
+            }
           }
-        }
-        case index {
-          description
-            "Numeric index of the last log entry retrieved.";
-          leaf index-number {
+          case index {
             description
-              "The numeric index number";
-            type uint64;
+              "Numeric index of the last log entry retrieved.";
+            leaf index-number {
+              description
+                "The numeric index number";
+              type uint64;
+            }
           }
         }
       }
@@ -495,29 +526,21 @@ grouping boot-event-log {
          description
 	 "The requested data of the measurement event logs";
          list node-data {
-           key node-location;
+           key location;
            description
            "Event logs of a node in a distributed system
             identified by the location";
-           leaf node-location {
-             type string;
-               description
-               "Location of the node in the distributed system";
-            }
-            leaf up-time {
-              type uint32;
-              description
-              "Uptime in seconds of this node reporting its data";
-            }
-       container log-result {
-          description
-            "The requested entries of the corresponding log.";
-	    uses event-logs;
-	 }
+           uses node-location;
+	   uses node-uptime;
+           container log-result {
+             description
+             "The requested entries of the corresponding log.";
+	     uses event-logs;
+   	   }
+         }
        }
-    }
-    }
-    }
+     }
+   }
  
   
   container rats-support-structures {
