@@ -295,7 +295,7 @@ ul.toc li {
 
   <meta name="dct.creator" content="Birkholz, H., Eckel, M., Bhandari, S., Sulzen, B., Voit, E., and G. Fedorkow" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-birkholz-yang-basic-remote-attestation-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-06-21" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-06-22" />
   <meta name="dct.abstract" content="This document defines YANG RPC and a minimal datastore required to retrieve integrity evidence about software from the device running the YANG datastore. The module presented requires a TPM 2.0 and corresponding Trusted Software Stack included in the system entity the YANG datastore is running on." />
   <meta name="description" content="This document defines YANG RPC and a minimal datastore required to retrieve integrity evidence about software from the device running the YANG datastore. The module presented requires a TPM 2.0 and corresponding Trusted Software Stack included in the system entity the YANG datastore is running on." />
 
@@ -319,7 +319,7 @@ ul.toc li {
 <td class="right">M. Eckel</td>
 </tr>
 <tr>
-<td class="left">Expires: December 23, 2018</td>
+<td class="left">Expires: December 24, 2018</td>
 <td class="right">Huawei</td>
 </tr>
 <tr>
@@ -348,7 +348,7 @@ ul.toc li {
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">June 21, 2018</td>
+<td class="right">June 22, 2018</td>
 </tr>
 
     	
@@ -364,7 +364,7 @@ ul.toc li {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on December 23, 2018.</p>
+<p>This Internet-Draft will expire on December 24, 2018.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2018 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -450,6 +450,7 @@ module: basic-remote-attestation
     |  +--ro output
     |     +--ro tpm2-attestation-response* [location]
     |        +--ro location          string
+    |        +--ro up-time?          uint32
     |        +--ro tpms-attest
     |        |  +--ro pcrdigest?            binary
     |        |  +--ro pcrdigest-length?     uint32
@@ -475,6 +476,7 @@ module: basic-remote-attestation
     |  +--ro output
     |     +--ro attestation-certificates* [location]
     |        +--ro location                   string
+    |        +--ro up-time?                   uint32
     |        +--ro attestation-certificate?   binary
     |        +--ro (key-identifier)?
     |           +--:(public-key)
@@ -483,12 +485,14 @@ module: basic-remote-attestation
     |              +--ro uuid-value?          binary
     +---x log-retrieval
        +---w input
-       |  +---w (index-type)?
-       |  |  +--:(last-entry)
-       |  |  |  +---w last-entry-value?   binary
-       |  |  +--:(index)
-       |  |     +---w index-number?       uint64
-       |  +---w measurement-log-type      identityref
+       |  +---w log-selector* [location]
+       |  |  +---w location                  string
+       |  |  +---w (index-type)?
+       |  |     +--:(last-entry)
+       |  |     |  +---w last-entry-value?   binary
+       |  |     +--:(index)
+       |  |        +---w index-number?       uint64
+       |  +---w measurement-log-type    identityref
        |  +---w pcr-list* []
        |  |  +---w pcr
        |  |     +---w pcr-numbers*                  uint8
@@ -497,13 +501,13 @@ module: basic-remote-attestation
        |  |        |  +---w tcg-hash-algo-id?       uint16
        |  |        +--:(ietf)
        |  |           +---w ietf-ni-hash-algo-id?   uint8
-       |  +---w chunk-size?               uint64
-       |  +---w location?                 string
+       |  +---w chunk-size?             uint64
+       |  +---w location?               string
        +--ro output
           +--ro system-event-logs
-             +--ro node-data* [node-location]
-                +--ro node-location    string
-                +--ro up-time?         uint32
+             +--ro node-data* [location]
+                +--ro location      string
+                +--ro up-time?      uint32
                 +--ro log-result
                    +--ro (log-type)
                       +--:(bios)
@@ -522,16 +526,18 @@ module: basic-remote-attestation
                       |        +--ro event-size?     uint32
                       |        +--ro event-data*     uint8
                       +--:(ima)
-                         +--ro ima-event-logs
-                            +--ro ima-event-entry* [event-number]
-                               +--ro event-number               uint64
-                               +--ro ima-template?              string
-                               +--ro filename-hint?             string
-                               +--ro filedata-hash?             binary
-                               +--ro template-hash-algorithm?   string
-                               +--ro template-hash?             binary
-                               +--ro pcr-index?                 uint16
-                               +--ro signature?                 binary
+                      |  +--ro ima-event-logs
+                      |     +--ro ima-event-entry* [event-number]
+                      |        +--ro event-number               uint64
+                      |        +--ro ima-template?              string
+                      |        +--ro filename-hint?             string
+                      |        +--ro filedata-hash?             binary
+                      |        +--ro template-hash-algorithm?   string
+                      |        +--ro template-hash?             binary
+                      |        +--ro pcr-index?                 uint16
+                      |        +--ro signature?                 binary
+                      +--:(ima-binary)
+                         +--ro ima-event-logs-compressed*   binary
 &lt;CODE ENDS&gt;
 </pre>
 <h1 id="rfc.section.2.2">
@@ -740,8 +746,18 @@ module basic-remote-attestation {
       description
       "Location of the node or All";
    }
- 
  }
+
+ grouping node-uptime {
+   description
+     "Uptime in seconds of the node.";
+   leaf up-time {
+     type uint32;
+     description
+     "Uptime in seconds of this node reporting its data";
+   }
+ }
+
   identity log-type {
     description
       "The type of logs available.";
@@ -759,6 +775,12 @@ module basic-remote-attestation {
       "Measurement log created by IMA.";
   }
 
+  identity ima-binary {
+    base log-type;
+    description
+      "Measurement log created by IMA in binary encoding.";
+  }
+    
   grouping log-identifier {
     description
       "Identifier for type of log to be retrieved.";
@@ -890,8 +912,7 @@ grouping boot-event-log {
           "BIOS/UEFI event logs";
         container bios-event-logs {
           description
-            "This is an index referencing the TCG Algorithm
-            Registry based on TPM_ALG_ID.";
+            "The requested entries of the bios log.";
           uses bios-event-log;
         }
       }
@@ -900,11 +921,19 @@ grouping boot-event-log {
           "IMA event logs";
         container ima-event-logs {
           description
-            "This is an index referencing the TCG Algorithm
-            Registry based on TPM_ALG_ID.";
+            "The requested entries of the ima log.";
           uses ima-event-log;
         }
       }
+      case ima-binary {
+        description
+          "IMA event logs encoded in binary representation";
+        leaf-list ima-event-logs-compressed {
+          description
+            "The requested entries of the ima log.";
+            type binary;
+        }
+      }      
     }
   }
 
@@ -936,6 +965,7 @@ grouping boot-event-log {
           "The binary output of TPM2b_Quote. An TPMS_ATTEST structure
           including a length, encapsulated in a signature";
         uses node-location;
+        uses node-uptime;
         container tpms-attest {
           description
             "A composite of value and length and list of selected
@@ -982,6 +1012,7 @@ grouping boot-event-log {
         "Attestation Certificate data of a node in a distributed system
         identified by the location";
       uses node-location;
+      uses node-uptime;
       leaf attestation-certificate {
         description
           "An individual signed public attestation according to requested
@@ -1000,25 +1031,31 @@ grouping boot-event-log {
       The type of log is a choice that can be
       augmented.";
     input {
-      choice index-type {
+      list log-selector {
+        key location;
         description
-          "Last-line or index.";
-        case last-entry {
+         "Selection of log entries to be reported.";
+        uses node-location;
+        choice index-type {
           description
-            "The last entry of the log already retrieved";
-          leaf last-entry-value {
+            "Last-line or index.";
+          case last-entry {
             description
-              "Content of the last entry requested.";
-            type binary;
+              "The last entry of the log already retrieved";
+            leaf last-entry-value {
+              description
+                "Content of the last entry requested.";
+              type binary;
+            }
           }
-        }
-        case index {
-          description
-            "Numeric index of the last log entry retrieved.";
-          leaf index-number {
+          case index {
             description
-              "The numeric index number";
-            type uint64;
+              "Numeric index of the last log entry retrieved.";
+            leaf index-number {
+              description
+                "The numeric index number";
+              type uint64;
+            }
           }
         }
       }
@@ -1036,29 +1073,21 @@ grouping boot-event-log {
          description
          "The requested data of the measurement event logs";
          list node-data {
-           key node-location;
+           key location;
            description
            "Event logs of a node in a distributed system
             identified by the location";
-           leaf node-location {
-             type string;
-               description
-               "Location of the node in the distributed system";
-            }
-            leaf up-time {
-              type uint32;
-              description
-              "Uptime in seconds of this node reporting its data";
-            }
-       container log-result {
-          description
-            "The requested entries of the corresponding log.";
-            uses event-logs;
+           uses node-location;
+           uses node-uptime;
+           container log-result {
+             description
+             "The requested entries of the corresponding log.";
+             uses event-logs;
+           }
          }
        }
-    }
-    }
-    }
+     }
+   }
  
   
   container rats-support-structures {
