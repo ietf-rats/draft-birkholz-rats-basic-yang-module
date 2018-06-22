@@ -30,6 +30,7 @@ module: basic-remote-attestation
     |  +--ro output
     |     +--ro tpm2-attestation-response* [location]
     |        +--ro location          string
+    |        +--ro up-time?          uint32
     |        +--ro tpms-attest
     |        |  +--ro pcrdigest?            binary
     |        |  +--ro pcrdigest-length?     uint32
@@ -55,6 +56,7 @@ module: basic-remote-attestation
     |  +--ro output
     |     +--ro attestation-certificates* [location]
     |        +--ro location                   string
+    |        +--ro up-time?                   uint32
     |        +--ro attestation-certificate?   binary
     |        +--ro (key-identifier)?
     |           +--:(public-key)
@@ -63,12 +65,14 @@ module: basic-remote-attestation
     |              +--ro uuid-value?          binary
     +---x log-retrieval
        +---w input
-       |  +---w (index-type)?
-       |  |  +--:(last-entry)
-       |  |  |  +---w last-entry-value?   binary
-       |  |  +--:(index)
-       |  |     +---w index-number?       uint64
-       |  +---w measurement-log-type      identityref
+       |  +---w log-selector* [location]
+       |  |  +---w location                  string
+       |  |  +---w (index-type)?
+       |  |     +--:(last-entry)
+       |  |     |  +---w last-entry-value?   binary
+       |  |     +--:(index)
+       |  |        +---w index-number?       uint64
+       |  +---w measurement-log-type    identityref
        |  +---w pcr-list* []
        |  |  +---w pcr
        |  |     +---w pcr-numbers*                  uint8
@@ -77,13 +81,13 @@ module: basic-remote-attestation
        |  |        |  +---w tcg-hash-algo-id?       uint16
        |  |        +--:(ietf)
        |  |           +---w ietf-ni-hash-algo-id?   uint8
-       |  +---w chunk-size?               uint64
-       |  +---w location?                 string
+       |  +---w chunk-size?             uint64
+       |  +---w location?               string
        +--ro output
           +--ro system-event-logs
-             +--ro node-data* [node-location]
-                +--ro node-location    string
-                +--ro up-time?         uint32
+             +--ro node-data* [location]
+                +--ro location      string
+                +--ro up-time?      uint32
                 +--ro log-result
                    +--ro (log-type)
                       +--:(bios)
@@ -102,13 +106,15 @@ module: basic-remote-attestation
                       |        +--ro event-size?     uint32
                       |        +--ro event-data*     uint8
                       +--:(ima)
-                         +--ro ima-event-logs
-                            +--ro ima-event-entry* [event-number]
-                               +--ro event-number               uint64
-                               +--ro ima-template?              string
-                               +--ro filename-hint?             string
-                               +--ro filedata-hash?             binary
-                               +--ro template-hash-algorithm?   string
-                               +--ro template-hash?             binary
-                               +--ro pcr-index?                 uint16
-                               +--ro signature?                 binary
+                      |  +--ro ima-event-logs
+                      |     +--ro ima-event-entry* [event-number]
+                      |        +--ro event-number               uint64
+                      |        +--ro ima-template?              string
+                      |        +--ro filename-hint?             string
+                      |        +--ro filedata-hash?             binary
+                      |        +--ro template-hash-algorithm?   string
+                      |        +--ro template-hash?             binary
+                      |        +--ro pcr-index?                 uint16
+                      |        +--ro signature?                 binary
+                      +--:(ima-binary)
+                         +--ro ima-event-logs-compressed*   binary
