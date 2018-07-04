@@ -85,7 +85,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 
 ~~~ YANG
 <CODE BEGINS>
-{::include basic-remote-attestation.tree}
+{::include ietf-basic-remote-attestation.tree}
 <CODE ENDS>
 ~~~
 
@@ -93,7 +93,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 
 ~~~ YANG
 <CODE BEGINS>
-{::include basic-remote-attestation.yang}
+{::include ietf-basic-remote-attestation.yang}
 <CODE ENDS>
 ~~~
 

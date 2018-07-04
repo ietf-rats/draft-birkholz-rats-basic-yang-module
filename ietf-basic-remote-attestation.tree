@@ -1,21 +1,25 @@
-module: basic-remote-attestation
-  +--rw rats-support-structures
-     +--rw supported-algos*           uint16
-     +--rw endorsement-certificate    binary
+module: ietf-basic-remote-attestation
+    +--rw rats-support-structures
+       +--ro supported-algos*            uint16
+       +--ro locations*                  string
+       +--rw endorsement-certificates
+          +--rw node-certificate* [location]
+             +--rw location                   string
+             +--ro endorsement-certificate    binary
 
   rpcs:
     +---x tpm2-challenge-repsonse-attestation
     |  +---w input
     |  |  +---w tpm2-attestation-challenge
-    |  |  |  +---w pcr-list* []
+    |  |  |  +---w pcr-list*
     |  |  |  |  +---w pcr
-    |  |  |  |     +---w pcr-numbers*                  uint8
+    |  |  |  |     +---w pcr-numbers*            uint8
     |  |  |  |     +---w (algo-registry-type)
     |  |  |  |        +--:(tcg)
     |  |  |  |        |  +---w tcg-hash-algo-id?       uint16
     |  |  |  |        +--:(ietf)
     |  |  |  |           +---w ietf-ni-hash-algo-id?   uint8
-    |  |  |  +---w nonce-value                   binary
+    |  |  |  +---w nonce-value             binary
     |  |  |  +---w (signature-identifier-type)
     |  |  |  |  +--:(TPM_ALG_ID)
     |  |  |  |  |  +---w TPM_ALG_ID-value?       uint16
@@ -30,7 +34,6 @@ module: basic-remote-attestation
     |  +--ro output
     |     +--ro tpm2-attestation-response* [location]
     |        +--ro location          string
-    |        +--ro up-time?          uint32
     |        +--ro tpms-attest
     |        |  +--ro pcrdigest?            binary
     |        |  +--ro pcrdigest-length?     uint32
@@ -38,10 +41,10 @@ module: basic-remote-attestation
     |        +--ro tpmt-signature?   binary
     +---x basic-trust-establishment
     |  +---w input
-    |  |  +---w nonce-value                   binary
-    |  |  +---w pcr-list* []
+    |  |  +---w nonce-value             binary
+    |  |  +---w pcr-list*
     |  |  |  +---w pcr
-    |  |  |     +---w pcr-numbers*                  uint8
+    |  |  |     +---w pcr-numbers*            uint8
     |  |  |     +---w (algo-registry-type)
     |  |  |        +--:(tcg)
     |  |  |        |  +---w tcg-hash-algo-id?       uint16
@@ -52,30 +55,27 @@ module: basic-remote-attestation
     |  |  |  |  +---w TPM_ALG_ID-value?       uint16
     |  |  |  +--:(COSE_Algorithm)
     |  |  |     +---w COSE_Algorithm-value?   int32
-    |  |  +---w location?                     string
+    |  |  +---w location?               string
     |  +--ro output
     |     +--ro attestation-certificates* [location]
     |        +--ro location                   string
-    |        +--ro up-time?                   uint32
     |        +--ro attestation-certificate?   binary
     |        +--ro (key-identifier)?
     |           +--:(public-key)
-    |           |  +--ro pub-key-id?          binary
+    |           |  +--ro pub-key-id?                binary
     |           +--:(uuid)
-    |              +--ro uuid-value?          binary
+    |              +--ro uuid-value?                binary
     +---x log-retrieval
        +---w input
-       |  +---w log-selector* [location]
-       |  |  +---w location                  string
-       |  |  +---w (index-type)?
-       |  |     +--:(last-entry)
-       |  |     |  +---w last-entry-value?   binary
-       |  |     +--:(index)
-       |  |        +---w index-number?       uint64
+       |  +---w (index-type)?
+       |  |  +--:(last-entry)
+       |  |  |  +---w last-entry-value?       binary
+       |  |  +--:(index)
+       |  |     +---w index-number?           uint64
        |  +---w measurement-log-type    identityref
-       |  +---w pcr-list* []
+       |  +---w pcr-list*
        |  |  +---w pcr
-       |  |     +---w pcr-numbers*                  uint8
+       |  |     +---w pcr-numbers*            uint8
        |  |     +---w (algo-registry-type)
        |  |        +--:(tcg)
        |  |        |  +---w tcg-hash-algo-id?       uint16
@@ -85,9 +85,9 @@ module: basic-remote-attestation
        |  +---w location?               string
        +--ro output
           +--ro system-event-logs
-             +--ro node-data* [location]
-                +--ro location      string
-                +--ro up-time?      uint32
+             +--ro node-data* [node-location]
+                +--ro node-location    string
+                +--ro up-time?         uint32
                 +--ro log-result
                    +--ro (log-type)
                       +--:(bios)
@@ -96,25 +96,23 @@ module: basic-remote-attestation
                       |        +--ro event-number    uint32
                       |        +--ro event-type?     uint32
                       |        +--ro pcr-index?      uint16
-                      |        +--ro digest-list* []
+                      |        +--ro digest-list*
                       |        |  +--ro (algo-registry-type)
                       |        |  |  +--:(tcg)
                       |        |  |  |  +--ro tcg-hash-algo-id?       uint16
                       |        |  |  +--:(ietf)
                       |        |  |     +--ro ietf-ni-hash-algo-id?   uint8
-                      |        |  +--ro digest*                       binary
+                      |        |  +--ro digest*                 binary
                       |        +--ro event-size?     uint32
                       |        +--ro event-data*     uint8
                       +--:(ima)
-                      |  +--ro ima-event-logs
-                      |     +--ro ima-event-entry* [event-number]
-                      |        +--ro event-number               uint64
-                      |        +--ro ima-template?              string
-                      |        +--ro filename-hint?             string
-                      |        +--ro filedata-hash?             binary
-                      |        +--ro template-hash-algorithm?   string
-                      |        +--ro template-hash?             binary
-                      |        +--ro pcr-index?                 uint16
-                      |        +--ro signature?                 binary
-                      +--:(ima-binary)
-                         +--ro ima-event-logs-compressed*   binary
+                         +--ro ima-event-logs
+                            +--ro ima-event-entry* [event-number]
+                               +--ro event-number               uint64
+                               +--ro ima-template?              string
+                               +--ro filename-hint?             string
+                               +--ro filedata-hash?             binary
+                               +--ro template-hash-algorithm?   string
+                               +--ro template-hash?             binary
+                               +--ro pcr-index?                 uint16
+                               +--ro signature?                 binary
