@@ -424,12 +424,12 @@ ul.toc li {
 <pre>
 &lt;CODE BEGINS&gt;
 module: ietf-basic-remote-attestation
-    +--rw rats-support-structures
+    +--ro rats-support-structures
        +--ro supported-algos*            uint16
        +--ro locations*                  string
-       +--rw endorsement-certificates
-          +--rw node-certificate* [location]
-             +--rw location                   string
+       +--ro endorsement-certificates
+          +--ro node-certificate* [location]
+             +--ro location                   string
              +--ro endorsement-certificate    binary
 
   rpcs:
