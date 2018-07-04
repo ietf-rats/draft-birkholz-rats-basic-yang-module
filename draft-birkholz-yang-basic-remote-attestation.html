@@ -26,7 +26,7 @@ body {
   font-weight: bold;
   color: #333;
   line-height: 100%;
-  margin: 0.8em 0 0.3em;
+  margin: 1.2em 0 0.3em;
 }
 .title, #rfc\.title h1 { font-size: 32px; }
 h1, section h1, h2, section h2, section h3, nav h2 { font-size: 20px; }
@@ -165,12 +165,17 @@ a[href]:hover {
   background-color: #eee;
 }
 
-ol, ul, li, p {
+p, ol, ul, li {
   padding: 0;
-  margin: 0.5em 0 0.5em 2em;
 }
-li, p {
-  margin-left: 0;
+p {
+  margin: 0.5em 0;
+}
+ol, ul {
+  margin: 0.2em 0 0.2em 2em;
+}
+li {
+  margin: 0.2em 0;
 }
 address {
   font-style: normal;
@@ -290,12 +295,12 @@ ul.toc li {
 <link href="#rfc.authors" rel="Chapter">
 
 
-  <meta name="generator" content="xml2rfc version 2.9.8 - https://tools.ietf.org/tools/xml2rfc" />
+  <meta name="generator" content="xml2rfc version 2.9.9 - https://tools.ietf.org/tools/xml2rfc" />
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
   <meta name="dct.creator" content="Birkholz, H., Eckel, M., Bhandari, S., Sulzen, B., Voit, E., and G. Fedorkow" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-birkholz-yang-basic-remote-attestation-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-06-22" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-07-04" />
   <meta name="dct.abstract" content="This document defines YANG RPC and a minimal datastore required to retrieve integrity evidence about software from the device running the YANG datastore. The module presented requires a TPM 2.0 and corresponding Trusted Software Stack included in the system entity the YANG datastore is running on." />
   <meta name="description" content="This document defines YANG RPC and a minimal datastore required to retrieve integrity evidence about software from the device running the YANG datastore. The module presented requires a TPM 2.0 and corresponding Trusted Software Stack included in the system entity the YANG datastore is running on." />
 
@@ -319,7 +324,7 @@ ul.toc li {
 <td class="right">M. Eckel</td>
 </tr>
 <tr>
-<td class="left">Expires: December 24, 2018</td>
+<td class="left">Expires: January 5, 2019</td>
 <td class="right">Huawei</td>
 </tr>
 <tr>
@@ -348,7 +353,7 @@ ul.toc li {
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">June 22, 2018</td>
+<td class="right">July 04, 2018</td>
 </tr>
 
     	
@@ -364,7 +369,7 @@ ul.toc li {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on December 24, 2018.</p>
+<p>This Internet-Draft will expire on January 5, 2019.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2018 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -418,24 +423,28 @@ ul.toc li {
 </h1>
 <pre>
 &lt;CODE BEGINS&gt;
-module: basic-remote-attestation
-  +--rw rats-support-structures
-     +--rw supported-algos*           uint16
-     +--rw endorsement-certificate    binary
+module: ietf-basic-remote-attestation
+    +--rw rats-support-structures
+       +--ro supported-algos*            uint16
+       +--ro locations*                  string
+       +--rw endorsement-certificates
+          +--rw node-certificate* [location]
+             +--rw location                   string
+             +--ro endorsement-certificate    binary
 
   rpcs:
     +---x tpm2-challenge-repsonse-attestation
     |  +---w input
     |  |  +---w tpm2-attestation-challenge
-    |  |  |  +---w pcr-list* []
+    |  |  |  +---w pcr-list*
     |  |  |  |  +---w pcr
-    |  |  |  |     +---w pcr-numbers*                  uint8
+    |  |  |  |     +---w pcr-numbers*            uint8
     |  |  |  |     +---w (algo-registry-type)
     |  |  |  |        +--:(tcg)
     |  |  |  |        |  +---w tcg-hash-algo-id?       uint16
     |  |  |  |        +--:(ietf)
     |  |  |  |           +---w ietf-ni-hash-algo-id?   uint8
-    |  |  |  +---w nonce-value                   binary
+    |  |  |  +---w nonce-value             binary
     |  |  |  +---w (signature-identifier-type)
     |  |  |  |  +--:(TPM_ALG_ID)
     |  |  |  |  |  +---w TPM_ALG_ID-value?       uint16
@@ -450,7 +459,6 @@ module: basic-remote-attestation
     |  +--ro output
     |     +--ro tpm2-attestation-response* [location]
     |        +--ro location          string
-    |        +--ro up-time?          uint32
     |        +--ro tpms-attest
     |        |  +--ro pcrdigest?            binary
     |        |  +--ro pcrdigest-length?     uint32
@@ -458,10 +466,10 @@ module: basic-remote-attestation
     |        +--ro tpmt-signature?   binary
     +---x basic-trust-establishment
     |  +---w input
-    |  |  +---w nonce-value                   binary
-    |  |  +---w pcr-list* []
+    |  |  +---w nonce-value             binary
+    |  |  +---w pcr-list*
     |  |  |  +---w pcr
-    |  |  |     +---w pcr-numbers*                  uint8
+    |  |  |     +---w pcr-numbers*            uint8
     |  |  |     +---w (algo-registry-type)
     |  |  |        +--:(tcg)
     |  |  |        |  +---w tcg-hash-algo-id?       uint16
@@ -472,30 +480,27 @@ module: basic-remote-attestation
     |  |  |  |  +---w TPM_ALG_ID-value?       uint16
     |  |  |  +--:(COSE_Algorithm)
     |  |  |     +---w COSE_Algorithm-value?   int32
-    |  |  +---w location?                     string
+    |  |  +---w location?               string
     |  +--ro output
     |     +--ro attestation-certificates* [location]
     |        +--ro location                   string
-    |        +--ro up-time?                   uint32
     |        +--ro attestation-certificate?   binary
     |        +--ro (key-identifier)?
     |           +--:(public-key)
-    |           |  +--ro pub-key-id?          binary
+    |           |  +--ro pub-key-id?                binary
     |           +--:(uuid)
-    |              +--ro uuid-value?          binary
+    |              +--ro uuid-value?                binary
     +---x log-retrieval
        +---w input
-       |  +---w log-selector* [location]
-       |  |  +---w location                  string
-       |  |  +---w (index-type)?
-       |  |     +--:(last-entry)
-       |  |     |  +---w last-entry-value?   binary
-       |  |     +--:(index)
-       |  |        +---w index-number?       uint64
+       |  +---w (index-type)?
+       |  |  +--:(last-entry)
+       |  |  |  +---w last-entry-value?       binary
+       |  |  +--:(index)
+       |  |     +---w index-number?           uint64
        |  +---w measurement-log-type    identityref
-       |  +---w pcr-list* []
+       |  +---w pcr-list*
        |  |  +---w pcr
-       |  |     +---w pcr-numbers*                  uint8
+       |  |     +---w pcr-numbers*            uint8
        |  |     +---w (algo-registry-type)
        |  |        +--:(tcg)
        |  |        |  +---w tcg-hash-algo-id?       uint16
@@ -505,9 +510,9 @@ module: basic-remote-attestation
        |  +---w location?               string
        +--ro output
           +--ro system-event-logs
-             +--ro node-data* [location]
-                +--ro location      string
-                +--ro up-time?      uint32
+             +--ro node-data* [node-location]
+                +--ro node-location    string
+                +--ro up-time?         uint32
                 +--ro log-result
                    +--ro (log-type)
                       +--:(bios)
@@ -516,28 +521,26 @@ module: basic-remote-attestation
                       |        +--ro event-number    uint32
                       |        +--ro event-type?     uint32
                       |        +--ro pcr-index?      uint16
-                      |        +--ro digest-list* []
+                      |        +--ro digest-list*
                       |        |  +--ro (algo-registry-type)
                       |        |  |  +--:(tcg)
                       |        |  |  |  +--ro tcg-hash-algo-id?       uint16
                       |        |  |  +--:(ietf)
                       |        |  |     +--ro ietf-ni-hash-algo-id?   uint8
-                      |        |  +--ro digest*                       binary
+                      |        |  +--ro digest*                 binary
                       |        +--ro event-size?     uint32
                       |        +--ro event-data*     uint8
                       +--:(ima)
-                      |  +--ro ima-event-logs
-                      |     +--ro ima-event-entry* [event-number]
-                      |        +--ro event-number               uint64
-                      |        +--ro ima-template?              string
-                      |        +--ro filename-hint?             string
-                      |        +--ro filedata-hash?             binary
-                      |        +--ro template-hash-algorithm?   string
-                      |        +--ro template-hash?             binary
-                      |        +--ro pcr-index?                 uint16
-                      |        +--ro signature?                 binary
-                      +--:(ima-binary)
-                         +--ro ima-event-logs-compressed*   binary
+                         +--ro ima-event-logs
+                            +--ro ima-event-entry* [event-number]
+                               +--ro event-number               uint64
+                               +--ro ima-template?              string
+                               +--ro filename-hint?             string
+                               +--ro filedata-hash?             binary
+                               +--ro template-hash-algorithm?   string
+                               +--ro template-hash?             binary
+                               +--ro pcr-index?                 uint16
+                               +--ro signature?                 binary
 &lt;CODE ENDS&gt;
 </pre>
 <h1 id="rfc.section.2.2">
@@ -545,8 +548,8 @@ module: basic-remote-attestation
 </h1>
 <pre>
 &lt;CODE BEGINS&gt;
-module basic-remote-attestation {
-  namespace "urn:ietf:params:xml:ns:yang:brat";
+module ietf-basic-remote-attestation {
+  namespace "urn:ietf:params:xml:ns:yang:ietf-basic-remote-attestation";
   prefix "yang-brat";
   organization
    "Fraunhofer SIT";
@@ -566,6 +569,8 @@ module basic-remote-attestation {
   }
   
   grouping hash-algo {
+    description
+      "A selector for the hashing algorithm";
     choice algo-registry-type {
       mandatory true;
       description
@@ -576,10 +581,10 @@ module basic-remote-attestation {
           "you chose the east door, the tcg space opens up to
           you.";
         leaf tcg-hash-algo-id {
+          type uint16;
           description
             "This is an index referencing the TCG Algorithm
             Registry based on TPM_ALG_ID.";
-          type uint16;
         }
       }
       case ietf {
@@ -587,33 +592,40 @@ module basic-remote-attestation {
           "you chose the west door, the ietf space opens up to
           you.";
         leaf ietf-ni-hash-algo-id {
+          type uint8;
           description
             "This is an index referencing the Named Information
              Hash Algorithm Registry.";
-          type uint8;
         }
       }
     }
   }
   
   grouping hash {
+    description
+      "The hash value including hash-algo identifer";
     list hash-digests {
+      description
+        "The list of hashes.";
       container hash-digest {
         description
           "A hash value based on a hash algorithm registered by an
           SDO.";
         uses hash-algo;
         leaf hash-value {
+          type binary;
           description
             "The binary representaion of the hash value.";
-          type binary;
         }
       }
     }
   }
   
   grouping nonce {
+    description
+      "A nonce to show freshness and counter replays.";
     leaf nonce-value {
+      type binary;
       mandatory true;
       description
         "This nonce SHOULD be generated via a registered
@@ -621,7 +633,6 @@ module basic-remote-attestation {
         of the nonce depends on the hash algorithm used. The algorithm
         used in this case is independent from the hash algorithm used to
         create the hash-value in the response of the attestor.";
-      type binary;
     }
   }
   
@@ -642,10 +653,10 @@ module basic-remote-attestation {
         description
           "The composite of a PCR number and corresponding bank numbers.";
         leaf-list pcr-numbers {
+           type uint8;
            description
              "The number of the PCR. At the moment this is limited
              32";
-           type uint8;
         }
         uses hash-algo;
       }
@@ -668,10 +679,10 @@ module basic-remote-attestation {
         description
           "The composite of a PCR number and corresponding bank numbers.";
         leaf-list pcr-numbers {
+           type uint8;
            description
              "The numbers of the PCRs that are associated with
              the created key. At the moment the highest number is 32";
-           type uint8;
         }
         uses hash-algo;
       }
@@ -679,6 +690,8 @@ module basic-remote-attestation {
   }
   
   grouping signature-scheme {
+    description
+      "The signature scheme used to sign the evidence.";
     choice signature-identifier-type {
       mandatory true;
       description
@@ -689,9 +702,9 @@ module basic-remote-attestation {
         description
           "This references the indices of table 9 in the TPM 2.0 structure specification.";
         leaf TPM_ALG_ID-value {
+          type uint16;
           description
             "The TPM Algo ID.";
-          type uint16;
         }
       }
       case COSE_Algorithm {
@@ -699,27 +712,26 @@ module basic-remote-attestation {
           "This references the IANA COSE Algorithms Registry indices. Every index of this
           registry to be used must be mapable to a TPM_ALG_ID value.";
         leaf COSE_Algorithm-value {
+          type int32;
           description
             "The TPM Algo ID.";
-          type int32;
         }
       }
     }
   }
   
   grouping attestation-key-identifier {
+    description
+      "A selector for a suitable key identifier.";
     choice key-identifier {
       description
         "Identifier for the attestation key to use for signing
         attestation evidence.";
       case public-key {
-        description
-          "Use the public part of a key pair to identify the
-          attestation key.";
         leaf pub-key-id {
+          type binary;
           description
             "The value of the identifier for the public key.";
-          type binary;
         }
       }
       case uuid {
@@ -727,9 +739,9 @@ module basic-remote-attestation {
           "Use a YANG agent generated (and maintained) attestation
           key UUID.";
         leaf uuid-value {
+          type binary;
           description
             "The UUID identifying the corresponding public key.";
-          type binary;
         }
       }
     }
@@ -746,18 +758,8 @@ module basic-remote-attestation {
       description
       "Location of the node or All";
    }
+ 
  }
-
- grouping node-uptime {
-   description
-     "Uptime in seconds of the node.";
-   leaf up-time {
-     type uint32;
-     description
-     "Uptime in seconds of this node reporting its data";
-   }
- }
-
   identity log-type {
     description
       "The type of logs available.";
@@ -775,20 +777,16 @@ module basic-remote-attestation {
       "Measurement log created by IMA.";
   }
 
-  identity ima-binary {
-    base log-type;
-    description
-      "Measurement log created by IMA in binary encoding.";
-  }
-    
   grouping log-identifier {
     description
       "Identifier for type of log to be retrieved.";
     leaf measurement-log-type {
-      mandatory true;
       type identityref {
         base log-type;
       }
+      mandatory true;
+      description
+        "The corresponding log type identity.";
     }
   }
 
@@ -892,17 +890,19 @@ grouping boot-event-log {
   }
 
   grouping ima-event-log {
-    description
-      "Measurement log created by IMA.";
     list ima-event-entry {
       key event-number;
       description
       "Ordered list of ima event logs by event-number";
        uses ima-event;
-     }
+    }
+    description
+      "Measurement log created by IMA.";
   }
 
   grouping event-logs {
+    description
+      "A selector for the log and its type.";
     choice log-type {
       mandatory true;
       description
@@ -912,7 +912,8 @@ grouping boot-event-log {
           "BIOS/UEFI event logs";
         container bios-event-logs {
           description
-            "The requested entries of the bios log.";
+            "This is an index referencing the TCG Algorithm
+            Registry based on TPM_ALG_ID.";
           uses bios-event-log;
         }
       }
@@ -921,19 +922,11 @@ grouping boot-event-log {
           "IMA event logs";
         container ima-event-logs {
           description
-            "The requested entries of the ima log.";
+            "This is an index referencing the TCG Algorithm
+            Registry based on TPM_ALG_ID.";
           uses ima-event-log;
         }
       }
-      case ima-binary {
-        description
-          "IMA event logs encoded in binary representation";
-        leaf-list ima-event-logs-compressed {
-          description
-            "The requested entries of the ima log.";
-            type binary;
-        }
-      }      
     }
   }
 
@@ -965,31 +958,30 @@ grouping boot-event-log {
           "The binary output of TPM2b_Quote. An TPMS_ATTEST structure
           including a length, encapsulated in a signature";
         uses node-location;
-        uses node-uptime;
         container tpms-attest {
+          leaf pcrdigest {
+            type binary;
+            description
+              "split out value of TPMS_QUOTE_INFO for convenience";
+          }
+          leaf pcrdigest-length {
+            type uint32;
+            description
+              "split out length of digest for convenience";
+          }
+          leaf tpms-attest-result {
+            type binary;
+            description
+              "The complete TPM generate structure including signature.";
+          }
           description
             "A composite of value and length and list of selected
             pcrs (original name: [type]attested)";
-          leaf pcrdigest {
-            description
-              "split out value of TPMS_QUOTE_INFO for convenience";
-            type binary;
-          }
-          leaf pcrdigest-length {
-            description
-              "split out length of digest for convenience";
-            type uint32;
-          }
-          leaf tpms-attest-result {
-            description
-              "The complete TPM generate structure including signature.";
-            type binary;
-          }
         }
         leaf tpmt-signature {
+          type binary;
           description
              "split out value of the signature for convenience";
-          type binary;
         }
       }
     }
@@ -1006,21 +998,20 @@ grouping boot-event-log {
       uses node-location;
     }
     output {
-    list attestation-certificates {
-      key location;
-      description
-        "Attestation Certificate data of a node in a distributed system
-        identified by the location";
-      uses node-location;
-      uses node-uptime;
-      leaf attestation-certificate {
+      list attestation-certificates {
+        key location;
+        uses node-location;
+        leaf attestation-certificate {
+          type binary;
+          description
+            "An individual signed public attestation according to requested
+            capabilities.";
+        }
+        uses attestation-key-identifier;
         description
-          "An individual signed public attestation according to requested
-          capabilities.";
-        type binary;
+          "Attestation Certificate data of a node in a distributed system
+          identified by the location";
       }
-      uses attestation-key-identifier;
-    }
     }
   }
   
@@ -1031,78 +1022,99 @@ grouping boot-event-log {
       The type of log is a choice that can be
       augmented.";
     input {
-      list log-selector {
-        key location;
-        description
-         "Selection of log entries to be reported.";
-        uses node-location;
-        choice index-type {
+      choice index-type {
+        case last-entry {
+          leaf last-entry-value {
+            type binary;
+            description
+              "Content of the last entry requested.";
+          }
           description
-            "Last-line or index.";
-          case last-entry {
-            description
-              "The last entry of the log already retrieved";
-            leaf last-entry-value {
-              description
-                "Content of the last entry requested.";
-              type binary;
-            }
-          }
-          case index {
-            description
-              "Numeric index of the last log entry retrieved.";
-            leaf index-number {
-              description
-                "The numeric index number";
-              type uint64;
-            }
-          }
+            "The last entry of the log already retrieved";
         }
+        case index {
+          leaf index-number {
+            type uint64;
+            description
+              "The numeric index number";
+          }
+          description
+            "Numeric index of the last log entry retrieved.";
+        }
+        description
+          "Last-line or index.";
       }
       uses log-identifier;
       uses pcr-selection;
       leaf chunk-size {
+        type uint64;
         description
          "The number of log entries to be returned. If omitted, it means all of them.";
-        type uint64;
       }
       uses node-location;
     } 
     output {
       container system-event-logs {
-         description
-         "The requested data of the measurement event logs";
-         list node-data {
-           key location;
-           description
-           "Event logs of a node in a distributed system
-            identified by the location";
-           uses node-location;
-           uses node-uptime;
-           container log-result {
-             description
-             "The requested entries of the corresponding log.";
-             uses event-logs;
-           }
-         }
-       }
-     }
-   }
+        list node-data {
+          key node-location;
+          description
+            "Event logs of a node in a distributed system
+             identified by the location";
+          leaf node-location {
+            type string;
+            description
+              "Location of the node in the distributed system";
+          }
+          leaf up-time {
+            type uint32;
+            description
+              "Uptime in seconds of this node reporting its data";
+          }
+          container log-result {
+            description
+              "The requested entries of the corresponding log.";
+          uses event-logs;
+          }
+        }
+        description
+          "The requested data of the measurement event logs";
+      }
+    }
+  }
  
   
   container rats-support-structures {
     leaf-list supported-algos {
+      type uint16;
       description
         "Supported TPM_ALG_ID values for the TPM in question.
         Will include ComponentIndex soon.";
-      type uint16;
     }
-    leaf endorsement-certificate {
+    leaf-list locations {
+      type string;
       description
-        "The signed pulic endorsement key (EK) and corresponding claims (EK Certificate). In a TPM 2.0 the EK Certificate resides in a well-defined NVRAM location by the TPM vednor.";
-      type binary;
-      mandatory true;
+        "A list of locations of hardware components in this composite
+         device that rats can be conducted with.";
     }
+    container endorsement-certificates {
+      list node-certificate {
+        key location;
+        description
+          "The location of the endorsement-certificate.";
+        uses node-location;
+        leaf endorsement-certificate {
+          type binary;
+          mandatory true;
+          description
+            "The signed pulic endorsement key (EK) and corresponding claims
+             (EK Certificate). In a TPM 2.0 the EK Certificate resides in a
+             well-defined NVRAM location by the TPM vednor.";
+        }
+      }
+    description
+      "Basic information elements to enable RATS.";
+    }
+  config false;
   }
 }
 &lt;CODE ENDS&gt;
