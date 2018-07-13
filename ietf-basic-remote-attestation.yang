@@ -102,7 +102,7 @@ module ietf-basic-remote-attestation {
       container pcr {
         description
           "The composite of a PCR number and corresponding bank numbers.";
-        leaf-list pcr-numbers {
+        leaf-list pcr-indices {
            type uint8;
            description
              "The number of the PCR. At the moment this is limited
@@ -381,7 +381,7 @@ grouping boot-event-log {
   }
 
 
-  rpc tpm2-challenge-repsonse-attestation {
+  rpc tpm2-challenge-response-attestation {
     description
       "This RPC accepts the input for TSS commands of the managed device.
       ComponentIndex from the hardware manager YANG module to refer to 
@@ -475,7 +475,7 @@ grouping boot-event-log {
       choice index-type {
         case last-entry {
           leaf last-entry-value {
-            type binary;
+            type uint64;
             description
               "Content of the last entry requested.";
           }
@@ -483,7 +483,7 @@ grouping boot-event-log {
             "The last entry of the log already retrieved";
         }
         case index {
-          leaf index-number {
+          leaf index-cursor {
             type uint64;
             description
               "The numeric index number";
