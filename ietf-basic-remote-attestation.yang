@@ -230,13 +230,13 @@ module ietf-basic-remote-attestation {
   grouping log-identifier {
     description
       "Identifier for type of log to be retrieved.";
-    leaf measurement-log-type {
+    leaf log-type {
       type identityref {
         base log-type;
       }
       mandatory true;
       description
-        "The corresponding log type identity.";
+        "The corresponding measurement log type identity.";
     }
   }
 
@@ -424,6 +424,11 @@ grouping boot-event-log {
             description
               "The complete TPM generate structure including signature.";
           }
+          leaf tpms-attest-result-length {
+            type uint32;
+            description
+              "Length of attest result provided by the TPM structure.";
+          }
           description
             "A composite of value and length and list of selected
             pcrs (original name: [type]attested)";
@@ -431,7 +436,7 @@ grouping boot-event-log {
         leaf tpmt-signature {
           type binary;
           description
-             "split out value of the signature for convenience";
+             "Split out value of the signature for convenience. TODO: check for length values that complent binary value data node leafs.";
         }
       }
     }
@@ -486,7 +491,7 @@ grouping boot-event-log {
           leaf index-cursor {
             type uint64;
             description
-              "The numeric index number";
+              "The numeric index number of the last log entry received.";
           }
           description
             "Numeric index of the last log entry retrieved.";

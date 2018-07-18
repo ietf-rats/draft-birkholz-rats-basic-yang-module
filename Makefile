@@ -6,7 +6,7 @@ bootstrap:
 	sudo pip install xml2rfc
 	sudo gem install kramdown-rfc2629
 tree: basic-remote-attestation.yang
-	pyang --format=tree $< -o basic-remote-attestation.tree
+	pyang --format=tree $< -o ietf-basic-remote-attestation.yang 
 
 $(LIBDIR)/main.mk:
 ifneq (,$(shell grep "path *= *$(LIBDIR)" .gitmodules 2>/dev/null))
