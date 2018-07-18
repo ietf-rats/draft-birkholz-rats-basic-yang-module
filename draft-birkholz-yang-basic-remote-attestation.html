@@ -300,7 +300,7 @@ ul.toc li {
 
   <meta name="dct.creator" content="Birkholz, H., Eckel, M., Bhandari, S., Sulzen, B., Voit, E., and G. Fedorkow" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-birkholz-yang-basic-remote-attestation-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-07-04" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-07-18" />
   <meta name="dct.abstract" content="This document defines YANG RPC and a minimal datastore required to retrieve integrity evidence about software from the device running the YANG datastore. The module presented requires a TPM 2.0 and corresponding Trusted Software Stack included in the system entity the YANG datastore is running on." />
   <meta name="description" content="This document defines YANG RPC and a minimal datastore required to retrieve integrity evidence about software from the device running the YANG datastore. The module presented requires a TPM 2.0 and corresponding Trusted Software Stack included in the system entity the YANG datastore is running on." />
 
@@ -324,7 +324,7 @@ ul.toc li {
 <td class="right">M. Eckel</td>
 </tr>
 <tr>
-<td class="left">Expires: January 5, 2019</td>
+<td class="left">Expires: January 19, 2019</td>
 <td class="right">Huawei</td>
 </tr>
 <tr>
@@ -353,7 +353,7 @@ ul.toc li {
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">July 04, 2018</td>
+<td class="right">July 18, 2018</td>
 </tr>
 
     	
@@ -369,7 +369,7 @@ ul.toc li {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on January 5, 2019.</p>
+<p>This Internet-Draft will expire on January 19, 2019.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2018 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -433,12 +433,12 @@ module: ietf-basic-remote-attestation
              +--ro endorsement-certificate    binary
 
   rpcs:
-    +---x tpm2-challenge-repsonse-attestation
+    +---x tpm2-challenge-response-attestation
     |  +---w input
     |  |  +---w tpm2-attestation-challenge
     |  |  |  +---w pcr-list*
     |  |  |  |  +---w pcr
-    |  |  |  |     +---w pcr-numbers*            uint8
+    |  |  |  |     +---w pcr-indices*            uint8
     |  |  |  |     +---w (algo-registry-type)
     |  |  |  |        +--:(tcg)
     |  |  |  |        |  +---w tcg-hash-algo-id?       uint16
@@ -494,13 +494,13 @@ module: ietf-basic-remote-attestation
        +---w input
        |  +---w (index-type)?
        |  |  +--:(last-entry)
-       |  |  |  +---w last-entry-value?       binary
+       |  |  |  +---w last-entry-value?       uint64
        |  |  +--:(index)
-       |  |     +---w index-number?           uint64
+       |  |     +---w index-cursor?           uint64
        |  +---w measurement-log-type    identityref
        |  +---w pcr-list*
        |  |  +---w pcr
-       |  |     +---w pcr-numbers*            uint8
+       |  |     +---w pcr-indices*            uint8
        |  |     +---w (algo-registry-type)
        |  |        +--:(tcg)
        |  |        |  +---w tcg-hash-algo-id?       uint16
@@ -652,7 +652,7 @@ module ietf-basic-remote-attestation {
       container pcr {
         description
           "The composite of a PCR number and corresponding bank numbers.";
-        leaf-list pcr-numbers {
+        leaf-list pcr-indices {
            type uint8;
            description
              "The number of the PCR. At the moment this is limited
@@ -780,13 +780,13 @@ module ietf-basic-remote-attestation {
   grouping log-identifier {
     description
       "Identifier for type of log to be retrieved.";
-    leaf measurement-log-type {
+    leaf log-type {
       type identityref {
         base log-type;
       }
       mandatory true;
       description
-        "The corresponding log type identity.";
+        "The corresponding measurement log type identity.";
     }
   }
 
@@ -931,7 +931,7 @@ grouping boot-event-log {
   }
 
 
-  rpc tpm2-challenge-repsonse-attestation {
+  rpc tpm2-challenge-response-attestation {
     description
       "This RPC accepts the input for TSS commands of the managed device.
       ComponentIndex from the hardware manager YANG module to refer to 
@@ -974,6 +974,11 @@ grouping boot-event-log {
             description
               "The complete TPM generate structure including signature.";
           }
+          leaf tpms-attest-result-length {
+            type uint32;
+            description
+              "Length of attest result provided by the TPM structure.";
+          }
           description
             "A composite of value and length and list of selected
             pcrs (original name: [type]attested)";
@@ -981,7 +986,7 @@ grouping boot-event-log {
         leaf tpmt-signature {
           type binary;
           description
-             "split out value of the signature for convenience";
+             "Split out value of the signature for convenience. TODO: check for length values that complent binary value data node leafs.";
         }
       }
     }
@@ -1025,7 +1030,7 @@ grouping boot-event-log {
       choice index-type {
         case last-entry {
           leaf last-entry-value {
-            type binary;
+            type uint64;
             description
               "Content of the last entry requested.";
           }
@@ -1033,10 +1038,10 @@ grouping boot-event-log {
             "The last entry of the log already retrieved";
         }
         case index {
-          leaf index-number {
+          leaf index-cursor {
             type uint64;
             description
-              "The numeric index number";
+              "The numeric index number of the last log entry received.";
           }
           description
             "Numeric index of the last log entry retrieved.";
