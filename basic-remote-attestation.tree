@@ -4,7 +4,7 @@ module: basic-remote-attestation
      +--rw endorsement-certificate    binary
 
   rpcs:
-    +---x tpm2-challenge-repsonse-attestation
+    +---x tpm2-challenge-response-attestation
     |  +---w input
     |  |  +---w tpm2-attestation-challenge
     |  |  |  +---w pcr-list* []
@@ -26,37 +26,36 @@ module: basic-remote-attestation
     |  |  |     |  +---w pub-key-id?             binary
     |  |  |     +--:(uuid)
     |  |  |        +---w uuid-value?             binary
-    |  |  +---w location?                     string
+    |  |  +---w name?                         string
+    |  |  +---w tpm-physical-index?           int32 {ietfhw:entity-mib}?
     |  +--ro output
-    |     +--ro tpm2-attestation-response* [location]
-    |        +--ro location          string
-    |        +--ro up-time?          uint32
+    |     +--ro tpm2-attestation-response* [name]
+    |        +--ro name                   string
+    |        +--ro tpm-physical-index?    int32 {ietfhw:entity-mib}?
+    |        +--ro up-time?               uint32
+    |        +--ro node-name?             string
+    |        +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
     |        +--ro tpms-attest
     |        |  +--ro pcrdigest?            binary
-    |        |  +--ro pcrdigest-length?     uint32
     |        |  +--ro tpms-attest-result?   binary
-    |        +--ro tpmt-signature?   binary
+    |        +--ro tpmt-signature?        binary
     +---x basic-trust-establishment
     |  +---w input
     |  |  +---w nonce-value                   binary
-    |  |  +---w pcr-list* []
-    |  |  |  +---w pcr
-    |  |  |     +---w pcr-numbers*                  uint8
-    |  |  |     +---w (algo-registry-type)
-    |  |  |        +--:(tcg)
-    |  |  |        |  +---w tcg-hash-algo-id?       uint16
-    |  |  |        +--:(ietf)
-    |  |  |           +---w ietf-ni-hash-algo-id?   uint8
     |  |  +---w (signature-identifier-type)
     |  |  |  +--:(TPM_ALG_ID)
     |  |  |  |  +---w TPM_ALG_ID-value?       uint16
     |  |  |  +--:(COSE_Algorithm)
     |  |  |     +---w COSE_Algorithm-value?   int32
-    |  |  +---w location?                     string
+    |  |  +---w name?                         string
+    |  |  +---w tpm-physical-index?           int32 {ietfhw:entity-mib}?
     |  +--ro output
-    |     +--ro attestation-certificates* [location]
-    |        +--ro location                   string
+    |     +--ro attestation-certificates* [name]
+    |        +--ro name                       string
+    |        +--ro tpm-physical-index?        int32 {ietfhw:entity-mib}?
     |        +--ro up-time?                   uint32
+    |        +--ro node-name?                 string
+    |        +--ro node-physical-index?       int32 {ietfhw:entity-mib}?
     |        +--ro attestation-certificate?   binary
     |        +--ro (key-identifier)?
     |           +--:(public-key)
@@ -65,8 +64,9 @@ module: basic-remote-attestation
     |              +--ro uuid-value?          binary
     +---x log-retrieval
        +---w input
-       |  +---w log-selector* [location]
-       |  |  +---w location                  string
+       |  +---w log-selector* [node-name]
+       |  |  +---w node-name                 string
+       |  |  +---w node-physical-index?      int32 {ietfhw:entity-mib}?
        |  |  +---w (index-type)?
        |  |     +--:(last-entry)
        |  |     |  +---w last-entry-value?   binary
@@ -82,12 +82,15 @@ module: basic-remote-attestation
        |  |        +--:(ietf)
        |  |           +---w ietf-ni-hash-algo-id?   uint8
        |  +---w chunk-size?             uint64
-       |  +---w location?               string
        +--ro output
           +--ro system-event-logs
-             +--ro node-data* [location]
-                +--ro location      string
-                +--ro up-time?      uint32
+             +--ro node-data* [node-name]
+                +--ro node-name              string
+                +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
+                +--ro up-time?               uint32
+                +--ro tpm-updated* [name]
+                |  +--ro name                  string
+                |  +--ro tpm-physical-index?   int32 {ietfhw:entity-mib}?
                 +--ro log-result
                    +--ro (log-type)
                       +--:(bios)

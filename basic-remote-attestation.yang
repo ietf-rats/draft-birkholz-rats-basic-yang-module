@@ -1,6 +1,11 @@
 module basic-remote-attestation {
   namespace "urn:ietf:params:xml:ns:yang:brat";
   prefix "yang-brat";
+
+  import ietf-hardware {
+      prefix ietfhw;
+  }
+
   organization
    "Fraunhofer SIT";
   contact
@@ -188,17 +193,47 @@ module basic-remote-attestation {
     }
   }
   
- grouping node-location {
+ grouping tpm-name {
    description
-     "In a distributed system get the data from a specific node
-      identified by the location. If this field is not specified
-      data associated with each node forming the system will be
-      returned.";
-   leaf location {
+     "In a system with multiple-TPMs get the data from a specific TPM
+      identified by the name and physical-index.";
+   leaf name {
       type string;
       description
-      "Location of the node or All";
+      "Name of the TPM or All";
    }
+   leaf tpm-physical-index {
+       if-feature ietfhw:entity-mib;
+       type int32 {
+            range "1..2147483647";
+       }
+       config false;
+       description
+            "The entPhysicalIndex for the TPM.";
+        reference
+            "RFC 6933: Entity MIB (Version 4) - entPhysicalIndex";
+     }
+ }
+ grouping compute-node {
+   description
+     "In a distributed system with multiple compute nodes
+      this is the node identified by name and physical-index.";
+   leaf node-name {
+      type string;
+      description
+      "Name of the compute node or All";
+   }
+   leaf node-physical-index {
+       if-feature ietfhw:entity-mib;
+       type int32 {
+            range "1..2147483647";
+       }
+       config false;
+       description
+            "The entPhysicalIndex for the compute node.";
+        reference
+            "RFC 6933: Entity MIB (Version 4) - entPhysicalIndex";
+     }
  }
 
  grouping node-uptime {
@@ -391,7 +426,7 @@ grouping boot-event-log {
   }
 
 
-  rpc tpm2-challenge-repsonse-attestation {
+  rpc tpm2-challenge-response-attestation {
     description
       "This RPC accepts the input for TSS commands of the managed device.
       ComponentIndex from the hardware manager YANG module to refer to 
@@ -409,16 +444,17 @@ grouping boot-event-log {
         uses signature-scheme;
         uses attestation-key-identifier;
       }
-      uses node-location;
+      uses tpm-name;
     }
     output {
       list tpm2-attestation-response {
-        key location;
+        key name;
         description
           "The binary output of TPM2b_Quote. An TPMS_ATTEST structure
           including a length, encapsulated in a signature";
-	uses node-location;
+	uses tpm-name;
 	uses node-uptime;
+	uses compute-node;
         container tpms-attest {
           description
             "A composite of value and length and list of selected
@@ -427,11 +463,6 @@ grouping boot-event-log {
             description
               "split out value of TPMS_QUOTE_INFO for convenience";
             type binary;
-          }
-          leaf pcrdigest-length {
-            description
-              "split out length of digest for convenience";
-            type uint32;
           }
           leaf tpms-attest-result {
             description
@@ -454,18 +485,17 @@ grouping boot-event-log {
       in TPM_Quote commands, an attestation certificate.";
     input {
       uses nonce;
-      uses pcr-selector;
       uses signature-scheme;
-      uses node-location;
+      uses tpm-name;
     }
     output {
     list attestation-certificates {
-      key location;
+      key name;
       description
-        "Attestation Certificate data of a node in a distributed system
-        identified by the location";
-      uses node-location;
+        "Attestation Certificate data from a TPM identified by the TPM name";
+      uses tpm-name;
       uses node-uptime;
+      uses compute-node;
       leaf attestation-certificate {
         description
           "An individual signed public attestation according to requested
@@ -485,10 +515,10 @@ grouping boot-event-log {
       augmented.";
     input {
       list log-selector {
-        key location;
+        key node-name;
         description
 	 "Selection of log entries to be reported.";
-	uses node-location;
+	uses compute-node;
         choice index-type {
           description
             "Last-line or index.";
@@ -519,19 +549,24 @@ grouping boot-event-log {
          "The number of log entries to be returned. If omitted, it means all of them.";
         type uint64;
       }
-      uses node-location;
     } 
     output {
       container system-event-logs {
          description
 	 "The requested data of the measurement event logs";
          list node-data {
-           key location;
+           key node-name;
            description
            "Event logs of a node in a distributed system
-            identified by the location";
-           uses node-location;
+            identified by the node name";
+           uses compute-node;
 	   uses node-uptime;
+	   list tpm-updated {
+	     key name;
+	     description
+	     "TPM these events may have recorded data in";
+	     uses tpm-name;
+	   }
            container log-result {
              description
              "The requested entries of the corresponding log.";
