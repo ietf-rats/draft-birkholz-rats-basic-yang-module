@@ -197,7 +197,7 @@ module basic-remote-attestation {
    description
      "In a system with multiple-TPMs get the data from a specific TPM
       identified by the name and physical-index.";
-   leaf name {
+   leaf tpm_name {
       type string;
       description
       "Name of the TPM or All";
@@ -448,7 +448,7 @@ grouping boot-event-log {
     }
     output {
       list tpm2-attestation-response {
-        key name;
+        key tpm_name;
         description
           "The binary output of TPM2b_Quote. An TPMS_ATTEST structure
           including a length, encapsulated in a signature";
@@ -490,7 +490,7 @@ grouping boot-event-log {
     }
     output {
     list attestation-certificates {
-      key name;
+      key tpm_name;
       description
         "Attestation Certificate data from a TPM identified by the TPM name";
       uses tpm-name;
@@ -562,7 +562,7 @@ grouping boot-event-log {
            uses compute-node;
 	   uses node-uptime;
 	   list tpm-updated {
-	     key name;
+	     key tpm_name;
 	     description
 	     "TPM these events may have recorded data in";
 	     uses tpm-name;

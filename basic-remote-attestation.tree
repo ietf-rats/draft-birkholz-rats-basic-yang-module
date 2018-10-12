@@ -26,11 +26,11 @@ module: basic-remote-attestation
     |  |  |     |  +---w pub-key-id?             binary
     |  |  |     +--:(uuid)
     |  |  |        +---w uuid-value?             binary
-    |  |  +---w name?                         string
+    |  |  +---w tpm_name?                     string
     |  |  +---w tpm-physical-index?           int32 {ietfhw:entity-mib}?
     |  +--ro output
-    |     +--ro tpm2-attestation-response* [name]
-    |        +--ro name                   string
+    |     +--ro tpm2-attestation-response* [tpm_name]
+    |        +--ro tpm_name               string
     |        +--ro tpm-physical-index?    int32 {ietfhw:entity-mib}?
     |        +--ro up-time?               uint32
     |        +--ro node-name?             string
@@ -47,11 +47,11 @@ module: basic-remote-attestation
     |  |  |  |  +---w TPM_ALG_ID-value?       uint16
     |  |  |  +--:(COSE_Algorithm)
     |  |  |     +---w COSE_Algorithm-value?   int32
-    |  |  +---w name?                         string
+    |  |  +---w tpm_name?                     string
     |  |  +---w tpm-physical-index?           int32 {ietfhw:entity-mib}?
     |  +--ro output
-    |     +--ro attestation-certificates* [name]
-    |        +--ro name                       string
+    |     +--ro attestation-certificates* [tpm_name]
+    |        +--ro tpm_name                   string
     |        +--ro tpm-physical-index?        int32 {ietfhw:entity-mib}?
     |        +--ro up-time?                   uint32
     |        +--ro node-name?                 string
@@ -88,8 +88,8 @@ module: basic-remote-attestation
                 +--ro node-name              string
                 +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
                 +--ro up-time?               uint32
-                +--ro tpm-updated* [name]
-                |  +--ro name                  string
+                +--ro tpm-updated* [tpm_name]
+                |  +--ro tpm_name              string
                 |  +--ro tpm-physical-index?   int32 {ietfhw:entity-mib}?
                 +--ro log-result
                    +--ro (log-type)
