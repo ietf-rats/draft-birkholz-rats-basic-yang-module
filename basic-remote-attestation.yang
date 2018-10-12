@@ -1,11 +1,17 @@
 module basic-remote-attestation {
   namespace "urn:ietf:params:xml:ns:yang:brat";
   prefix "yang-brat";
-
+  
+  import ietf-yang-types {
+    prefix yang;
+  }
   import ietf-hardware {
       prefix ietfhw;
   }
-
+  import ietf-crypto-types {
+      prefix ietfct;
+  }
+  
   organization
    "Fraunhofer SIT";
   contact
@@ -125,7 +131,7 @@ module basic-remote-attestation {
       container pcr {
         description
           "The composite of a PCR number and corresponding bank numbers.";
-        leaf-list pcr-numbers {
+        leaf-list pcr-index {
            description
              "The numbers of the PCRs that are associated with
              the created key. At the moment the highest number is 32";
@@ -395,6 +401,7 @@ grouping boot-event-log {
       mandatory true;
       description
         "Event log type determines the event logs content.";
+
       case bios {
         description
           "BIOS/UEFI event logs";
@@ -487,6 +494,11 @@ grouping boot-event-log {
       uses nonce;
       uses signature-scheme;
       uses tpm-name;
+      leaf certificate-name {
+         type string;
+         description
+         "An arbitrary name for the identity certificate chain requested.";
+      }
     }
     output {
     list attestation-certificates {
@@ -496,11 +508,15 @@ grouping boot-event-log {
       uses tpm-name;
       uses node-uptime;
       uses compute-node;
+      leaf certificate-name {
+         type string;
+         description
+         "An arbitrary name for this identity certificate or certificate chain.";
+      }      
       leaf attestation-certificate {
         description
-          "An individual signed public attestation according to requested
-          capabilities.";
-        type binary;
+          "The binary signed certificate chain data for this identity certificate.";
+        type ietfct:end-entity-cert-cms;
       }
       uses attestation-key-identifier;
     }
@@ -521,33 +537,52 @@ grouping boot-event-log {
 	uses compute-node;
         choice index-type {
           description
-            "Last-line or index.";
+             "Last log entry received, log index number, or timestamp.";
+
           case last-entry {
             description
-              "The last entry of the log already retrieved";
+              "The last entry of the log already retrieved.";
             leaf last-entry-value {
               description
-                "Content of the last entry requested.";
-              type binary;
+              "Content of an 'event-string' which matches 1:1 with a 
+              unique event record contained within the log.  Log 
+              entries subsequent to this will be passed to the 
+              requestor.  Note: if log entry values are not unique, 
+              this MUST return an error.";
+	      type binary;
             }
           }
           case index {
-            description
-              "Numeric index of the last log entry retrieved.";
+	    description
+              "Numeric index of the last log entry retrieved, or zero.";
             leaf index-number {
               description
-                "The numeric index number";
+              "The numeric index number of a log entry.  Zero means 
+              to start at the beginning of the log.   Entries
+              subsequent to this will be passed to the 
+              requestor.";
               type uint64;
             }
+          }
+          case timestamp {
+            leaf timestamp {
+              type yang:date-and-time;
+              description
+                "Timestamp from which to start the extraction.  The next
+                log entry subsequent to this timestamp is to be sent.";
+            }
+            description
+              "Timestamp from which to start the extraction.";
           }
         }
       }
       uses log-identifier;
       uses pcr-selection;
-      leaf chunk-size {
+      leaf log-entry-quantity {
+        type uint16;
         description
-         "The number of log entries to be returned. If omitted, it means all of them.";
-        type uint64;
+         "The number of log entries to be returned. If omitted, it 
+         means all of them.";
       }
     } 
     output {

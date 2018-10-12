@@ -49,6 +49,7 @@ module: basic-remote-attestation
     |  |  |     +---w COSE_Algorithm-value?   int32
     |  |  +---w tpm_name?                     string
     |  |  +---w tpm-physical-index?           int32 {ietfhw:entity-mib}?
+    |  |  +---w certificate-name?             string
     |  +--ro output
     |     +--ro attestation-certificates* [tpm_name]
     |        +--ro tpm_name                   string
@@ -56,7 +57,8 @@ module: basic-remote-attestation
     |        +--ro up-time?                   uint32
     |        +--ro node-name?                 string
     |        +--ro node-physical-index?       int32 {ietfhw:entity-mib}?
-    |        +--ro attestation-certificate?   binary
+    |        +--ro certificate-name?          string
+    |        +--ro attestation-certificate?   ietfct:end-entity-cert-cms
     |        +--ro (key-identifier)?
     |           +--:(public-key)
     |           |  +--ro pub-key-id?          binary
@@ -71,7 +73,9 @@ module: basic-remote-attestation
        |  |     +--:(last-entry)
        |  |     |  +---w last-entry-value?   binary
        |  |     +--:(index)
-       |  |        +---w index-number?       uint64
+       |  |     |  +---w index-number?       uint64
+       |  |     +--:(timestamp)
+       |  |        +---w timestamp?          yang:date-and-time
        |  +---w measurement-log-type    identityref
        |  +---w pcr-list* []
        |  |  +---w pcr
@@ -81,7 +85,7 @@ module: basic-remote-attestation
        |  |        |  +---w tcg-hash-algo-id?       uint16
        |  |        +--:(ietf)
        |  |           +---w ietf-ni-hash-algo-id?   uint8
-       |  +---w chunk-size?             uint64
+       |  +---w log-entry-quantity?     uint16
        +--ro output
           +--ro system-event-logs
              +--ro node-data* [node-name]
