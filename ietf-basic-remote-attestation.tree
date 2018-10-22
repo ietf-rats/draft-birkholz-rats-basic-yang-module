@@ -1,7 +1,17 @@
-module: basic-remote-attestation
-  +--rw rats-support-structures
-     +--rw supported-algos*           uint16
-     +--rw endorsement-certificate    binary
+module: ietf-basic-remote-attestation
+  +--ro rats-support-structures
+     +--ro supported-algos*            uint16
+     +--ro tpms* [tpm_name]
+     |  +--ro tpm_name              string
+     |  +--ro tpm-physical-index?   int32 {ietfhw:entity-mib}?
+     +--ro compute-nodes* [node-name]
+     |  +--ro node-name              string
+     |  +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
+     +--ro endorsement-certificates
+        +--ro certificate* [tpm_name]
+           +--ro tpm_name                   string
+           +--ro tpm-physical-index?        int32 {ietfhw:entity-mib}?
+           +--ro endorsement-certificate    binary
 
   rpcs:
     +---x tpm2-challenge-response-attestation
@@ -9,7 +19,7 @@ module: basic-remote-attestation
     |  |  +---w tpm2-attestation-challenge
     |  |  |  +---w pcr-list* []
     |  |  |  |  +---w pcr
-    |  |  |  |     +---w pcr-numbers*                  uint8
+    |  |  |  |     +---w pcr-indices*                  uint8
     |  |  |  |     +---w (algo-registry-type)
     |  |  |  |        +--:(tcg)
     |  |  |  |        |  +---w tcg-hash-algo-id?       uint16
@@ -36,8 +46,9 @@ module: basic-remote-attestation
     |        +--ro node-name?             string
     |        +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
     |        +--ro tpms-attest
-    |        |  +--ro pcrdigest?            binary
-    |        |  +--ro tpms-attest-result?   binary
+    |        |  +--ro pcrdigest?                   binary
+    |        |  +--ro tpms-attest-result?          binary
+    |        |  +--ro tpms-attest-result-length?   uint32
     |        +--ro tpmt-signature?        binary
     +---x basic-trust-establishment
     |  +---w input
@@ -76,16 +87,16 @@ module: basic-remote-attestation
        |  |     |  +---w index-number?       uint64
        |  |     +--:(timestamp)
        |  |        +---w timestamp?          yang:date-and-time
-       |  +---w measurement-log-type    identityref
+       |  +---w log-type              identityref
        |  +---w pcr-list* []
        |  |  +---w pcr
-       |  |     +---w pcr-numbers*                  uint8
+       |  |     +---w pcr-indices*                  uint8
        |  |     +---w (algo-registry-type)
        |  |        +--:(tcg)
        |  |        |  +---w tcg-hash-algo-id?       uint16
        |  |        +--:(ietf)
        |  |           +---w ietf-ni-hash-algo-id?   uint8
-       |  +---w log-entry-quantity?     uint16
+       |  +---w log-entry-quantity?   uint16
        +--ro output
           +--ro system-event-logs
              +--ro node-data* [node-name]
@@ -113,15 +124,13 @@ module: basic-remote-attestation
                       |        +--ro event-size?     uint32
                       |        +--ro event-data*     uint8
                       +--:(ima)
-                      |  +--ro ima-event-logs
-                      |     +--ro ima-event-entry* [event-number]
-                      |        +--ro event-number               uint64
-                      |        +--ro ima-template?              string
-                      |        +--ro filename-hint?             string
-                      |        +--ro filedata-hash?             binary
-                      |        +--ro template-hash-algorithm?   string
-                      |        +--ro template-hash?             binary
-                      |        +--ro pcr-index?                 uint16
-                      |        +--ro signature?                 binary
-                      +--:(ima-binary)
-                         +--ro ima-event-logs-compressed*   binary
+                         +--ro ima-event-logs
+                            +--ro ima-event-entry* [event-number]
+                               +--ro event-number               uint64
+                               +--ro ima-template?              string
+                               +--ro filename-hint?             string
+                               +--ro filedata-hash?             binary
+                               +--ro template-hash-algorithm?   string
+                               +--ro template-hash?             binary
+                               +--ro pcr-index?                 uint16
+                               +--ro signature?                 binary

@@ -1,5 +1,5 @@
-module basic-remote-attestation {
-  namespace "urn:ietf:params:xml:ns:yang:brat";
+module ietf-basic-remote-attestation {
+  namespace "urn:ietf:params:xml:ns:yang:ietf-basic-remote-attestation";
   prefix "yang-brat";
   
   import ietf-yang-types {
@@ -30,6 +30,8 @@ module basic-remote-attestation {
   }
   
   grouping hash-algo {
+    description
+      "A selector for the hashing algorithm";
     choice algo-registry-type {
       mandatory true;
       description
@@ -40,10 +42,10 @@ module basic-remote-attestation {
           "you chose the east door, the tcg space opens up to
           you.";
         leaf tcg-hash-algo-id {
+          type uint16;
           description
             "This is an index referencing the TCG Algorithm
             Registry based on TPM_ALG_ID.";
-          type uint16;
         }
       }
       case ietf {
@@ -51,33 +53,40 @@ module basic-remote-attestation {
           "you chose the west door, the ietf space opens up to
           you.";
         leaf ietf-ni-hash-algo-id {
+          type uint8;
           description
             "This is an index referencing the Named Information
              Hash Algorithm Registry.";
-          type uint8;
         }
       }
     }
   }
   
   grouping hash {
+    description
+      "The hash value including hash-algo identifer";
     list hash-digests {
+      description
+        "The list of hashes.";
       container hash-digest {
         description
           "A hash value based on a hash algorithm registered by an
           SDO.";
         uses hash-algo;
         leaf hash-value {
+          type binary;
           description
             "The binary representaion of the hash value.";
-          type binary;
         }
       }
     }
   }
   
   grouping nonce {
+    description
+      "A nonce to show freshness and counter replays.";
     leaf nonce-value {
+      type binary;
       mandatory true;
       description
         "This nonce SHOULD be generated via a registered
@@ -85,7 +94,6 @@ module basic-remote-attestation {
         of the nonce depends on the hash algorithm used. The algorithm
         used in this case is independent from the hash algorithm used to
         create the hash-value in the response of the attestor.";
-      type binary;
     }
   }
   
@@ -105,11 +113,11 @@ module basic-remote-attestation {
       container pcr {
         description
           "The composite of a PCR number and corresponding bank numbers.";
-        leaf-list pcr-numbers {
+        leaf-list pcr-indices {
+           type uint8;
            description
              "The number of the PCR. At the moment this is limited
              32";
-           type uint8;
         }
         uses hash-algo;
       }
@@ -132,10 +140,10 @@ module basic-remote-attestation {
         description
           "The composite of a PCR number and corresponding bank numbers.";
         leaf-list pcr-index {
+           type uint8;
            description
              "The numbers of the PCRs that are associated with
              the created key. At the moment the highest number is 32";
-           type uint8;
         }
         uses hash-algo;
       }
@@ -143,6 +151,8 @@ module basic-remote-attestation {
   }
   
   grouping signature-scheme {
+    description
+      "The signature scheme used to sign the evidence.";
     choice signature-identifier-type {
       mandatory true;
       description
@@ -153,9 +163,9 @@ module basic-remote-attestation {
         description
           "This references the indices of table 9 in the TPM 2.0 structure specification.";
         leaf TPM_ALG_ID-value {
+          type uint16;
           description
             "The TPM Algo ID.";
-          type uint16;
         }
       }
       case COSE_Algorithm {
@@ -163,27 +173,26 @@ module basic-remote-attestation {
           "This references the IANA COSE Algorithms Registry indices. Every index of this
           registry to be used must be mapable to a TPM_ALG_ID value.";
         leaf COSE_Algorithm-value {
+          type int32;
           description
             "The TPM Algo ID.";
-          type int32;
         }
       }
     }
   }
   
   grouping attestation-key-identifier {
+    description
+      "A selector for a suitable key identifier.";
     choice key-identifier {
       description
         "Identifier for the attestation key to use for signing
         attestation evidence.";
       case public-key {
-        description
-          "Use the public part of a key pair to identify the
-          attestation key.";
         leaf pub-key-id {
+          type binary;
           description
             "The value of the identifier for the public key.";
-          type binary;
         }
       }
       case uuid {
@@ -191,9 +200,9 @@ module basic-remote-attestation {
           "Use a YANG agent generated (and maintained) attestation
           key UUID.";
         leaf uuid-value {
+          type binary;
           description
             "The UUID identifying the corresponding public key.";
-          type binary;
         }
       }
     }
@@ -241,7 +250,6 @@ module basic-remote-attestation {
             "RFC 6933: Entity MIB (Version 4) - entPhysicalIndex";
      }
  }
-
  grouping node-uptime {
    description
      "Uptime in seconds of the node.";
@@ -251,7 +259,6 @@ module basic-remote-attestation {
      "Uptime in seconds of this node reporting its data";
    }
  }
-
   identity log-type {
     description
       "The type of logs available.";
@@ -269,20 +276,16 @@ module basic-remote-attestation {
       "Measurement log created by IMA.";
   }
 
-  identity ima-binary {
-    base log-type;
-    description
-      "Measurement log created by IMA in binary encoding.";
-  }
-    
   grouping log-identifier {
     description
       "Identifier for type of log to be retrieved.";
-    leaf measurement-log-type {
-      mandatory true;
+    leaf log-type {
       type identityref {
         base log-type;
       }
+      mandatory true;
+      description
+        "The corresponding measurement log type identity.";
     }
   }
 
@@ -386,17 +389,19 @@ grouping boot-event-log {
   }
 
   grouping ima-event-log {
-    description
-      "Measurement log created by IMA.";
     list ima-event-entry {
       key event-number;
       description
       "Ordered list of ima event logs by event-number";
        uses ima-event;
-     }
+    }
+    description
+      "Measurement log created by IMA.";
   }
 
   grouping event-logs {
+    description
+      "A selector for the log and its type.";
     choice log-type {
       mandatory true;
       description
@@ -407,7 +412,8 @@ grouping boot-event-log {
           "BIOS/UEFI event logs";
         container bios-event-logs {
           description
-            "The requested entries of the bios log.";
+            "This is an index referencing the TCG Algorithm
+            Registry based on TPM_ALG_ID.";
           uses bios-event-log;
         }
       }
@@ -416,19 +422,11 @@ grouping boot-event-log {
           "IMA event logs";
 	container ima-event-logs {
           description
-            "The requested entries of the ima log.";
+            "This is an index referencing the TCG Algorithm
+            Registry based on TPM_ALG_ID.";
           uses ima-event-log;
         }
       }
-      case ima-binary {
-        description
-          "IMA event logs encoded in binary representation";
-        leaf-list ima-event-logs-compressed {
-          description
-            "The requested entries of the ima log.";
-            type binary;
-        }
-      }      
     }
   }
 
@@ -463,24 +461,29 @@ grouping boot-event-log {
 	uses node-uptime;
 	uses compute-node;
         container tpms-attest {
+          leaf pcrdigest {
+            type binary;
+            description
+              "split out value of TPMS_QUOTE_INFO for convenience";
+          }
+          leaf tpms-attest-result {
+            type binary;
+            description
+              "The complete TPM generate structure including signature.";
+          }
+          leaf tpms-attest-result-length {
+            type uint32;
+            description
+              "Length of attest result provided by the TPM structure.";
+          }
           description
             "A composite of value and length and list of selected
             pcrs (original name: [type]attested)";
-          leaf pcrdigest {
-            description
-              "split out value of TPMS_QUOTE_INFO for convenience";
-            type binary;
-          }
-          leaf tpms-attest-result {
-            description
-              "The complete TPM generate structure including signature.";
-            type binary;
-          }
         }
         leaf tpmt-signature {
-          description
-             "split out value of the signature for convenience";
           type binary;
+          description
+             "Split out value of the signature for convenience. TODO: check for length values that complent binary value data node leafs.";
         }
       }
     }
@@ -611,20 +614,45 @@ grouping boot-event-log {
        }
      }
    }
- 
-  
   container rats-support-structures {
     leaf-list supported-algos {
+      type uint16;
       description
         "Supported TPM_ALG_ID values for the TPM in question.
         Will include ComponentIndex soon.";
-      type uint16;
     }
-    leaf endorsement-certificate {
+  list tpms {
+      key tpm_name;
+      uses tpm-name;
       description
-        "The signed pulic endorsement key (EK) and corresponding claims (EK Certificate). In a TPM 2.0 the EK Certificate resides in a well-defined NVRAM location by the TPM vednor.";
-      type binary;
-      mandatory true;
+        "A list of TPMs in this composite
+         device that rats can be conducted with.";
     }
+  list compute-nodes {
+      key node-name;
+      uses compute-node;
+      description
+        "A list names of hardware components in this composite
+         device that rats can be conducted with.";
+   }
+   container endorsement-certificates {
+      list certificate {
+        key tpm_name;
+	uses tpm-name;
+        description
+          "The TPM's endorsement-certificate.";
+        leaf endorsement-certificate {
+          type binary;
+          mandatory true;
+          description
+            "The signed pulic endorsement key (EK) and corresponding claims
+             (EK Certificate). In a TPM 2.0 the EK Certificate resides in a
+             well-defined NVRAM location by the TPM vednor.";
+        }
+      }
+    description
+      "Basic information elements to enable RATS.";
+    }
+  config false;
   }
 }
