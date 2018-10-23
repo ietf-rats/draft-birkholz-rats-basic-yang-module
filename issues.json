@@ -1,6 +1,60 @@
 [
 
   {
+    "url": "https://api.github.com/repos/ietf-rats/draft-birkholz-yang-basic-remote-attestation/issues/3",
+    "repository_url": "https://api.github.com/repos/ietf-rats/draft-birkholz-yang-basic-remote-attestation",
+    "labels_url": "https://api.github.com/repos/ietf-rats/draft-birkholz-yang-basic-remote-attestation/issues/3/labels{/name}",
+    "comments_url": "https://api.github.com/repos/ietf-rats/draft-birkholz-yang-basic-remote-attestation/issues/3/comments",
+    "events_url": "https://api.github.com/repos/ietf-rats/draft-birkholz-yang-basic-remote-attestation/issues/3/events",
+    "html_url": "https://github.com/ietf-rats/draft-birkholz-yang-basic-remote-attestation/pull/3",
+    "id": 369487859,
+    "node_id": "MDExOlB1bGxSZXF1ZXN0MjIyNDE3Mzkz",
+    "number": 3,
+    "title": "Updates location and addresses Bill's comments",
+    "user": {
+      "login": "shwethab",
+      "id": 1716447,
+      "node_id": "MDQ6VXNlcjE3MTY0NDc=",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/1716447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/shwethab",
+      "html_url": "https://github.com/shwethab",
+      "followers_url": "https://api.github.com/users/shwethab/followers",
+      "following_url": "https://api.github.com/users/shwethab/following{/other_user}",
+      "gists_url": "https://api.github.com/users/shwethab/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/shwethab/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/shwethab/subscriptions",
+      "organizations_url": "https://api.github.com/users/shwethab/orgs",
+      "repos_url": "https://api.github.com/users/shwethab/repos",
+      "events_url": "https://api.github.com/users/shwethab/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/shwethab/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "labels": [
+
+    ],
+    "state": "closed",
+    "locked": false,
+    "assignee": null,
+    "assignees": [
+
+    ],
+    "milestone": null,
+    "comments": 0,
+    "created_at": "2018-10-12T10:13:13Z",
+    "updated_at": "2018-10-22T05:37:09Z",
+    "closed_at": "2018-10-22T05:37:07Z",
+    "author_association": "COLLABORATOR",
+    "pull_request": {
+      "url": "https://api.github.com/repos/ietf-rats/draft-birkholz-yang-basic-remote-attestation/pulls/3",
+      "html_url": "https://github.com/ietf-rats/draft-birkholz-yang-basic-remote-attestation/pull/3",
+      "diff_url": "https://github.com/ietf-rats/draft-birkholz-yang-basic-remote-attestation/pull/3.diff",
+      "patch_url": "https://github.com/ietf-rats/draft-birkholz-yang-basic-remote-attestation/pull/3.patch"
+    },
+    "body": "This is following up on the discussion b/n Henk, Eric, Bill, Shwetha to:\r\n1. Replace location of a node / TPM within a composite system with tpm-name/node-name and Physical-index of the component (compute node or tpm-name) as specified in EntityMIB.\r\n2. basic trust establishment is updated to request a specific identity cert chain and return signed identity cert chain.\r\n3. Removed reference to PCR selector in basic trust establishment\r\n4. Added timestamp in log-retrieval\r\n5. Renamed chunk-size in log-retrieval request to  log-entry-quantity \r\n6. Imported ietf-crypto-types for the signed certificate typedef\r\n7.  Imported ietf-hardware for EntityMIB physical-index reference\r\nietf-crypto-types and \r\nA few more nits."
+  },
+  {
     "url": "https://api.github.com/repos/ietf-rats/draft-birkholz-yang-basic-remote-attestation/issues/2",
     "repository_url": "https://api.github.com/repos/ietf-rats/draft-birkholz-yang-basic-remote-attestation",
     "labels_url": "https://api.github.com/repos/ietf-rats/draft-birkholz-yang-basic-remote-attestation/issues/2/labels{/name}",
