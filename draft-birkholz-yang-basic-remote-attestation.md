@@ -59,19 +59,21 @@ author:
 normative:
   RFC2119:
   I-D.ietf-netconf-crypto-types:
+  I-D.birkholz-reference-ra-interaction-model: rats-interaction-models
   
 informative:
-  I-D.birkholz-attestation-terminology: rats
+  I-D.birkholz-attestation-terminology: rats-architecture
+  
 
 --- abstract
 
-This document defines YANG RPC and a minimal datastore required to retrieve integrity evidence about software from the device running the YANG datastore. The module presented requires a TPM 2.0 and corresponding Trusted Software Stack included in the system entity the YANG datastore is running on.
+This document defines a YANG RPC and a minimal datastore tree required to retrieve attestation evidence about integrity measurements from a composite device with one or more roots of trust for reporting. Complementary measurement logs are also provided by the YANG RPC originating from one or more roots of trust of measurement. The module defined requires a TPM 2.0 and corresponding Trusted Software Stack included in the device components of the composite device the YANG server is running on.
 
 --- middle
 
 # Introduction
 
-This document is based on the terminology defined in {{-rats}} and uses the interaction model and information elements defined in Reference Interaction Model for Challenge/Response-based Remote Attestation Procedures.
+This document is based on the terminology defined in the {{-rats-architecture}} and uses the interaction model and information elements defined in the {{-rats-interaction-models}} document. The currently supported hardware security module (HWM) - sometimes also referred to as an embedded secure element - is the Trusted Platform Module (TPM) 2.0. One ore more TPM 2.0 embedded in the components of a composite device - sometimes also referred to as an aggregate device - are required in order to use the YANG module defined in this document. A TPM 2.0 is used as a root of trust for reporting (RTR) in order to retrieve attestation evidence from a composite device. Additionally, it is used as a root of trust for measurement (RTM) in order to provide event logs - sometimes also referred to as measurement logs.
 
 ## Requirements notation
 
@@ -81,6 +83,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 2119, BCP 14 {{RFC2119}}.
 
 # The YANG Module for Basic Remote Attestation Procedures
+
+One or more TPM 2.0 MUST be embedded in the composite device that is providing attestation evidence via the YANG module defined in this document. The ietf-basic-remote-attestation YANG module enables a composite device to take on the role of Claimant and Attester in accordance with the Remote Attestation Procedures (RATS) architecture {{-rats-architecture}} and the corresponding challenge-response interaction model defined in the {{-rats-interaction-models}} document. A nonce MUST be supplied by the YANG client in order to enable a proof-of-freshness with respect to the attestation evidence provided by the attester running the YANG datastore.
 
 ## Tree format
 
@@ -98,6 +102,12 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 <CODE ENDS>
 ~~~
 
+#  IANA considerations
+
+This document will include requests to IANA:
+
+To be defined yet.
+
 #  Security Considerations
 
 There are always some.
@@ -108,6 +118,14 @@ Not yet.
 
 #  Change Log
 
-No changes yet.
+Changes from version 00 to version 01:
+
+* Addressed author's comments
+* Extended complementary details about attestation-certificates
+* Relabeled chunk-size to log-entry-quantity
+* Relabeled location with compute-node or tpm-name where appropriate
+* Added a valid entity-mib physical-index to compute-node and tpm-name to map it back to hardware inventory
+* Relabeled name  to tpm_name
+* Removed event-string in last-entry
 
 --- back
