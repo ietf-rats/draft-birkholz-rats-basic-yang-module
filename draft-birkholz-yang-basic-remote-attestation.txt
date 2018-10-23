@@ -5,14 +5,14 @@
 TBD                                                          H. Birkholz
 Internet-Draft                                            Fraunhofer SIT
 Intended status: Standards Track                                M. Eckel
-Expires: February 10, 2019                                        Huawei
+Expires: April 26, 2019                                           Huawei
                                                              S. Bhandari
                                                                B. Sulzen
                                                                  E. Voit
                                                                    Cisco
                                                              G. Fedorkow
                                                                  Juniper
-                                                         August 09, 2018
+                                                        October 23, 2018
 
 
    YANG Module for Basic Challenge-Response-based Remote Attestation
@@ -21,11 +21,14 @@ Expires: February 10, 2019                                        Huawei
 
 Abstract
 
-   This document defines YANG RPC and a minimal datastore required to
-   retrieve integrity evidence about software from the device running
-   the YANG datastore.  The module presented requires a TPM 2.0 and
-   corresponding Trusted Software Stack included in the system entity
-   the YANG datastore is running on.
+   This document defines a YANG RPC and a minimal datastore tree
+   required to retrieve attestation evidence about integrity
+   measurements from a composite device with one or more roots of trust
+   for reporting.  Complementary measurement logs are also provided by
+   the YANG RPC originating from one or more roots of trust of
+   measurement.  The module defined requires a TPM 2.0 and corresponding
+   Trusted Software Stack included in the device components of the
+   composite device the YANG server is running on.
 
 Status of This Memo
 
@@ -42,21 +45,23 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on February 10, 2019.
+   This Internet-Draft will expire on April 26, 2019.
+
+
+
+
+
+
+
+Birkholz, et al.         Expires April 26, 2019                 [Page 1]
+
+Internet-Draft                    BRAT                      October 2018
+
 
 Copyright Notice
 
    Copyright (c) 2018 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
-
-
-
-
-
-Birkholz, et al.        Expires February 10, 2019               [Page 1]
-
-Internet-Draft                    BRAT                       August 2018
-
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
@@ -71,24 +76,43 @@ Internet-Draft                    BRAT                       August 2018
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
-     1.1.  Requirements notation . . . . . . . . . . . . . . . . . .   2
-   2.  The YANG Module for Basic Remote Attestation Procedures . . .   2
-     2.1.  Tree format . . . . . . . . . . . . . . . . . . . . . . .   2
-     2.2.  Raw Format  . . . . . . . . . . . . . . . . . . . . . . .   5
-   3.  Security Considerations . . . . . . . . . . . . . . . . . . .  17
-   4.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  17
-   5.  Change Log  . . . . . . . . . . . . . . . . . . . . . . . . .  17
-   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  17
-     6.1.  Normative References  . . . . . . . . . . . . . . . . . .  17
-     6.2.  Informative References  . . . . . . . . . . . . . . . . .  18
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  18
+     1.1.  Requirements notation . . . . . . . . . . . . . . . . . .   3
+   2.  The YANG Module for Basic Remote Attestation Procedures . . .   3
+     2.1.  Tree format . . . . . . . . . . . . . . . . . . . . . . .   3
+     2.2.  Raw Format  . . . . . . . . . . . . . . . . . . . . . . .   6
+   3.  IANA considerations . . . . . . . . . . . . . . . . . . . . .  20
+   4.  Security Considerations . . . . . . . . . . . . . . . . . . .  20
+   5.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  20
+   6.  Change Log  . . . . . . . . . . . . . . . . . . . . . . . . .  20
+   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  20
+     7.1.  Normative References  . . . . . . . . . . . . . . . . . .  21
+     7.2.  Informative References  . . . . . . . . . . . . . . . . .  21
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  21
 
 1.  Introduction
 
-   This document is based on the terminology defined in
+   This document is based on the terminology defined in the
    [I-D.birkholz-attestation-terminology] and uses the interaction model
-   and information elements defined in Reference Interaction Model for
-   Challenge/Response-based Remote Attestation Procedures.
+   and information elements defined in the
+   [I-D.birkholz-reference-ra-interaction-model] document.  The
+   currently supported hardware security module (HWM) - sometimes also
+   referred to as an embedded secure element - is the Trusted Platform
+   Module (TPM) 2.0.  One ore more TPM 2.0 embedded in the components of
+   a composite device - sometimes also referred to as an aggregate
+   device - are required in order to use the YANG module defined in this
+   document.  A TPM 2.0 is used as a root of trust for reporting (RTR)
+   in order to retrieve attestation evidence from a composite device.
+   Additionally, it is used as a root of trust for measurement (RTM) in
+   order to provide event logs - sometimes also referred to as
+   measurement logs.
+
+
+
+
+Birkholz, et al.         Expires April 26, 2019                 [Page 2]
+
+Internet-Draft                    BRAT                      October 2018
+
 
 1.1.  Requirements notation
 
@@ -99,39 +123,57 @@ Table of Contents
 
 2.  The YANG Module for Basic Remote Attestation Procedures
 
+   One or more TPM 2.0 MUST be embedded in the composite device that is
+   providing attestation evidence via the YANG module defined in this
+   document.  The ietf-basic-remote-attestation YANG module enables a
+   composite device to take on the role of Claimant and Attester in
+   accordance with the Remote Attestation Procedures (RATS) architecture
+   [I-D.birkholz-attestation-terminology] and the corresponding
+   challenge-response interaction model defined in the
+   [I-D.birkholz-reference-ra-interaction-model] document.  A nonce MUST
+   be supplied by the YANG client in order to enable a proof-of-
+   freshness with respect to the attestation evidence provided by the
+   attester running the YANG datastore.
+
 2.1.  Tree format
 
 <CODE BEGINS>
 module: ietf-basic-remote-attestation
-    +--ro rats-support-structures
-       +--ro supported-algos*            uint16
-       +--ro locations*                  string
-
-
-
-Birkholz, et al.        Expires February 10, 2019               [Page 2]
-
-Internet-Draft                    BRAT                       August 2018
-
-
-       +--ro endorsement-certificates
-          +--ro node-certificate* [location]
-             +--ro location                   string
-             +--ro endorsement-certificate    binary
+  +--ro rats-support-structures
+     +--ro supported-algos*            uint16
+     +--ro tpms* [tpm_name]
+     |  +--ro tpm_name              string
+     |  +--ro tpm-physical-index?   int32 {ietfhw:entity-mib}?
+     +--ro compute-nodes* [node-name]
+     |  +--ro node-name              string
+     |  +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
+     +--ro endorsement-certificates
+        +--ro certificate* [tpm_name]
+           +--ro tpm_name                   string
+           +--ro tpm-physical-index?        int32 {ietfhw:entity-mib}?
+           +--ro endorsement-certificate    binary
 
   rpcs:
     +---x tpm2-challenge-response-attestation
     |  +---w input
     |  |  +---w tpm2-attestation-challenge
-    |  |  |  +---w pcr-list*
+    |  |  |  +---w pcr-list* []
     |  |  |  |  +---w pcr
-    |  |  |  |     +---w pcr-indices*            uint8
+    |  |  |  |     +---w pcr-indices*                  uint8
     |  |  |  |     +---w (algo-registry-type)
     |  |  |  |        +--:(tcg)
+
+
+
+Birkholz, et al.         Expires April 26, 2019                 [Page 3]
+
+Internet-Draft                    BRAT                      October 2018
+
+
     |  |  |  |        |  +---w tcg-hash-algo-id?       uint16
     |  |  |  |        +--:(ietf)
     |  |  |  |           +---w ietf-ni-hash-algo-id?   uint8
-    |  |  |  +---w nonce-value             binary
+    |  |  |  +---w nonce-value                   binary
     |  |  |  +---w (signature-identifier-type)
     |  |  |  |  +--:(TPM_ALG_ID)
     |  |  |  |  |  +---w TPM_ALG_ID-value?       uint16
@@ -142,72 +184,84 @@ Internet-Draft                    BRAT                       August 2018
     |  |  |     |  +---w pub-key-id?             binary
     |  |  |     +--:(uuid)
     |  |  |        +---w uuid-value?             binary
-    |  |  +---w location?                     string
+    |  |  +---w tpm_name?                     string
+    |  |  +---w tpm-physical-index?           int32 {ietfhw:entity-mib}?
     |  +--ro output
-    |     +--ro tpm2-attestation-response* [location]
-    |        +--ro location          string
+    |     +--ro tpm2-attestation-response* [tpm_name]
+    |        +--ro tpm_name               string
+    |        +--ro tpm-physical-index?    int32 {ietfhw:entity-mib}?
+    |        +--ro up-time?               uint32
+    |        +--ro node-name?             string
+    |        +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
     |        +--ro tpms-attest
-    |        |  +--ro pcrdigest?            binary
-    |        |  +--ro pcrdigest-length?     uint32
-    |        |  +--ro tpms-attest-result?   binary
-    |        +--ro tpmt-signature?   binary
+    |        |  +--ro pcrdigest?                   binary
+    |        |  +--ro tpms-attest-result?          binary
+    |        |  +--ro tpms-attest-result-length?   uint32
+    |        +--ro tpmt-signature?        binary
     +---x basic-trust-establishment
     |  +---w input
-    |  |  +---w nonce-value             binary
-    |  |  +---w pcr-list*
-    |  |  |  +---w pcr
-    |  |  |     +---w pcr-numbers*            uint8
-    |  |  |     +---w (algo-registry-type)
-    |  |  |        +--:(tcg)
-    |  |  |        |  +---w tcg-hash-algo-id?       uint16
-    |  |  |        +--:(ietf)
-    |  |  |           +---w ietf-ni-hash-algo-id?   uint8
-
-
-
-Birkholz, et al.        Expires February 10, 2019               [Page 3]
-
-Internet-Draft                    BRAT                       August 2018
-
-
+    |  |  +---w nonce-value                   binary
     |  |  +---w (signature-identifier-type)
     |  |  |  +--:(TPM_ALG_ID)
     |  |  |  |  +---w TPM_ALG_ID-value?       uint16
     |  |  |  +--:(COSE_Algorithm)
     |  |  |     +---w COSE_Algorithm-value?   int32
-    |  |  +---w location?               string
+    |  |  +---w tpm_name?                     string
+    |  |  +---w tpm-physical-index?           int32 {ietfhw:entity-mib}?
+    |  |  +---w certificate-name?             string
     |  +--ro output
-    |     +--ro attestation-certificates* [location]
-    |        +--ro location                   string
-    |        +--ro attestation-certificate?   binary
+    |     +--ro attestation-certificates* [tpm_name]
+    |        +--ro tpm_name                   string
+    |        +--ro tpm-physical-index?        int32 {ietfhw:entity-mib}?
+    |        +--ro up-time?                   uint32
+    |        +--ro node-name?                 string
+    |        +--ro node-physical-index?       int32 {ietfhw:entity-mib}?
+    |        +--ro certificate-name?          string
+    |        +--ro attestation-certificate?   ietfct:end-entity-cert-cms
+
+
+
+Birkholz, et al.         Expires April 26, 2019                 [Page 4]
+
+Internet-Draft                    BRAT                      October 2018
+
+
     |        +--ro (key-identifier)?
     |           +--:(public-key)
-    |           |  +--ro pub-key-id?                binary
+    |           |  +--ro pub-key-id?          binary
     |           +--:(uuid)
-    |              +--ro uuid-value?                binary
+    |              +--ro uuid-value?          binary
     +---x log-retrieval
        +---w input
-       |  +---w (index-type)?
-       |  |  +--:(last-entry)
-       |  |  |  +---w last-entry-value?       uint64
-       |  |  +--:(index)
-       |  |     +---w index-cursor?           uint64
-       |  +---w measurement-log-type    identityref
-       |  +---w pcr-list*
+       |  +---w log-selector* [node-name]
+       |  |  +---w node-name                 string
+       |  |  +---w node-physical-index?      int32 {ietfhw:entity-mib}?
+       |  |  +---w (index-type)?
+       |  |     +--:(last-entry)
+       |  |     |  +---w last-entry-value?   binary
+       |  |     +--:(index)
+       |  |     |  +---w index-number?       uint64
+       |  |     +--:(timestamp)
+       |  |        +---w timestamp?          yang:date-and-time
+       |  +---w log-type              identityref
+       |  +---w pcr-list* []
        |  |  +---w pcr
-       |  |     +---w pcr-indices*            uint8
+       |  |     +---w pcr-indices*                  uint8
        |  |     +---w (algo-registry-type)
        |  |        +--:(tcg)
        |  |        |  +---w tcg-hash-algo-id?       uint16
        |  |        +--:(ietf)
        |  |           +---w ietf-ni-hash-algo-id?   uint8
-       |  +---w chunk-size?             uint64
-       |  +---w location?               string
+       |  +---w log-entry-quantity?   uint16
        +--ro output
           +--ro system-event-logs
-             +--ro node-data* [node-location]
-                +--ro node-location    string
-                +--ro up-time?         uint32
+             +--ro node-data* [node-name]
+                +--ro node-name              string
+                +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
+                +--ro up-time?               uint32
+                +--ro tpm-updated* [tpm_name]
+                |  +--ro tpm_name              string
+                |  +--ro tpm-physical-index?   int32 {ietfhw:entity-mib}?
                 +--ro log-result
                    +--ro (log-type)
                       +--:(bios)
@@ -216,21 +270,21 @@ Internet-Draft                    BRAT                       August 2018
                       |        +--ro event-number    uint32
                       |        +--ro event-type?     uint32
                       |        +--ro pcr-index?      uint16
-                      |        +--ro digest-list*
+                      |        +--ro digest-list* []
                       |        |  +--ro (algo-registry-type)
-
-
-
-Birkholz, et al.        Expires February 10, 2019               [Page 4]
-
-Internet-Draft                    BRAT                       August 2018
-
-
                       |        |  |  +--:(tcg)
                       |        |  |  |  +--ro tcg-hash-algo-id?       uint16
+
+
+
+Birkholz, et al.         Expires April 26, 2019                 [Page 5]
+
+Internet-Draft                    BRAT                      October 2018
+
+
                       |        |  |  +--:(ietf)
                       |        |  |     +--ro ietf-ni-hash-algo-id?   uint8
-                      |        |  +--ro digest*                 binary
+                      |        |  +--ro digest*                       binary
                       |        +--ro event-size?     uint32
                       |        +--ro event-data*     uint8
                       +--:(ima)
@@ -252,6 +306,17 @@ Internet-Draft                    BRAT                       August 2018
 module ietf-basic-remote-attestation {
   namespace "urn:ietf:params:xml:ns:yang:ietf-basic-remote-attestation";
   prefix "yang-brat";
+
+  import ietf-yang-types {
+    prefix yang;
+  }
+  import ietf-hardware {
+      prefix ietfhw;
+  }
+  import ietf-crypto-types {
+      prefix ietfct;
+  }
+
   organization
    "Fraunhofer SIT";
   contact
@@ -265,6 +330,14 @@ module ietf-basic-remote-attestation {
   revision "2018-06-15" {
   description
     "Initial version";
+
+
+
+Birkholz, et al.         Expires April 26, 2019                 [Page 6]
+
+Internet-Draft                    BRAT                      October 2018
+
+
   reference
     "draft-birkholz-yang-basic-remote-attestation";
   }
@@ -274,14 +347,6 @@ module ietf-basic-remote-attestation {
       "A selector for the hashing algorithm";
     choice algo-registry-type {
       mandatory true;
-
-
-
-Birkholz, et al.        Expires February 10, 2019               [Page 5]
-
-Internet-Draft                    BRAT                       August 2018
-
-
       description
         "Unfortunately, both IETF and TCG have registries here.
         Choose your weapon wisely.";
@@ -321,6 +386,14 @@ Internet-Draft                    BRAT                       August 2018
           "A hash value based on a hash algorithm registered by an
           SDO.";
         uses hash-algo;
+
+
+
+Birkholz, et al.         Expires April 26, 2019                 [Page 7]
+
+Internet-Draft                    BRAT                      October 2018
+
+
         leaf hash-value {
           type binary;
           description
@@ -329,14 +402,6 @@ Internet-Draft                    BRAT                       August 2018
       }
     }
   }
-
-
-
-
-Birkholz, et al.        Expires February 10, 2019               [Page 6]
-
-Internet-Draft                    BRAT                       August 2018
-
 
   grouping nonce {
     description
@@ -377,6 +442,14 @@ Internet-Draft                    BRAT                       August 2018
         }
         uses hash-algo;
       }
+
+
+
+Birkholz, et al.         Expires April 26, 2019                 [Page 8]
+
+Internet-Draft                    BRAT                      October 2018
+
+
     }
   }
 
@@ -386,14 +459,6 @@ Internet-Draft                    BRAT                       August 2018
       certificate (a signed public attestation key
       (non-migratable, tpm-resident) wrt one or more PCR values.
       The corresponding creation input is represented in this grouping.
-
-
-
-Birkholz, et al.        Expires February 10, 2019               [Page 7]
-
-Internet-Draft                    BRAT                       August 2018
-
-
       Requesting a PCR value that is not supported results in an error,
       detailed exposure via error msg should be avoided.";
     list pcr-list {
@@ -403,7 +468,7 @@ Internet-Draft                    BRAT                       August 2018
       container pcr {
         description
           "The composite of a PCR number and corresponding bank numbers.";
-        leaf-list pcr-numbers {
+        leaf-list pcr-index {
            type uint8;
            description
              "The numbers of the PCRs that are associated with
@@ -433,6 +498,14 @@ Internet-Draft                    BRAT                       August 2018
         }
       }
       case COSE_Algorithm {
+
+
+
+Birkholz, et al.         Expires April 26, 2019                 [Page 9]
+
+Internet-Draft                    BRAT                      October 2018
+
+
         description
           "This references the IANA COSE Algorithms Registry indices. Every index of this
           registry to be used must be mapable to a TPM_ALG_ID value.";
@@ -442,14 +515,6 @@ Internet-Draft                    BRAT                       August 2018
             "The TPM Algo ID.";
         }
       }
-
-
-
-Birkholz, et al.        Expires February 10, 2019               [Page 8]
-
-Internet-Draft                    BRAT                       August 2018
-
-
     }
   }
 
@@ -480,33 +545,79 @@ Internet-Draft                    BRAT                       August 2018
     }
   }
 
- grouping node-location {
+ grouping tpm-name {
    description
-     "In a distributed system get the data from a specific node
-      identified by the location. If this field is not specified
-      data associated with each node forming the system will be
-      returned.";
-   leaf location {
+     "In a system with multiple-TPMs get the data from a specific TPM
+      identified by the name and physical-index.";
+   leaf tpm_name {
       type string;
       description
-      "Location of the node or All";
+      "Name of the TPM or All";
    }
 
+
+
+Birkholz, et al.         Expires April 26, 2019                [Page 10]
+
+Internet-Draft                    BRAT                      October 2018
+
+
+   leaf tpm-physical-index {
+       if-feature ietfhw:entity-mib;
+       type int32 {
+            range "1..2147483647";
+       }
+       config false;
+       description
+            "The entPhysicalIndex for the TPM.";
+        reference
+            "RFC 6933: Entity MIB (Version 4) - entPhysicalIndex";
+     }
+ }
+ grouping compute-node {
+   description
+     "In a distributed system with multiple compute nodes
+      this is the node identified by name and physical-index.";
+   leaf node-name {
+      type string;
+      description
+      "Name of the compute node or All";
+   }
+   leaf node-physical-index {
+       if-feature ietfhw:entity-mib;
+       type int32 {
+            range "1..2147483647";
+       }
+       config false;
+       description
+            "The entPhysicalIndex for the compute node.";
+        reference
+            "RFC 6933: Entity MIB (Version 4) - entPhysicalIndex";
+     }
+ }
+ grouping node-uptime {
+   description
+     "Uptime in seconds of the node.";
+   leaf up-time {
+     type uint32;
+     description
+     "Uptime in seconds of this node reporting its data";
+   }
  }
   identity log-type {
     description
       "The type of logs available.";
   }
 
-
-
-
-Birkholz, et al.        Expires February 10, 2019               [Page 9]
-
-Internet-Draft                    BRAT                       August 2018
-
-
   identity bios {
+
+
+
+Birkholz, et al.         Expires April 26, 2019                [Page 11]
+
+Internet-Draft                    BRAT                      October 2018
+
+
     base log-type;
     description
       "Measurement log created by the BIOS/UEFI.";
@@ -554,15 +665,15 @@ grouping boot-event-log {
     description "Hash of event data";
     uses hash-algo;
     leaf-list digest {
-
-
-
-Birkholz, et al.        Expires February 10, 2019              [Page 10]
-
-Internet-Draft                    BRAT                       August 2018
-
-
       type binary;
+
+
+
+Birkholz, et al.         Expires April 26, 2019                [Page 12]
+
+Internet-Draft                    BRAT                      October 2018
+
+
       description
       "The hash of the event data";
     }
@@ -610,15 +721,15 @@ Internet-Draft                    BRAT                       August 2018
    }
    leaf template-hash {
   type binary;
-
-
-
-Birkholz, et al.        Expires February 10, 2019              [Page 11]
-
-Internet-Draft                    BRAT                       August 2018
-
-
   description
+
+
+
+Birkholz, et al.         Expires April 26, 2019                [Page 13]
+
+Internet-Draft                    BRAT                      October 2018
+
+
    " hash(filedata-hash, filename-hint)";
    }
    leaf pcr-index {
@@ -664,14 +775,15 @@ Internet-Draft                    BRAT                       August 2018
       mandatory true;
       description
         "Event log type determines the event logs content.";
+
       case bios {
         description
 
 
 
-Birkholz, et al.        Expires February 10, 2019              [Page 12]
+Birkholz, et al.         Expires April 26, 2019                [Page 14]
 
-Internet-Draft                    BRAT                       August 2018
+Internet-Draft                    BRAT                      October 2018
 
 
           "BIOS/UEFI event logs";
@@ -714,33 +826,30 @@ Internet-Draft                    BRAT                       August 2018
         uses signature-scheme;
         uses attestation-key-identifier;
       }
-      uses node-location;
+      uses tpm-name;
     }
     output {
       list tpm2-attestation-response {
-        key location;
+        key tpm_name;
         description
           "The binary output of TPM2b_Quote. An TPMS_ATTEST structure
           including a length, encapsulated in a signature";
 
 
 
-Birkholz, et al.        Expires February 10, 2019              [Page 13]
+Birkholz, et al.         Expires April 26, 2019                [Page 15]
 
-Internet-Draft                    BRAT                       August 2018
+Internet-Draft                    BRAT                      October 2018
 
 
-        uses node-location;
+        uses tpm-name;
+        uses node-uptime;
+        uses compute-node;
         container tpms-attest {
           leaf pcrdigest {
             type binary;
             description
               "split out value of TPMS_QUOTE_INFO for convenience";
-          }
-          leaf pcrdigest-length {
-            type uint32;
-            description
-              "split out length of digest for convenience";
           }
           leaf tpms-attest-result {
             type binary;
@@ -771,33 +880,42 @@ Internet-Draft                    BRAT                       August 2018
       in TPM_Quote commands, an attestation certificate.";
     input {
       uses nonce;
-      uses pcr-selector;
       uses signature-scheme;
-      uses node-location;
+      uses tpm-name;
+      leaf certificate-name {
+         type string;
+         description
+         "An arbitrary name for the identity certificate chain requested.";
+      }
     }
     output {
-      list attestation-certificates {
-        key location;
+    list attestation-certificates {
 
 
 
-Birkholz, et al.        Expires February 10, 2019              [Page 14]
+Birkholz, et al.         Expires April 26, 2019                [Page 16]
 
-Internet-Draft                    BRAT                       August 2018
+Internet-Draft                    BRAT                      October 2018
 
 
-        uses node-location;
-        leaf attestation-certificate {
-          type binary;
-          description
-            "An individual signed public attestation according to requested
-            capabilities.";
-        }
-        uses attestation-key-identifier;
-        description
-          "Attestation Certificate data of a node in a distributed system
-          identified by the location";
+      key tpm_name;
+      description
+        "Attestation Certificate data from a TPM identified by the TPM name";
+      uses tpm-name;
+      uses node-uptime;
+      uses compute-node;
+      leaf certificate-name {
+         type string;
+         description
+         "An arbitrary name for this identity certificate or certificate chain.";
       }
+      leaf attestation-certificate {
+        description
+          "The binary signed certificate chain data for this identity certificate.";
+        type ietfct:end-entity-cert-cms;
+      }
+      uses attestation-key-identifier;
+    }
     }
   }
 
@@ -808,75 +926,103 @@ Internet-Draft                    BRAT                       August 2018
       The type of log is a choice that can be
       augmented.";
     input {
-      choice index-type {
-        case last-entry {
-          leaf last-entry-value {
-            type uint64;
-            description
-              "Content of the last entry requested.";
-          }
-          description
-            "The last entry of the log already retrieved";
-        }
-        case index {
-          leaf index-cursor {
-            type uint64;
-            description
-              "The numeric index number of the last log entry received.";
-          }
-          description
-            "Numeric index of the last log entry retrieved.";
-        }
+      list log-selector {
+        key node-name;
         description
-          "Last-line or index.";
+         "Selection of log entries to be reported.";
+        uses compute-node;
+        choice index-type {
+          description
+             "Last log entry received, log index number, or timestamp.";
+
+          case last-entry {
+            description
+              "The last entry of the log already retrieved.";
+            leaf last-entry-value {
+              description
+              "Content of an log event which matches 1:1 with a
+              unique event record contained within the log.  Log
+              entries subsequent to this will be passed to the
+              requestor.  Note: if log entry values are not unique,
+              this MUST return an error.";
+              type binary;
+
+
+
+Birkholz, et al.         Expires April 26, 2019                [Page 17]
+
+Internet-Draft                    BRAT                      October 2018
+
+
+            }
+          }
+          case index {
+            description
+              "Numeric index of the last log entry retrieved, or zero.";
+            leaf index-number {
+              description
+              "The numeric index number of a log entry.  Zero means
+              to start at the beginning of the log.   Entries
+              subsequent to this will be passed to the
+              requestor.";
+              type uint64;
+            }
+          }
+          case timestamp {
+            leaf timestamp {
+              type yang:date-and-time;
+              description
+                "Timestamp from which to start the extraction.  The next
+                log entry subsequent to this timestamp is to be sent.";
+            }
+            description
+              "Timestamp from which to start the extraction.";
+          }
+        }
       }
       uses log-identifier;
       uses pcr-selection;
-      leaf chunk-size {
-        type uint64;
-
-
-
-Birkholz, et al.        Expires February 10, 2019              [Page 15]
-
-Internet-Draft                    BRAT                       August 2018
-
-
+      leaf log-entry-quantity {
+        type uint16;
         description
-         "The number of log entries to be returned. If omitted, it means all of them.";
+         "The number of log entries to be returned. If omitted, it
+         means all of them.";
       }
-      uses node-location;
     }
     output {
       container system-event-logs {
-        list node-data {
-          key node-location;
-          description
-            "Event logs of a node in a distributed system
-             identified by the location";
-          leaf node-location {
-            type string;
-            description
-              "Location of the node in the distributed system";
-          }
-          leaf up-time {
-            type uint32;
-            description
-              "Uptime in seconds of this node reporting its data";
-          }
-          container log-result {
-            description
-              "The requested entries of the corresponding log.";
-          uses event-logs;
-          }
-        }
-        description
-          "The requested data of the measurement event logs";
-      }
-    }
-  }
+         description
+         "The requested data of the measurement event logs";
+         list node-data {
+           key node-name;
+           description
+           "Event logs of a node in a distributed system
+            identified by the node name";
+           uses compute-node;
+           uses node-uptime;
+           list tpm-updated {
+             key tpm_name;
 
 
+
+Birkholz, et al.         Expires April 26, 2019                [Page 18]
+
+Internet-Draft                    BRAT                      October 2018
+
+
+             description
+             "TPM these events may have recorded data in";
+             uses tpm-name;
+           }
+           container log-result {
+             description
+             "The requested entries of the corresponding log.";
+             uses event-logs;
+           }
+         }
+       }
+     }
+   }
   container rats-support-structures {
     leaf-list supported-algos {
       type uint16;
@@ -884,26 +1030,26 @@ Internet-Draft                    BRAT                       August 2018
         "Supported TPM_ALG_ID values for the TPM in question.
         Will include ComponentIndex soon.";
     }
-    leaf-list locations {
-      type string;
+  list tpms {
+      key tpm_name;
+      uses tpm-name;
       description
-        "A list of locations of hardware components in this composite
+        "A list of TPMs in this composite
          device that rats can be conducted with.";
     }
-
-
-
-Birkholz, et al.        Expires February 10, 2019              [Page 16]
-
-Internet-Draft                    BRAT                       August 2018
-
-
-    container endorsement-certificates {
-      list node-certificate {
-        key location;
+  list compute-nodes {
+      key node-name;
+      uses compute-node;
+      description
+        "A list names of hardware components in this composite
+         device that rats can be conducted with.";
+   }
+   container endorsement-certificates {
+      list certificate {
+        key tpm_name;
+        uses tpm-name;
         description
-          "The location of the endorsement-certificate.";
-        uses node-location;
+          "The TPM's endorsement-certificate.";
         leaf endorsement-certificate {
           type binary;
           mandatory true;
@@ -912,6 +1058,14 @@ Internet-Draft                    BRAT                       August 2018
              (EK Certificate). In a TPM 2.0 the EK Certificate resides in a
              well-defined NVRAM location by the TPM vednor.";
         }
+
+
+
+Birkholz, et al.         Expires April 26, 2019                [Page 19]
+
+Internet-Draft                    BRAT                      October 2018
+
+
       }
     description
       "Basic information elements to enable RATS.";
@@ -921,46 +1075,78 @@ Internet-Draft                    BRAT                       August 2018
 }
 <CODE ENDS>
 
-3.  Security Considerations
+3.  IANA considerations
+
+   This document will include requests to IANA:
+
+   To be defined yet.
+
+4.  Security Considerations
 
    There are always some.
 
-4.  Acknowledgements
+5.  Acknowledgements
 
    Not yet.
 
-5.  Change Log
+6.  Change Log
 
-   No changes yet.
+   Changes from version 00 to version 01:
 
-6.  References
+   o  Addressed author's comments
 
-6.1.  Normative References
+   o  Extended complementary details about attestation-certificates
+
+   o  Relabeled chunk-size to log-entry-quantity
+
+   o  Relabeled location with compute-node or tpm-name where appropriate
+
+   o  Added a valid entity-mib physical-index to compute-node and tpm-
+      name to map it back to hardware inventory
+
+   o  Relabeled name to tpm_name
+
+   o  Removed event-string in last-entry
+
+7.  References
+
+
+
+
+
+
+
+
+Birkholz, et al.         Expires April 26, 2019                [Page 20]
+
+Internet-Draft                    BRAT                      October 2018
+
+
+7.1.  Normative References
+
+   [I-D.birkholz-reference-ra-interaction-model]
+              Birkholz, H. and M. Eckel, "Reference Interaction Model
+              for Challenge-Response-based Remote Attestation", draft-
+              birkholz-reference-ra-interaction-model-00 (work in
+              progress), July 2018.
+
+   [I-D.ietf-netconf-crypto-types]
+              Watsen, K. and W. HAIGUANG, "Common YANG Data Types for
+              Cryptography", draft-ietf-netconf-crypto-types-02 (work in
+              progress), October 2018.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
-
-
-
-
-
-
-
-Birkholz, et al.        Expires February 10, 2019              [Page 17]
-
-Internet-Draft                    BRAT                       August 2018
-
-
-6.2.  Informative References
+7.2.  Informative References
 
    [I-D.birkholz-attestation-terminology]
               Birkholz, H., Wiseman, M., and H. Tschofenig, "Reference
               Terminology for Remote Attestation Procedures", draft-
-              birkholz-attestation-terminology-01 (work in progress),
-              January 2018.
+              birkholz-attestation-terminology-02 (work in progress),
+              July 2018.
 
 Authors' Addresses
 
@@ -982,6 +1168,16 @@ Authors' Addresses
    Email: michael.eckel@huawei.com
 
 
+
+
+
+
+
+Birkholz, et al.         Expires April 26, 2019                [Page 21]
+
+Internet-Draft                    BRAT                      October 2018
+
+
    Shwetha Bhandari
    Cisco Systems
 
@@ -998,16 +1194,6 @@ Authors' Addresses
    Cisco Systems
 
    Email: evoit@cisco.com
-
-
-
-
-
-
-
-Birkholz, et al.        Expires February 10, 2019              [Page 18]
-
-Internet-Draft                    BRAT                       August 2018
 
 
    Guy C. Fedorkow
@@ -1043,22 +1229,4 @@ Internet-Draft                    BRAT                       August 2018
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Birkholz, et al.        Expires February 10, 2019              [Page 19]
+Birkholz, et al.         Expires April 26, 2019                [Page 22]
