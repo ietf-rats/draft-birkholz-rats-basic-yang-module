@@ -1201,7 +1201,7 @@ Internet-Draft                    BRAT                          May 2019
    10 Technology Park Drive
    Westford, Massachusetts  01886
 
-   Email: gfedorkow@juniper.de
+   Email: gfedorkow@juniper.net
 
 
 
