@@ -51,7 +51,7 @@ author:
   name: Guy C. Fedorkow
   org: Juniper Networks
   abbrev: Juniper
-  email: gfedorkow@juniper.de
+  email: gfedorkow@juniper.net
   street: 10 Technology Park Drive
   city: Westford
   code: '01886'
