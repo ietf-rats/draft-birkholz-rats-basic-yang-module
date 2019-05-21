@@ -5,19 +5,19 @@
 TBD                                                          H. Birkholz
 Internet-Draft                                            Fraunhofer SIT
 Intended status: Standards Track                                M. Eckel
-Expires: April 26, 2019                                           Huawei
+Expires: November 22, 2019                                        Huawei
                                                              S. Bhandari
                                                                B. Sulzen
                                                                  E. Voit
                                                                    Cisco
                                                              G. Fedorkow
                                                                  Juniper
-                                                        October 23, 2018
+                                                            May 21, 2019
 
 
    YANG Module for Basic Challenge-Response-based Remote Attestation
                                Procedures
-          draft-birkholz-yang-basic-remote-attestation-latest
+              draft-birkholz-rats-basic-yang-module-latest
 
 Abstract
 
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 26, 2019.
+   This Internet-Draft will expire on November 22, 2019.
 
 
 
@@ -53,14 +53,14 @@ Status of This Memo
 
 
 
-Birkholz, et al.         Expires April 26, 2019                 [Page 1]
+Birkholz, et al.        Expires November 22, 2019               [Page 1]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
 Copyright Notice
 
-   Copyright (c) 2018 IETF Trust and the persons identified as the
+   Copyright (c) 2019 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Birkholz, et al.         Expires April 26, 2019                 [Page 2]
+Birkholz, et al.        Expires November 22, 2019               [Page 2]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
 1.1.  Requirements notation
@@ -165,9 +165,9 @@ module: ietf-basic-remote-attestation
 
 
 
-Birkholz, et al.         Expires April 26, 2019                 [Page 3]
+Birkholz, et al.        Expires November 22, 2019               [Page 3]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
     |  |  |  |     +---w (algo-registry-type)
@@ -221,9 +221,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                 [Page 4]
+Birkholz, et al.        Expires November 22, 2019               [Page 4]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
     |        +--ro certificate-name?          string
@@ -277,9 +277,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                 [Page 5]
+Birkholz, et al.        Expires November 22, 2019               [Page 5]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
                       |        |  |  +--:(tcg)
@@ -333,9 +333,9 @@ module ietf-basic-remote-attestation {
 
 
 
-Birkholz, et al.         Expires April 26, 2019                 [Page 6]
+Birkholz, et al.        Expires November 22, 2019               [Page 6]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
   description
@@ -389,9 +389,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                 [Page 7]
+Birkholz, et al.        Expires November 22, 2019               [Page 7]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
           SDO.";
@@ -445,9 +445,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                 [Page 8]
+Birkholz, et al.        Expires November 22, 2019               [Page 8]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
         uses hash-algo;
@@ -501,9 +501,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                 [Page 9]
+Birkholz, et al.        Expires November 22, 2019               [Page 9]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
       }
@@ -557,9 +557,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 10]
+Birkholz, et al.        Expires November 22, 2019              [Page 10]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
       "Name of the TPM or All";
@@ -613,9 +613,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 11]
+Birkholz, et al.        Expires November 22, 2019              [Page 11]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
   identity bios {
@@ -669,9 +669,9 @@ grouping boot-event-log {
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 12]
+Birkholz, et al.        Expires November 22, 2019              [Page 12]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
       type binary;
@@ -725,9 +725,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 13]
+Birkholz, et al.        Expires November 22, 2019              [Page 13]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
   description
@@ -781,9 +781,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 14]
+Birkholz, et al.        Expires November 22, 2019              [Page 14]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
         description
@@ -837,9 +837,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 15]
+Birkholz, et al.        Expires November 22, 2019              [Page 15]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
           including a length, encapsulated in a signature";
@@ -893,9 +893,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 16]
+Birkholz, et al.        Expires November 22, 2019              [Page 16]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
     list attestation-certificates {
@@ -949,9 +949,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 17]
+Birkholz, et al.        Expires November 22, 2019              [Page 17]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
               type binary;
@@ -1005,9 +1005,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 18]
+Birkholz, et al.        Expires November 22, 2019              [Page 18]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
              key tpm_name;
@@ -1061,9 +1061,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 19]
+Birkholz, et al.        Expires November 22, 2019              [Page 19]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
         }
@@ -1117,9 +1117,9 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 20]
+Birkholz, et al.        Expires November 22, 2019              [Page 20]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
 7.1.  Normative References
@@ -1127,13 +1127,13 @@ Internet-Draft                    BRAT                      October 2018
    [I-D.birkholz-reference-ra-interaction-model]
               Birkholz, H. and M. Eckel, "Reference Interaction Model
               for Challenge-Response-based Remote Attestation", draft-
-              birkholz-reference-ra-interaction-model-00 (work in
-              progress), July 2018.
+              birkholz-reference-ra-interaction-model-01 (work in
+              progress), January 2019.
 
    [I-D.ietf-netconf-crypto-types]
-              Watsen, K. and W. HAIGUANG, "Common YANG Data Types for
-              Cryptography", draft-ietf-netconf-crypto-types-02 (work in
-              progress), October 2018.
+              Watsen, K. and H. Wang, "Common YANG Data Types for
+              Cryptography", draft-ietf-netconf-crypto-types-06 (work in
+              progress), April 2019.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -1173,9 +1173,9 @@ Authors' Addresses
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 21]
+Birkholz, et al.        Expires November 22, 2019              [Page 21]
 
-Internet-Draft                    BRAT                      October 2018
+Internet-Draft                    BRAT                          May 2019
 
 
    Shwetha Bhandari
@@ -1229,4 +1229,4 @@ Internet-Draft                    BRAT                      October 2018
 
 
 
-Birkholz, et al.         Expires April 26, 2019                [Page 22]
+Birkholz, et al.        Expires November 22, 2019              [Page 22]
