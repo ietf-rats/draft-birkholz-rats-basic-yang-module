@@ -5,14 +5,14 @@
 TBD                                                          H. Birkholz
 Internet-Draft                                            Fraunhofer SIT
 Intended status: Standards Track                                M. Eckel
-Expires: November 22, 2019                                        Huawei
+Expires: November 24, 2019                                        Huawei
                                                              S. Bhandari
                                                                B. Sulzen
                                                                  E. Voit
                                                                    Cisco
                                                              G. Fedorkow
                                                                  Juniper
-                                                            May 21, 2019
+                                                            May 23, 2019
 
 
    YANG Module for Basic Challenge-Response-based Remote Attestation
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on November 22, 2019.
+   This Internet-Draft will expire on November 24, 2019.
 
 
 
@@ -53,7 +53,7 @@ Status of This Memo
 
 
 
-Birkholz, et al.        Expires November 22, 2019               [Page 1]
+Birkholz, et al.        Expires November 24, 2019               [Page 1]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -84,7 +84,7 @@ Table of Contents
    4.  Security Considerations . . . . . . . . . . . . . . . . . . .  20
    5.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  20
    6.  Change Log  . . . . . . . . . . . . . . . . . . . . . . . . .  20
-   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  20
+   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  21
      7.1.  Normative References  . . . . . . . . . . . . . . . . . .  21
      7.2.  Informative References  . . . . . . . . . . . . . . . . .  21
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  21
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Birkholz, et al.        Expires November 22, 2019               [Page 2]
+Birkholz, et al.        Expires November 24, 2019               [Page 2]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -165,7 +165,7 @@ module: ietf-basic-remote-attestation
 
 
 
-Birkholz, et al.        Expires November 22, 2019               [Page 3]
+Birkholz, et al.        Expires November 24, 2019               [Page 3]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -221,7 +221,7 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019               [Page 4]
+Birkholz, et al.        Expires November 24, 2019               [Page 4]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -277,7 +277,7 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019               [Page 5]
+Birkholz, et al.        Expires November 24, 2019               [Page 5]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -333,7 +333,7 @@ module ietf-basic-remote-attestation {
 
 
 
-Birkholz, et al.        Expires November 22, 2019               [Page 6]
+Birkholz, et al.        Expires November 24, 2019               [Page 6]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -389,7 +389,7 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019               [Page 7]
+Birkholz, et al.        Expires November 24, 2019               [Page 7]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -445,7 +445,7 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019               [Page 8]
+Birkholz, et al.        Expires November 24, 2019               [Page 8]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -501,7 +501,7 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019               [Page 9]
+Birkholz, et al.        Expires November 24, 2019               [Page 9]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -557,7 +557,7 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019              [Page 10]
+Birkholz, et al.        Expires November 24, 2019              [Page 10]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -613,7 +613,7 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019              [Page 11]
+Birkholz, et al.        Expires November 24, 2019              [Page 11]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -669,7 +669,7 @@ grouping boot-event-log {
 
 
 
-Birkholz, et al.        Expires November 22, 2019              [Page 12]
+Birkholz, et al.        Expires November 24, 2019              [Page 12]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -725,7 +725,7 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019              [Page 13]
+Birkholz, et al.        Expires November 24, 2019              [Page 13]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -781,7 +781,7 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019              [Page 14]
+Birkholz, et al.        Expires November 24, 2019              [Page 14]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -837,7 +837,7 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019              [Page 15]
+Birkholz, et al.        Expires November 24, 2019              [Page 15]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -893,7 +893,7 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019              [Page 16]
+Birkholz, et al.        Expires November 24, 2019              [Page 16]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -911,9 +911,9 @@ Internet-Draft                    BRAT                          May 2019
          "An arbitrary name for this identity certificate or certificate chain.";
       }
       leaf attestation-certificate {
+        type ietfct:end-entity-cert-cms;
         description
           "The binary signed certificate chain data for this identity certificate.";
-        type ietfct:end-entity-cert-cms;
       }
       uses attestation-key-identifier;
     }
@@ -930,16 +930,16 @@ Internet-Draft                    BRAT                          May 2019
       list log-selector {
         key node-name;
         description
-         "Selection of log entries to be reported.";
+          "Selection of log entries to be reported.";
         uses compute-node;
         choice index-type {
           description
-             "Last log entry received, log index number, or timestamp.";
-
+            "Last log entry received, log index number, or timestamp.";
           case last-entry {
             description
               "The last entry of the log already retrieved.";
             leaf last-entry-value {
+              type binary;
               description
               "Content of an log event which matches 1:1 with a
               unique event record contained within the log.  Log
@@ -949,24 +949,23 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019              [Page 17]
+Birkholz, et al.        Expires November 24, 2019              [Page 17]
 
 Internet-Draft                    BRAT                          May 2019
 
 
-              type binary;
             }
           }
           case index {
             description
               "Numeric index of the last log entry retrieved, or zero.";
             leaf index-number {
+              type uint64;
               description
               "The numeric index number of a log entry.  Zero means
               to start at the beginning of the log.   Entries
               subsequent to this will be passed to the
               requestor.";
-              type uint64;
             }
           }
           case timestamp {
@@ -1002,15 +1001,15 @@ Internet-Draft                    BRAT                          May 2019
            uses compute-node;
            uses node-uptime;
            list tpm-updated {
+             key tpm_name;
 
 
 
-Birkholz, et al.        Expires November 22, 2019              [Page 18]
+Birkholz, et al.        Expires November 24, 2019              [Page 18]
 
 Internet-Draft                    BRAT                          May 2019
 
 
-             key tpm_name;
              description
              "TPM these events may have recorded data in";
              uses tpm-name;
@@ -1025,27 +1024,32 @@ Internet-Draft                    BRAT                          May 2019
      }
    }
   container rats-support-structures {
+    config false;
+    description
+    "The datastore definition enabling verifiers or relying
+     parties to discover the information necessary to use the
+     remote attestation RPCs appropriately.";
     leaf-list supported-algos {
       type uint16;
       description
         "Supported TPM_ALG_ID values for the TPM in question.
         Will include ComponentIndex soon.";
     }
-  list tpms {
+    list tpms {
       key tpm_name;
       uses tpm-name;
       description
-        "A list of TPMs in this composite
-         device that rats can be conducted with.";
+      "A list of TPMs in this composite
+       device that rats can be conducted with.";
     }
-  list compute-nodes {
+    list compute-nodes {
       key node-name;
       uses compute-node;
       description
         "A list names of hardware components in this composite
          device that rats can be conducted with.";
-   }
-   container endorsement-certificates {
+    }
+    container endorsement-certificates {
       list certificate {
         key tpm_name;
         uses tpm-name;
@@ -1054,24 +1058,23 @@ Internet-Draft                    BRAT                          May 2019
         leaf endorsement-certificate {
           type binary;
           mandatory true;
-          description
-            "The signed pulic endorsement key (EK) and corresponding claims
-             (EK Certificate). In a TPM 2.0 the EK Certificate resides in a
-             well-defined NVRAM location by the TPM vednor.";
 
 
 
-Birkholz, et al.        Expires November 22, 2019              [Page 19]
+Birkholz, et al.        Expires November 24, 2019              [Page 19]
 
 Internet-Draft                    BRAT                          May 2019
 
 
+          description
+          "The signed pulic endorsement key (EK) and corresponding claims
+           (EK Certificate). In a TPM 2.0 the EK Certificate resides in a
+           well-defined NVRAM location by the TPM vednor.";
         }
       }
-    description
+      description
       "Basic information elements to enable RATS.";
     }
-  config false;
   }
 }
 <CODE ENDS>
@@ -1109,18 +1112,17 @@ Internet-Draft                    BRAT                          May 2019
 
    o  Removed event-string in last-entry
 
-7.  References
 
 
 
 
 
-
-
-Birkholz, et al.        Expires November 22, 2019              [Page 20]
+Birkholz, et al.        Expires November 24, 2019              [Page 20]
 
 Internet-Draft                    BRAT                          May 2019
 
+
+7.  References
 
 7.1.  Normative References
 
@@ -1171,9 +1173,7 @@ Authors' Addresses
 
 
 
-
-
-Birkholz, et al.        Expires November 22, 2019              [Page 21]
+Birkholz, et al.        Expires November 24, 2019              [Page 21]
 
 Internet-Draft                    BRAT                          May 2019
 
@@ -1229,4 +1229,4 @@ Internet-Draft                    BRAT                          May 2019
 
 
 
-Birkholz, et al.        Expires November 22, 2019              [Page 22]
+Birkholz, et al.        Expires November 24, 2019              [Page 22]
