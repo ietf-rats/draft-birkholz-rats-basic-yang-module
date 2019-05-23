@@ -517,9 +517,9 @@ grouping boot-event-log {
          "An arbitrary name for this identity certificate or certificate chain.";
       }      
       leaf attestation-certificate {
+        type ietfct:end-entity-cert-cms;
         description
           "The binary signed certificate chain data for this identity certificate.";
-        type ietfct:end-entity-cert-cms;
       }
       uses attestation-key-identifier;
     }
@@ -536,35 +536,34 @@ grouping boot-event-log {
       list log-selector {
         key node-name;
         description
-	 "Selection of log entries to be reported.";
+	  "Selection of log entries to be reported.";
 	uses compute-node;
         choice index-type {
           description
-             "Last log entry received, log index number, or timestamp.";
-
+            "Last log entry received, log index number, or timestamp.";
           case last-entry {
             description
               "The last entry of the log already retrieved.";
             leaf last-entry-value {
+	      type binary;
               description
               "Content of an log event which matches 1:1 with a 
               unique event record contained within the log.  Log 
               entries subsequent to this will be passed to the 
               requestor.  Note: if log entry values are not unique, 
               this MUST return an error.";
-	      type binary;
             }
           }
           case index {
 	    description
               "Numeric index of the last log entry retrieved, or zero.";
             leaf index-number {
+              type uint64;
               description
               "The numeric index number of a log entry.  Zero means 
               to start at the beginning of the log.   Entries
               subsequent to this will be passed to the 
               requestor.";
-              type uint64;
             }
           }
           case timestamp {
@@ -615,44 +614,48 @@ grouping boot-event-log {
      }
    }
   container rats-support-structures {
+    config false;
+    description
+    "The datastore definition enabling verifiers or relying
+     parties to discover the information necessary to use the
+     remote attestation RPCs appropriately.";
     leaf-list supported-algos {
       type uint16;
       description
         "Supported TPM_ALG_ID values for the TPM in question.
         Will include ComponentIndex soon.";
     }
-  list tpms {
+    list tpms {
       key tpm_name;
       uses tpm-name;
       description
-        "A list of TPMs in this composite
-         device that rats can be conducted with.";
+      "A list of TPMs in this composite
+       device that rats can be conducted with.";
     }
-  list compute-nodes {
+    list compute-nodes {
       key node-name;
       uses compute-node;
       description
         "A list names of hardware components in this composite
          device that rats can be conducted with.";
-   }
-   container endorsement-certificates {
+    }
+    container endorsement-certificates {
       list certificate {
         key tpm_name;
-	uses tpm-name;
+        uses tpm-name;
         description
           "The TPM's endorsement-certificate.";
         leaf endorsement-certificate {
           type binary;
           mandatory true;
           description
-            "The signed pulic endorsement key (EK) and corresponding claims
-             (EK Certificate). In a TPM 2.0 the EK Certificate resides in a
-             well-defined NVRAM location by the TPM vednor.";
+          "The signed pulic endorsement key (EK) and corresponding claims
+           (EK Certificate). In a TPM 2.0 the EK Certificate resides in a
+           well-defined NVRAM location by the TPM vednor.";
         }
       }
-    description
+      description
       "Basic information elements to enable RATS.";
     }
-  config false;
   }
 }
