@@ -1,17 +1,14 @@
 module: ietf-basic-remote-attestation
   +--ro rats-support-structures
-     +--ro supported-algos*            uint16
+     +--ro supported-algos*   uint16
      +--ro tpms* [tpm_name]
      |  +--ro tpm_name              string
      |  +--ro tpm-physical-index?   int32 {ietfhw:entity-mib}?
+     |  +--ro certificates* []
+     |     +--ro certificate    binary
      +--ro compute-nodes* [node-name]
-     |  +--ro node-name              string
-     |  +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
-     +--ro endorsement-certificates
-        +--ro certificate* [tpm_name]
-           +--ro tpm_name                   string
-           +--ro tpm-physical-index?        int32 {ietfhw:entity-mib}?
-           +--ro endorsement-certificate    binary
+        +--ro node-name              string
+        +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
 
   rpcs:
     +---x tpm2-challenge-response-attestation
@@ -36,8 +33,9 @@ module: ietf-basic-remote-attestation
     |  |  |     |  +---w pub-key-id?             binary
     |  |  |     +--:(uuid)
     |  |  |        +---w uuid-value?             binary
-    |  |  +---w tpm_name?                     string
-    |  |  +---w tpm-physical-index?           int32 {ietfhw:entity-mib}?
+    |  |  +---w tpms* [tpm_name]
+    |  |     +---w tpm_name              string
+    |  |     +---w tpm-physical-index?   int32 {ietfhw:entity-mib}?
     |  +--ro output
     |     +--ro tpm2-attestation-response* [tpm_name]
     |        +--ro tpm_name               string
@@ -99,13 +97,12 @@ module: ietf-basic-remote-attestation
        |  +---w log-entry-quantity?   uint16
        +--ro output
           +--ro system-event-logs
-             +--ro node-data* [node-name]
+             +--ro node-data* [node-name tpm_name]
                 +--ro node-name              string
                 +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
                 +--ro up-time?               uint32
-                +--ro tpm-updated* [tpm_name]
-                |  +--ro tpm_name              string
-                |  +--ro tpm-physical-index?   int32 {ietfhw:entity-mib}?
+                +--ro tpm_name               string
+                +--ro tpm-physical-index?    int32 {ietfhw:entity-mib}?
                 +--ro log-result
                    +--ro (log-type)
                       +--:(bios)
