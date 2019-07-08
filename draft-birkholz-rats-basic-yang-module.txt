@@ -79,22 +79,22 @@ Table of Contents
      1.1.  Requirements notation . . . . . . . . . . . . . . . . . .   3
    2.  The YANG Module for Basic Remote Attestation Procedures . . .   3
      2.1.  Tree format . . . . . . . . . . . . . . . . . . . . . . .   3
-     2.2.  Raw Format  . . . . . . . . . . . . . . . . . . . . . . .   6
-   3.  IANA considerations . . . . . . . . . . . . . . . . . . . . .  20
-   4.  Security Considerations . . . . . . . . . . . . . . . . . . .  20
-   5.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  21
-   6.  Change Log  . . . . . . . . . . . . . . . . . . . . . . . . .  21
-   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  21
-     7.1.  Normative References  . . . . . . . . . . . . . . . . . .  21
-     7.2.  Informative References  . . . . . . . . . . . . . . . . .  21
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  22
+     2.2.  Raw Format  . . . . . . . . . . . . . . . . . . . . . . .   7
+   3.  IANA considerations . . . . . . . . . . . . . . . . . . . . .  28
+   4.  Security Considerations . . . . . . . . . . . . . . . . . . .  29
+   5.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  29
+   6.  Change Log  . . . . . . . . . . . . . . . . . . . . . . . . .  29
+   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  29
+     7.1.  Normative References  . . . . . . . . . . . . . . . . . .  29
+     7.2.  Informative References  . . . . . . . . . . . . . . . . .  30
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  30
 
 1.  Introduction
 
    This document is based on the terminology defined in the
    [I-D.birkholz-attestation-terminology] and uses the interaction model
    and information elements defined in the
-   [I-D.birkholz-reference-ra-interaction-model] document.  The
+   [I-D.birkholz-rats-reference-interaction-model] document.  The
    currently supported hardware security module (HWM) - sometimes also
    referred to as an embedded secure element(eSE) - is the Trusted
    Platform Module (TPM) 2.0 specified by the Trusted Computing Group
@@ -130,7 +130,7 @@ Internet-Draft                    BRAT                         July 2019
    accordance with the Remote Attestation Procedures (RATS) architecture
    [I-D.birkholz-attestation-terminology] and the corresponding
    challenge-response interaction model defined in the
-   [I-D.birkholz-reference-ra-interaction-model] document.  A fresh
+   [I-D.birkholz-rats-reference-interaction-model] document.  A fresh
    nonce with an appropriate amount of entropy MUST be supplied by the
    YANG client in order to enable a proof-of-freshness with respect to
    the attestation evidence provided by the attester running the YANG
@@ -156,16 +156,72 @@ module: ietf-basic-remote-attestation
         +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
 
   rpcs:
-    +---x tpm2-challenge-response-attestation
+    +---x tpm12-challenge-response-attestation
     |  +---w input
-    |  |  +---w tpm2-attestation-challenge
+    |  |  +---w tpm1-attestation-challenge
+    |  |     +---w pcr-indices*            uint8
+    |  |     +---w nonce-value             binary
+    |  |     +---w TPM_SIG_SCHEME-value    uint8
+
+
+
+Birkholz, et al.         Expires January 9, 2020                [Page 3]
+
+Internet-Draft                    BRAT                         July 2019
+
+
+    |  |     +---w (key-identifier)?
+    |  |     |  +--:(public-key)
+    |  |     |  |  +---w pub-key-id?       binary
+    |  |     |  +--:(TSS_UUID)
+    |  |     |     +---w TSS_UUID-value
+    |  |     |        +---w ulTimeLow?       uint32
+    |  |     |        +---w usTimeMid?       uint16
+    |  |     |        +---w usTimeHigh?      uint16
+    |  |     |        +---w bClockSeqHigh?   uint8
+    |  |     |        +---w bClockSeqLow?    uint8
+    |  |     |        +---w rgbNode*         uint8
+    |  |     +---w add-version?            boolean
+    |  |     +---w tpm_name?               string
+    |  |     +---w tpm-physical-index?     int32 {ietfhw:entity-mib}?
+    |  +--ro output
+    |     +--ro tpm12-attestation-response* [tpm_name]
+    |        +--ro tpm_name                     string
+    |        +--ro tpm-physical-index?          int32 {ietfhw:entity-mib}?
+    |        +--ro up-time?                     uint32
+    |        +--ro node-name?                   string
+    |        +--ro node-physical-index?         int32 {ietfhw:entity-mib}?
+    |        +--ro fixed?                       binary
+    |        +--ro external-data?               binary
+    |        +--ro signature-size?              uint32
+    |        +--ro signature?                   binary
+    |        +--ro (tpm12-quote)
+    |           +--:(tpm12-quote1)
+    |           |  +--ro version* []
+    |           |  |  +--ro major?      uint8
+    |           |  |  +--ro minor?      uint8
+    |           |  |  +--ro revMajor?   uint8
+    |           |  |  +--ro revMinor?   uint8
+    |           |  +--ro digest-value?          binary
+    |           |  +--ro TPM_PCR_COMPOSITE* []
+    |           |     +--ro pcr-indices*       uint8
+    |           |     +--ro value-size?        uint32
+    |           |     +--ro tpm12-pcr-value*   binary
+    |           +--:(tpm12-quote2)
+    |              +--ro tag?                   uint8
+    |              +--ro pcr-indices*           uint8
+    |              +--ro locality-at-release?   uint8
+    |              +--ro digest-at-release?     binary
+    +---x tpm20-challenge-response-attestation
+    |  +---w input
+    |  |  +---w tpm20-attestation-challenge
     |  |  |  +---w pcr-list* []
     |  |  |  |  +---w pcr
     |  |  |  |     +---w pcr-indices*                  uint8
 
 
 
-Birkholz, et al.         Expires January 9, 2020                [Page 3]
+Birkholz, et al.         Expires January 9, 2020                [Page 4]
 
 Internet-Draft                    BRAT                         July 2019
 
@@ -190,7 +246,7 @@ Internet-Draft                    BRAT                         July 2019
     |  |     +---w tpm_name              string
     |  |     +---w tpm-physical-index?   int32 {ietfhw:entity-mib}?
     |  +--ro output
-    |     +--ro tpm2-attestation-response* [tpm_name]
+    |     +--ro tpm20-attestation-response* [tpm_name]
     |        +--ro tpm_name               string
     |        +--ro tpm-physical-index?    int32 {ietfhw:entity-mib}?
     |        +--ro up-time?               uint32
@@ -221,7 +277,7 @@ Internet-Draft                    BRAT                         July 2019
 
 
 
-Birkholz, et al.         Expires January 9, 2020                [Page 4]
+Birkholz, et al.         Expires January 9, 2020                [Page 5]
 
 Internet-Draft                    BRAT                         July 2019
 
@@ -277,7 +333,7 @@ Internet-Draft                    BRAT                         July 2019
 
 
 
-Birkholz, et al.         Expires January 9, 2020                [Page 5]
+Birkholz, et al.         Expires January 9, 2020                [Page 6]
 
 Internet-Draft                    BRAT                         July 2019
 
@@ -333,7 +389,7 @@ module ietf-basic-remote-attestation {
 
 
 
-Birkholz, et al.         Expires January 9, 2020                [Page 6]
+Birkholz, et al.         Expires January 9, 2020                [Page 7]
 
 Internet-Draft                    BRAT                         July 2019
 
@@ -389,7 +445,7 @@ Internet-Draft                    BRAT                         July 2019
 
 
 
-Birkholz, et al.         Expires January 9, 2020                [Page 7]
+Birkholz, et al.         Expires January 9, 2020                [Page 8]
 
 Internet-Draft                    BRAT                         July 2019
 
@@ -420,13 +476,36 @@ Internet-Draft                    BRAT                         July 2019
     }
   }
 
-  grouping pcr-selection {
+  grouping tpm12-pcr-selection {
+    description
+      "A Verifier can request one or more PCR values using its
+      individually created Attestation Key Certificate (AC).
+      The corresponding selection filter is represented in this grouping.
+      Requesting a PCR value that is not in scope of the AC used, detailed
+      exposure via error msg should be avoided.";
+    leaf-list pcr-indices {
+      type uint8;
+      description
+        "The numbers/indexes of the PCRs. At the moment this is limited
+        to 32.";
+    }
+  }
+
+  grouping tpm20-pcr-selection {
     description
       "A Verifier can request one or more PCR values uses its
       individually created AC. The corresponding selection filter is
       represented in this grouping. Requesting a PCR value that is not
       in scope of the AC used, detailed exposure via error msg should
       be avoided.";
+
+
+
+Birkholz, et al.         Expires January 9, 2020                [Page 9]
+
+Internet-Draft                    BRAT                         July 2019
+
+
     list pcr-list {
       description
         "For each PCR in this list an individual list of banks
@@ -442,14 +521,6 @@ Internet-Draft                    BRAT                         July 2019
            type uint8;
            description
              "The number of the PCR. At the moment this is limited
-
-
-
-Birkholz, et al.         Expires January 9, 2020                [Page 8]
-
-Internet-Draft                    BRAT                         July 2019
-
-
              32";
         }
         uses hash-algo;
@@ -484,7 +555,28 @@ Internet-Draft                    BRAT                         July 2019
     }
   }
 
-  grouping signature-scheme {
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 10]
+
+Internet-Draft                    BRAT                         July 2019
+
+
+  grouping tpm12-signature-scheme {
+    description
+      "The signature scheme used to sign the evidence via a TPM 1.2.";
+    leaf TPM_SIG_SCHEME-value {
+      type uint8;
+      mandatory true;
+      description
+        "Selects the signature scheme that is used to sign the TPM quote
+        information response. Allowed values can be found in the table at
+        the bottom of page 32 in the TPM 1.2 Structures specification
+        (Level 2 Revision 116, 1 March 2011).";
+    }
+  }
+
+  grouping tpm20-signature-scheme {
     description
       "The signature scheme used to sign the evidence.";
     choice signature-identifier-type {
@@ -498,14 +590,6 @@ Internet-Draft                    BRAT                         July 2019
           "This references the indices of table 9 in the TPM 2.0
           structure specification.";
         leaf TPM_ALG_ID-value {
-
-
-
-Birkholz, et al.         Expires January 9, 2020                [Page 9]
-
-Internet-Draft                    BRAT                         July 2019
-
-
           type uint16;
           description
             "The TPM Algo ID.";
@@ -525,7 +609,86 @@ Internet-Draft                    BRAT                         July 2019
     }
   }
 
-  grouping attestation-key-identifier {
+  grouping tpm12-attestation-key-identifier {
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 11]
+
+Internet-Draft                    BRAT                         July 2019
+
+
+    description
+      "A selector for a suitable key identifier for a TPM 1.2.";
+    choice key-identifier {
+      description
+        "Identifier for the attestation key to use for signing
+        attestation evidence.";
+      case public-key {
+        leaf pub-key-id {
+          type binary;
+          description
+            "The value of the identifier for the public key.";
+        }
+      }
+      case TSS_UUID {
+        description
+          "Use a YANG agent generated (and maintained) attestation
+          key UUID that complies with the TSS_UUID datatype of the TCG
+          Software Stack (TSS) Specification, Version 1.10 Golden,
+          August 20, 2003.";
+        container TSS_UUID-value {
+          description
+            "A detailed structure that is used to create the
+            TPM 1.2 native TSS_UUID as defined in the TCG Software
+            Stack (TSS) Specification, Version 1.10 Golden,
+            August 20, 2003.";
+          leaf ulTimeLow {
+            type uint32;
+            description
+              "The low field of the timestamp.";
+          }
+          leaf usTimeMid {
+            type uint16;
+            description
+              "The middle field of the timestamp.";
+          }
+          leaf usTimeHigh {
+            type uint16;
+            description
+              "The high field of the timestamp multiplexed with the
+              version number.";
+          }
+          leaf bClockSeqHigh {
+            type uint8;
+            description
+              "The high field of the clock sequence multiplexed with
+              the variant.";
+          }
+          leaf bClockSeqLow {
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 12]
+
+Internet-Draft                    BRAT                         July 2019
+
+
+            type uint8;
+            description
+              "The low field of the clock sequence.";
+          }
+          leaf-list rgbNode {
+            type uint8;
+            description
+              "The spatially unique node identifier.";
+          }
+        }
+      }
+    }
+  }
+
+  grouping tpm20-attestation-key-identifier {
     description
       "A selector for a suitable key identifier.";
     choice key-identifier {
@@ -554,19 +717,19 @@ Internet-Draft                    BRAT                         July 2019
 
   grouping tpm-name {
     description
-
-
-
-Birkholz, et al.         Expires January 9, 2020               [Page 10]
-
-Internet-Draft                    BRAT                         July 2019
-
-
       "In a system with multiple-TPMs get the data from a specific TPM
        identified by the name and physical-index.";
     leaf tpm_name {
       type string;
       description
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 13]
+
+Internet-Draft                    BRAT                         July 2019
+
+
         "Name of the TPM or All";
     }
     leaf tpm-physical-index {
@@ -602,6 +765,230 @@ Internet-Draft                    BRAT                         July 2019
          "RFC 6933: Entity MIB (Version 4) - entPhysicalIndex";
     }
   }
+
+  grouping tpm12-pcr-info-short {
+    description
+      "This structure is for defining a digest at release when the only
+      information that is necessary is the release configuration.";
+    uses tpm12-pcr-selection;
+    leaf locality-at-release {
+      type uint8;
+      description
+        ".This SHALL be the locality modifier required to release the
+        information (TPM 1.2 type TPM_LOCALITY_SELECTION)";
+    }
+    leaf digest-at-release {
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 14]
+
+Internet-Draft                    BRAT                         July 2019
+
+
+      type binary;
+        description
+          "This SHALL be the digest of the PCR indices and PCR values
+          to verify when revealing auth data (TPM 1.2 type
+          TPM_COMPOSITE_HASH).";
+    }
+  }
+
+  grouping tpm12-version {
+    description
+      "This structure provides information relative the version of
+      the TPM.";
+    list version {
+      description
+        "This indicates the version of the structure
+        (TPM 1.2 type TPM_STRUCT_VER). This MUST be 1.1.0.0.";
+      leaf major {
+        type uint8;
+        description
+          "Indicates the major version of the structure.
+          MUST be 0x01.";
+      }
+      leaf minor {
+        type uint8;
+        description
+          "Indicates the minor version of the structure.
+          MUST be 0x01.";
+      }
+      leaf revMajor {
+        type uint8;
+        description
+         "Indicates the rev major version of the structure.
+         MUST be 0x00.";
+      }
+      leaf revMinor {
+        type uint8;
+        description
+          "Indicates the rev minor version of the structure.
+          MUST be 0x00.";
+      }
+    }
+  }
+
+  grouping tpm12-quote-info-common {
+    description
+      "These statements are used in bot quote variants of the TPM 1.2";
+    leaf fixed {
+      type binary;
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 15]
+
+Internet-Draft                    BRAT                         July 2019
+
+
+      description
+        "This SHALL always be the string 'QUOT' or 'QUO2'
+        (length is 4 bytes).";
+    }
+    leaf external-data {
+      type binary;
+      description
+        "160 bits of externally supplied data, typically a nonce.";
+    }
+    leaf signature-size {
+      type uint32;
+      description
+       "The size of TPM 1.2 'signature' value.";
+    }
+    leaf signature {
+      type binary;
+      description
+        "Signature over SHA-1 hash of tpm12-quote-info2'.";
+    }
+  }
+
+  grouping tpm12-quote-info {
+    description
+      "This structure provides the mechanism for the TPM to quote the
+      current values of a list of PCRs (as used by the TPM_Quote2
+      command).";
+    uses tpm12-version;
+    leaf digest-value {
+      type binary;
+      description
+        "This SHALL be the result of the composite hash algorithm using
+        the current values of the requested PCR indices
+        (TPM 1.2 type TPM_COMPOSITE_HASH.)";
+    }
+  }
+
+  grouping tpm12-quote-info2 {
+    description
+      "This structure provides the mechanism for the TPM to quote the
+      current values of a list of PCRs
+     (as used by the TPM_Quote2 command).";
+    leaf tag {
+      type uint8;
+      description
+        "This SHALL be TPM_TAG_QUOTE_INFO2.";
+    }
+    uses tpm12-pcr-info-short;
+  }
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 16]
+
+Internet-Draft                    BRAT                         July 2019
+
+
+  grouping tpm12-cap-version-info {
+    description
+      "TPM returns the current version and revision of the TPM 1.2 .";
+    list TPM_PCR_COMPOSITE {
+      description
+        "The TPM 1.2 TPM_PCRVALUEs for the pcr-indices.";
+      uses tpm12-pcr-selection;
+      leaf value-size {
+        type uint32;
+        description
+          "This SHALL be the size of the 'tpm12-pcr-value' field
+          (not the number of PCRs).";
+      }
+      leaf-list tpm12-pcr-value {
+        type binary;
+        description
+          "The list of TPM_PCRVALUEs from each PCR selected in sequence
+          of tpm12-pcr-selection.";
+      }
+      list version-info {
+        description
+          "An optional output parameter from a TPM 1.2 TPM_Quote2.";
+        leaf tag {
+          type uint16;
+          description
+            "The TPM 1.2 version and revision
+            (TPM 1.2 type TPM_STRUCTURE_TAG).
+            This MUST be TPM_CAP_VERSION_INFO (0x0030)";
+        }
+        uses tpm12-version;
+        leaf spec-level {
+          type uint16;
+          description
+            "A number indicating the level of ordinals supported.";
+        }
+        leaf errata-rev {
+          type uint8;
+          description
+            "A number indicating the errata version of the
+            specification.";
+        }
+        leaf tpm-vendor-id {
+          type binary;
+          description
+            "The vendor ID unique to each TPM manufacturer.";
+        }
+        leaf vendor-specific-size {
+          type uint16;
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 17]
+
+Internet-Draft                    BRAT                         July 2019
+
+
+          description
+            "The size of the vendor-specific area.";
+        }
+        leaf vendor-specific {
+          type binary;
+          description
+            "Vendor specific information.";
+        }
+      }
+    }
+  }
+
+  grouping tpm12-pcr-composite {
+    description
+      "The actual values of the selected PCRs (a list of TPM_PCRVALUEs
+      (binary)and associated metadata for TPM 1.2.";
+    list TPM_PCR_COMPOSITE {
+      description
+        "The TPM 1.2 TPM_PCRVALUEs for the pcr-indices.";
+      uses tpm12-pcr-selection;
+      leaf value-size {
+        type uint32;
+        description
+          "This SHALL be the size of the 'tpm12-pcr-value' field
+          (not the number of PCRs).";
+      }
+      leaf-list tpm12-pcr-value {
+        type binary;
+        description
+          "The list of TPM_PCRVALUEs from each PCR selected in sequence
+          of tpm12-pcr-selection.";
+      }
+    }
+  }
+
   grouping node-uptime {
     description
       "Uptime in seconds of the node.";
@@ -610,18 +997,19 @@ Internet-Draft                    BRAT                         July 2019
       description
         "Uptime in seconds of this node reporting its data";
     }
+  }
+
+  identity log-type {
+    description
+      "The type of logs available.";
 
 
 
-Birkholz, et al.         Expires January 9, 2020               [Page 11]
+Birkholz, et al.         Expires January 9, 2020               [Page 18]
 
 Internet-Draft                    BRAT                         July 2019
 
 
-  }
-  identity log-type {
-    description
-      "The type of logs available.";
   }
 
   identity bios {
@@ -666,18 +1054,18 @@ Internet-Draft                    BRAT                         July 2019
     leaf pcr-index {
       type uint16;
       description
-
-
-
-Birkholz, et al.         Expires January 9, 2020               [Page 12]
-
-Internet-Draft                    BRAT                         July 2019
-
-
         "Defines the PCR index that this event extended";
     }
     list digest-list {
       description "Hash of event data";
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 19]
+
+Internet-Draft                    BRAT                         July 2019
+
+
       uses hash-algo;
       leaf-list digest {
         type binary;
@@ -722,18 +1110,18 @@ Internet-Draft                    BRAT                         July 2019
         "Hash of filedata";
     }
     leaf template-hash-algorithm {
-
-
-
-Birkholz, et al.         Expires January 9, 2020               [Page 13]
-
-Internet-Draft                    BRAT                         July 2019
-
-
       type string;
       description
         "Algorithm used for template-hash";
     }
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 20]
+
+Internet-Draft                    BRAT                         July 2019
+
+
     leaf template-hash {
       type binary;
       description
@@ -778,18 +1166,18 @@ Internet-Draft                    BRAT                         July 2019
   grouping event-logs {
     description
       "A selector for the log and its type.";
-
-
-
-Birkholz, et al.         Expires January 9, 2020               [Page 14]
-
-Internet-Draft                    BRAT                         July 2019
-
-
     choice log-type {
       mandatory true;
       description
         "Event log type determines the event logs content.";
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 21]
+
+Internet-Draft                    BRAT                         July 2019
+
+
       case bios {
         description
           "BIOS/UEFI event logs";
@@ -813,41 +1201,108 @@ Internet-Draft                    BRAT                         July 2019
     }
   }
 
-  rpc tpm2-challenge-response-attestation {
+  rpc tpm12-challenge-response-attestation {
+    description
+      "This RPC accepts the input for TSS TPM 1.2 commands of the
+       managed device. ComponentIndex from the hardware manager YANG
+       module to refer to dedicated TPM in composite devices,
+       e.g. smart NICs, is still a TODO.";
+    input {
+      container tpm1-attestation-challenge {
+        description
+          "This container includes every information element defined
+           in the reference challenge-response interaction model for
+           remote attestation. Corresponding values are based on
+           TPM 1.2 structure definitions";
+        uses tpm12-pcr-selection;
+        uses nonce;
+        uses tpm12-signature-scheme;
+        uses tpm12-attestation-key-identifier;
+        leaf add-version {
+          type boolean;
+          description
+            "Whether or not to include TPM_CAP_VERSION_INFO; if true,
+             then TPM_Quote2 must be used to create the response.";
+        }
+        uses tpm-name;
+      }
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 22]
+
+Internet-Draft                    BRAT                         July 2019
+
+
+    }
+    output {
+      list tpm12-attestation-response {
+        key tpm_name;
+        description
+          "The binary output of TPM 1.2 TPM_Quote/TPM_Quote2, including
+           the PCR selection and other associated attestation evidence
+           metadata";
+        uses tpm-name;
+        uses node-uptime;
+        uses compute-node;
+        uses tpm12-quote-info-common;
+        choice tpm12-quote {
+          mandatory true;
+          description
+            "Either a tpm12-quote-info or tpm12-quote-info2, depending
+            on whether TPM_Quote or TPM_Quote2 was used
+            (cf. input field add-verson).";
+          case tpm12-quote1 {
+            description
+              "BIOS/UEFI event logs";
+            uses tpm12-quote-info;
+            uses tpm12-pcr-composite;
+          }
+          case tpm12-quote2 {
+            description
+              "BIOS/UEFI event logs";
+            uses tpm12-quote-info2;
+          }
+        }
+      }
+    }
+  }
+
+  rpc tpm20-challenge-response-attestation {
     description
       "This RPC accepts the input for TSS TPM 2.0 commands of the
        managed device. ComponentIndex from the hardware manager YANG
-       module to refer to dedicated TPM in composite devices, e.g. smart
-       NICs, is still a TODO.";
+       module to refer to dedicated TPM in composite devices,
+       e.g. smart NICs, is still a TODO.";
     input {
-      container tpm2-attestation-challenge {
+      container tpm20-attestation-challenge {
         description
           "This container includes every information element defined
            in the reference challenge-response interaction model for
            remote attestation. Corresponding values are based on
            TPM 2.0 structure definitions";
-        uses pcr-selection;
-        uses nonce;
-        uses signature-scheme;
-        uses attestation-key-identifier;
-      }
-      list tpms {
-      key tpm_name;
-      description
+        uses tpm20-pcr-selection;
 
 
 
-Birkholz, et al.         Expires January 9, 2020               [Page 15]
+Birkholz, et al.         Expires January 9, 2020               [Page 23]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+        uses nonce;
+        uses tpm20-signature-scheme;
+        uses tpm20-attestation-key-identifier;
+      }
+      list tpms {
+      key tpm_name;
+      description
       "TPMs to fetch the attestation information.";
       uses tpm-name;
       }
     }
     output {
-      list tpm2-attestation-response {
+      list tpm20-attestation-response {
         key tpm_name;
         description
           "The binary output of TPM2b_Quote. An TPMS_ATTEST structure
@@ -883,6 +1338,14 @@ Internet-Draft                    BRAT                         July 2019
             TODO: check for length values that complent binary value
             data node leafs.";
         }
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 24]
+
+Internet-Draft                    BRAT                         July 2019
+
+
       }
     }
   }
@@ -890,18 +1353,10 @@ Internet-Draft                    BRAT                         July 2019
   rpc basic-trust-establishment {
     description
       "This RPC creates a tpm-resident, non-migratable key to be used
-
-
-
-Birkholz, et al.         Expires January 9, 2020               [Page 16]
-
-Internet-Draft                    BRAT                         July 2019
-
-
       in TPM_Quote commands, an attestation certificate.";
     input {
       uses nonce;
-      uses signature-scheme;
+      uses tpm20-signature-scheme;
       uses tpm-name;
       leaf certificate-name {
          type string;
@@ -931,7 +1386,7 @@ Internet-Draft                    BRAT                         July 2019
             "The binary signed certificate chain data for this identity
             certificate.";
         }
-        uses attestation-key-identifier;
+        uses tpm20-attestation-key-identifier;
       }
     }
   }
@@ -939,6 +1394,14 @@ Internet-Draft                    BRAT                         July 2019
   rpc log-retrieval {
     description
       "Logs Entries are either identified via indices or via providing
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 25]
+
+Internet-Draft                    BRAT                         July 2019
+
+
       the last line received. The number of lines returned can be
       limited. The type of log is a choice that can be augmented.";
     input {
@@ -946,14 +1409,6 @@ Internet-Draft                    BRAT                         July 2019
         key node-name;
         description
           "Selection of log entries to be reported.";
-
-
-
-Birkholz, et al.         Expires January 9, 2020               [Page 17]
-
-Internet-Draft                    BRAT                         July 2019
-
-
         uses compute-node;
         choice index-type {
           description
@@ -995,21 +1450,21 @@ Internet-Draft                    BRAT                         July 2019
           }
         }
       }
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 26]
+
+Internet-Draft                    BRAT                         July 2019
+
+
       uses log-identifier;
-      uses pcr-selection;
+      uses tpm20-pcr-selection;
       leaf log-entry-quantity {
         type uint16;
         description
           "The number of log entries to be returned. If omitted, it
           means all of them.";
-
-
-
-Birkholz, et al.         Expires January 9, 2020               [Page 18]
-
-Internet-Draft                    BRAT                         July 2019
-
-
       }
     }
     output {
@@ -1051,6 +1506,14 @@ Internet-Draft                    BRAT                         July 2019
       uses tpm-name;
       description
       "A list of TPMs in this composite
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 27]
+
+Internet-Draft                    BRAT                         July 2019
+
+
        device that rats can be conducted with.";
       list certificates {
         description
@@ -1058,14 +1521,6 @@ Internet-Draft                    BRAT                         July 2019
         container certificate {
             leaf certificate-name {
               type string;
-
-
-
-Birkholz, et al.         Expires January 9, 2020               [Page 19]
-
-Internet-Draft                    BRAT                         July 2019
-
-
               description
                 "An arbitrary name for this identity certificate or
                 certificate chain.";
@@ -1098,7 +1553,7 @@ Internet-Draft                    BRAT                         July 2019
         "A list names of hardware components in this composite
          device that rats can be conducted with.";
     }
-    }
+  }
 }
 <CODE ENDS>
 
@@ -1108,19 +1563,16 @@ Internet-Draft                    BRAT                         July 2019
 
    To be defined yet.
 
-4.  Security Considerations
-
-   There are always some.
 
 
-
-
-
-
-Birkholz, et al.         Expires January 9, 2020               [Page 20]
+Birkholz, et al.         Expires January 9, 2020               [Page 28]
 
 Internet-Draft                    BRAT                         July 2019
 
+
+4.  Security Considerations
+
+   There are always some.
 
 5.  Acknowledgements
 
@@ -1149,11 +1601,11 @@ Internet-Draft                    BRAT                         July 2019
 
 7.1.  Normative References
 
-   [I-D.birkholz-reference-ra-interaction-model]
+   [I-D.birkholz-rats-reference-interaction-model]
               Birkholz, H. and M. Eckel, "Reference Interaction Model
               for Challenge-Response-based Remote Attestation", draft-
-              birkholz-reference-ra-interaction-model-01 (work in
-              progress), January 2019.
+              birkholz-rats-reference-interaction-model-00 (work in
+              progress), March 2019.
 
    [I-D.ietf-netconf-crypto-types]
               Watsen, K. and H. Wang, "Common YANG Data Types for
@@ -1165,18 +1617,16 @@ Internet-Draft                    BRAT                         July 2019
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
-7.2.  Informative References
 
 
 
 
-
-
-
-Birkholz, et al.         Expires January 9, 2020               [Page 21]
+Birkholz, et al.         Expires January 9, 2020               [Page 29]
 
 Internet-Draft                    BRAT                         July 2019
 
+
+7.2.  Informative References
 
    [I-D.birkholz-attestation-terminology]
               Birkholz, H., Wiseman, M., and H. Tschofenig, "Reference
@@ -1227,9 +1677,7 @@ Authors' Addresses
 
 
 
-
-
-Birkholz, et al.         Expires January 9, 2020               [Page 22]
+Birkholz, et al.         Expires January 9, 2020               [Page 30]
 
 Internet-Draft                    BRAT                         July 2019
 
@@ -1285,4 +1733,4 @@ Internet-Draft                    BRAT                         July 2019
 
 
 
-Birkholz, et al.         Expires January 9, 2020               [Page 23]
+Birkholz, et al.         Expires January 9, 2020               [Page 31]
