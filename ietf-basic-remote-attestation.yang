@@ -644,15 +644,32 @@ module ietf-basic-remote-attestation {
       list certificates {
         description
           "The TPM's endorsement-certificate.";
-        leaf certificate {
-          type binary;
-          mandatory true;
-          description
-            "The signed pulic endorsement key (EK), attestation key(AK) and corresponding
-            claims (EK,AK Certificate). In a TPM 2.0 the EK,AK Certificate
-            resides in a well-defined NVRAM location by the TPM
-            vendor.";
-        }
+	container certificate {
+    	    leaf certificate-name {
+              type string;
+              description
+                "An arbitrary name for this identity certificate or
+                certificate chain.";
+            }
+	    leaf certificate-type {
+	       type enumeration {
+	        enum endorsement-cert {
+		     value 0;                                                                                    }
+		enum attestation-cert {
+		     value 1;
+		}
+	       }
+	       description  "Type of this certificate";
+	    }
+            leaf certificate-value {
+              type ietfct:end-entity-cert-cms;
+              description
+    	    "The binary signed public endorsement key (EK), attestation key(AK) and corresponding
+                claims (EK,AK Certificate). In a TPM 2.0 the EK,AK Certificate
+                resides in a well-defined NVRAM location by the TPM
+                vendor.";
+            }
+	}
       }
     }
     list compute-nodes {
