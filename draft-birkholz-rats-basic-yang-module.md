@@ -59,11 +59,11 @@ author:
 normative:
   RFC2119:
   I-D.ietf-netconf-crypto-types:
-  I-D.birkholz-reference-ra-interaction-model: rats-interaction-models
-  
+  I-D.birkholz-rats-reference-interaction-model: rats-interaction-models
+
 informative:
   I-D.birkholz-attestation-terminology: rats-architecture
-  
+
 
 --- abstract
 
