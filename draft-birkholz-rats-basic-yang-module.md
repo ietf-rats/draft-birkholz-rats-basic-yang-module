@@ -25,11 +25,11 @@ author:
   country: Germany
 - ins: M. Eckel
   name: Michael Eckel
-  org: Huawei Technologies
-  abbrev: Huawei
-  email: michael.eckel@huawei.com
-  street: Feldbergstrasse 78
-  code: '64293'
+  org: Fraunhofer SIT
+  abbrev: Fraunhofer SIT
+  email: michael.eckel@sit.fraunhofer.de
+  street: Rheinstrasse 75
+  code: '64295'
   city: Darmstadt
   country: Germany
 - ins: S. Bhandari
@@ -47,6 +47,21 @@ author:
   org: Cisco Systems
   abbrev: Cisco
   email: evoit@cisco.com
+- ins: L. Xia
+  name: Liang Xia (Frank)
+  org: Huawei Technologies
+  abbrev: Huawei
+  email: Frank.Xialiang@huawei.com
+  street: 101 Software Avenue, Yuhuatai District
+  city: Nanjing
+  region: Jiangsu
+  code: '210012'
+  country: China
+- ins: T. Laffey
+  name: Tom Laffey
+  org: Hewlett Packard Enterprise
+  abbrev: HPE
+  email: tom.laffey@hpe.com
 - ins: G. Fedorkow
   name: Guy C. Fedorkow
   org: Juniper Networks
@@ -56,6 +71,7 @@ author:
   city: Westford
   code: '01886'
   region: Massachusetts
+
 normative:
   RFC2119:
   I-D.ietf-netconf-crypto-types:
