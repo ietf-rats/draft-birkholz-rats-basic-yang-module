@@ -2,7 +2,7 @@
 title: YANG Module for Basic Challenge-Response-based Remote Attestation Procedures
 abbrev: BRAT
 docname: draft-birkholz-rats-basic-yang-module-latest
-wg: TBD
+wg: RATS Working Group
 stand_alone: true
 ipr: trust200902
 area: Security
