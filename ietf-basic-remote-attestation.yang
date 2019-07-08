@@ -452,7 +452,12 @@ module ietf-basic-remote-attestation {
         uses signature-scheme;
         uses attestation-key-identifier;
       }
+      list tpms {
+      key tpm_name; 
+      description
+      "TPMs to fetch the attestation information.";
       uses tpm-name;
+      }
     }
     output {
       list tpm2-attestation-response {
@@ -601,18 +606,13 @@ module ietf-basic-remote-attestation {
         description
           "The requested data of the measurement event logs";
         list node-data {
-          key node-name;
+          key "node-name tpm_name";
           description
             "Event logs of a node in a distributed system
              identified by the node name";
           uses compute-node;
           uses node-uptime;
-          list tpm-updated {
-            key tpm_name;
-            description
-              "TPM these events may have recorded data in";
-            uses tpm-name;
-          }
+	  uses tpm-name;
           container log-result {
             description
               "The requested entries of the corresponding log.";
@@ -641,6 +641,36 @@ module ietf-basic-remote-attestation {
       description
       "A list of TPMs in this composite
        device that rats can be conducted with.";
+      list certificates {
+        description
+          "The TPM's endorsement-certificate.";
+	container certificate {
+    	    leaf certificate-name {
+              type string;
+              description
+                "An arbitrary name for this identity certificate or
+                certificate chain.";
+            }
+	    leaf certificate-type {
+	       type enumeration {
+	        enum endorsement-cert {
+		     value 0;                                                                                    }
+		enum attestation-cert {
+		     value 1;
+		}
+	       }
+	       description  "Type of this certificate";
+	    }
+            leaf certificate-value {
+              type ietfct:end-entity-cert-cms;
+              description
+    	    "The binary signed public endorsement key (EK), attestation key(AK) and corresponding
+                claims (EK,AK Certificate). In a TPM 2.0 the EK,AK Certificate
+                resides in a well-defined NVRAM location by the TPM
+                vendor.";
+            }
+	}
+      }
     }
     list compute-nodes {
       key node-name;
@@ -649,24 +679,5 @@ module ietf-basic-remote-attestation {
         "A list names of hardware components in this composite
          device that rats can be conducted with.";
     }
-    container endorsement-certificates {
-      list certificate {
-        key tpm_name;
-        uses tpm-name;
-        description
-          "The TPM's endorsement-certificate.";
-        leaf endorsement-certificate {
-          type binary;
-          mandatory true;
-          description
-            "The signed pulic endorsement key (EK) and corresponding
-            claims (EK Certificate). In a TPM 2.0 the EK Certificate
-            resides in a well-defined NVRAM location by the TPM
-            vednor.";
-        }
-      }
-      description
-      "Basic information elements to enable RATS.";
     }
-  }
 }
