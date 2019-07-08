@@ -5,14 +5,14 @@
 TBD                                                          H. Birkholz
 Internet-Draft                                            Fraunhofer SIT
 Intended status: Standards Track                                M. Eckel
-Expires: January 6, 2020                                          Huawei
+Expires: January 9, 2020                                          Huawei
                                                              S. Bhandari
                                                                B. Sulzen
                                                                  E. Voit
                                                                    Cisco
                                                              G. Fedorkow
                                                                  Juniper
-                                                           July 05, 2019
+                                                           July 08, 2019
 
 
    YANG Module for Basic Challenge-Response-based Remote Attestation
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on January 6, 2020.
+   This Internet-Draft will expire on January 9, 2020.
 
 
 
@@ -53,7 +53,7 @@ Status of This Memo
 
 
 
-Birkholz, et al.         Expires January 6, 2020                [Page 1]
+Birkholz, et al.         Expires January 9, 2020                [Page 1]
 
 Internet-Draft                    BRAT                         July 2019
 
@@ -82,12 +82,12 @@ Table of Contents
      2.2.  Raw Format  . . . . . . . . . . . . . . . . . . . . . . .   6
    3.  IANA considerations . . . . . . . . . . . . . . . . . . . . .  20
    4.  Security Considerations . . . . . . . . . . . . . . . . . . .  20
-   5.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  20
-   6.  Change Log  . . . . . . . . . . . . . . . . . . . . . . . . .  20
+   5.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  21
+   6.  Change Log  . . . . . . . . . . . . . . . . . . . . . . . . .  21
    7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  21
      7.1.  Normative References  . . . . . . . . . . . . . . . . . .  21
      7.2.  Informative References  . . . . . . . . . . . . . . . . .  21
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  21
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  22
 
 1.  Introduction
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Birkholz, et al.         Expires January 6, 2020                [Page 2]
+Birkholz, et al.         Expires January 9, 2020                [Page 2]
 
 Internet-Draft                    BRAT                         July 2019
 
@@ -147,7 +147,10 @@ module: ietf-basic-remote-attestation
      |  +--ro tpm_name              string
      |  +--ro tpm-physical-index?   int32 {ietfhw:entity-mib}?
      |  +--ro certificates* []
-     |     +--ro certificate    binary
+     |     +--ro certificate
+     |        +--ro certificate-name?    string
+     |        +--ro certificate-type?    enumeration
+     |        +--ro certificate-value?   ietfct:end-entity-cert-cms
      +--ro compute-nodes* [node-name]
         +--ro node-name              string
         +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
@@ -159,17 +162,17 @@ module: ietf-basic-remote-attestation
     |  |  |  +---w pcr-list* []
     |  |  |  |  +---w pcr
     |  |  |  |     +---w pcr-indices*                  uint8
-    |  |  |  |     +---w (algo-registry-type)
-    |  |  |  |        +--:(tcg)
-    |  |  |  |        |  +---w tcg-hash-algo-id?       uint16
 
 
 
-Birkholz, et al.         Expires January 6, 2020                [Page 3]
+Birkholz, et al.         Expires January 9, 2020                [Page 3]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+    |  |  |  |     +---w (algo-registry-type)
+    |  |  |  |        +--:(tcg)
+    |  |  |  |        |  +---w tcg-hash-algo-id?       uint16
     |  |  |  |        +--:(ietf)
     |  |  |  |           +---w ietf-ni-hash-algo-id?   uint8
     |  |  |  +---w nonce-value                   binary
@@ -215,17 +218,17 @@ Internet-Draft                    BRAT                         July 2019
     |        +--ro tpm-physical-index?        int32 {ietfhw:entity-mib}?
     |        +--ro up-time?                   uint32
     |        +--ro node-name?                 string
-    |        +--ro node-physical-index?       int32 {ietfhw:entity-mib}?
-    |        +--ro certificate-name?          string
-    |        +--ro attestation-certificate?   ietfct:end-entity-cert-cms
 
 
 
-Birkholz, et al.         Expires January 6, 2020                [Page 4]
+Birkholz, et al.         Expires January 9, 2020                [Page 4]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+    |        +--ro node-physical-index?       int32 {ietfhw:entity-mib}?
+    |        +--ro certificate-name?          string
+    |        +--ro attestation-certificate?   ietfct:end-entity-cert-cms
     |        +--ro (key-identifier)?
     |           +--:(public-key)
     |           |  +--ro pub-key-id?          binary
@@ -271,17 +274,17 @@ Internet-Draft                    BRAT                         July 2019
                       |        +--ro pcr-index?      uint16
                       |        +--ro digest-list* []
                       |        |  +--ro (algo-registry-type)
-                      |        |  |  +--:(tcg)
-                      |        |  |  |  +--ro tcg-hash-algo-id?       uint16
-                      |        |  |  +--:(ietf)
 
 
 
-Birkholz, et al.         Expires January 6, 2020                [Page 5]
+Birkholz, et al.         Expires January 9, 2020                [Page 5]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+                      |        |  |  +--:(tcg)
+                      |        |  |  |  +--ro tcg-hash-algo-id?       uint16
+                      |        |  |  +--:(ietf)
                       |        |  |     +--ro ietf-ni-hash-algo-id?   uint8
                       |        |  +--ro digest*                       binary
                       |        +--ro event-size?     uint32
@@ -327,17 +330,17 @@ module ietf-basic-remote-attestation {
      procedure.
      Copyright (C) Fraunhofer SIT (2018).";
   revision "2018-06-15" {
-  description
-    "Initial version";
-  reference
 
 
 
-Birkholz, et al.         Expires January 6, 2020                [Page 6]
+Birkholz, et al.         Expires January 9, 2020                [Page 6]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+  description
+    "Initial version";
+  reference
     "draft-birkholz-yang-basic-remote-attestation";
   }
 
@@ -383,17 +386,17 @@ Internet-Draft                    BRAT                         July 2019
       container hash-digest {
         description
           "A hash value based on a hash algorithm registered by an
-          SDO.";
-        uses hash-algo;
-        leaf hash-value {
 
 
 
-Birkholz, et al.         Expires January 6, 2020                [Page 7]
+Birkholz, et al.         Expires January 9, 2020                [Page 7]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+          SDO.";
+        uses hash-algo;
+        leaf hash-value {
           type binary;
           description
             "The binary representation of the hash value.";
@@ -439,17 +442,17 @@ Internet-Draft                    BRAT                         July 2019
            type uint8;
            description
              "The number of the PCR. At the moment this is limited
-             32";
-        }
-        uses hash-algo;
 
 
 
-Birkholz, et al.         Expires January 6, 2020                [Page 8]
+Birkholz, et al.         Expires January 9, 2020                [Page 8]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+             32";
+        }
+        uses hash-algo;
       }
     }
   }
@@ -495,17 +498,17 @@ Internet-Draft                    BRAT                         July 2019
           "This references the indices of table 9 in the TPM 2.0
           structure specification.";
         leaf TPM_ALG_ID-value {
-          type uint16;
-          description
-            "The TPM Algo ID.";
 
 
 
-Birkholz, et al.         Expires January 6, 2020                [Page 9]
+Birkholz, et al.         Expires January 9, 2020                [Page 9]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+          type uint16;
+          description
+            "The TPM Algo ID.";
         }
       }
       case COSE_Algorithm {
@@ -551,17 +554,17 @@ Internet-Draft                    BRAT                         July 2019
 
   grouping tpm-name {
     description
-      "In a system with multiple-TPMs get the data from a specific TPM
-       identified by the name and physical-index.";
-    leaf tpm_name {
 
 
 
-Birkholz, et al.         Expires January 6, 2020               [Page 10]
+Birkholz, et al.         Expires January 9, 2020               [Page 10]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+      "In a system with multiple-TPMs get the data from a specific TPM
+       identified by the name and physical-index.";
+    leaf tpm_name {
       type string;
       description
         "Name of the TPM or All";
@@ -607,17 +610,17 @@ Internet-Draft                    BRAT                         July 2019
       description
         "Uptime in seconds of this node reporting its data";
     }
-  }
-  identity log-type {
-    description
 
 
 
-Birkholz, et al.         Expires January 6, 2020               [Page 11]
+Birkholz, et al.         Expires January 9, 2020               [Page 11]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+  }
+  identity log-type {
+    description
       "The type of logs available.";
   }
 
@@ -663,17 +666,17 @@ Internet-Draft                    BRAT                         July 2019
     leaf pcr-index {
       type uint16;
       description
-        "Defines the PCR index that this event extended";
-    }
-    list digest-list {
 
 
 
-Birkholz, et al.         Expires January 6, 2020               [Page 12]
+Birkholz, et al.         Expires January 9, 2020               [Page 12]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+        "Defines the PCR index that this event extended";
+    }
+    list digest-list {
       description "Hash of event data";
       uses hash-algo;
       leaf-list digest {
@@ -719,17 +722,17 @@ Internet-Draft                    BRAT                         July 2019
         "Hash of filedata";
     }
     leaf template-hash-algorithm {
-      type string;
-      description
-        "Algorithm used for template-hash";
 
 
 
-Birkholz, et al.         Expires January 6, 2020               [Page 13]
+Birkholz, et al.         Expires January 9, 2020               [Page 13]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+      type string;
+      description
+        "Algorithm used for template-hash";
     }
     leaf template-hash {
       type binary;
@@ -775,17 +778,17 @@ Internet-Draft                    BRAT                         July 2019
   grouping event-logs {
     description
       "A selector for the log and its type.";
-    choice log-type {
-      mandatory true;
-      description
 
 
 
-Birkholz, et al.         Expires January 6, 2020               [Page 14]
+Birkholz, et al.         Expires January 9, 2020               [Page 14]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+    choice log-type {
+      mandatory true;
+      description
         "Event log type determines the event logs content.";
       case bios {
         description
@@ -831,17 +834,17 @@ Internet-Draft                    BRAT                         July 2019
       list tpms {
       key tpm_name;
       description
-      "TPMs to fetch the attestation information.";
-      uses tpm-name;
-      }
 
 
 
-Birkholz, et al.         Expires January 6, 2020               [Page 15]
+Birkholz, et al.         Expires January 9, 2020               [Page 15]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+      "TPMs to fetch the attestation information.";
+      uses tpm-name;
+      }
     }
     output {
       list tpm2-attestation-response {
@@ -887,17 +890,17 @@ Internet-Draft                    BRAT                         July 2019
   rpc basic-trust-establishment {
     description
       "This RPC creates a tpm-resident, non-migratable key to be used
-      in TPM_Quote commands, an attestation certificate.";
-    input {
-      uses nonce;
 
 
 
-Birkholz, et al.         Expires January 6, 2020               [Page 16]
+Birkholz, et al.         Expires January 9, 2020               [Page 16]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+      in TPM_Quote commands, an attestation certificate.";
+    input {
+      uses nonce;
       uses signature-scheme;
       uses tpm-name;
       leaf certificate-name {
@@ -943,17 +946,17 @@ Internet-Draft                    BRAT                         July 2019
         key node-name;
         description
           "Selection of log entries to be reported.";
-        uses compute-node;
-        choice index-type {
-          description
 
 
 
-Birkholz, et al.         Expires January 6, 2020               [Page 17]
+Birkholz, et al.         Expires January 9, 2020               [Page 17]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+        uses compute-node;
+        choice index-type {
+          description
             "Last log entry received, log index number, or timestamp.";
           case last-entry {
             description
@@ -999,17 +1002,17 @@ Internet-Draft                    BRAT                         July 2019
         description
           "The number of log entries to be returned. If omitted, it
           means all of them.";
-      }
-    }
-    output {
 
 
 
-Birkholz, et al.         Expires January 6, 2020               [Page 18]
+Birkholz, et al.         Expires January 9, 2020               [Page 18]
 
 Internet-Draft                    BRAT                         July 2019
 
 
+      }
+    }
+    output {
       container system-event-logs {
         description
           "The requested data of the measurement event logs";
@@ -1052,22 +1055,39 @@ Internet-Draft                    BRAT                         July 2019
       list certificates {
         description
           "The TPM's endorsement-certificate.";
-        leaf certificate {
-          type binary;
-          mandatory true;
-          description
-            "The signed pulic endorsement key (EK), attestation key(AK) and corresponding
-            claims (EK,AK Certificate). In a TPM 2.0 the EK,AK Certificate
+        container certificate {
+            leaf certificate-name {
+              type string;
 
 
 
-Birkholz, et al.         Expires January 6, 2020               [Page 19]
+Birkholz, et al.         Expires January 9, 2020               [Page 19]
 
 Internet-Draft                    BRAT                         July 2019
 
 
-            resides in a well-defined NVRAM location by the TPM
-            vendor.";
+              description
+                "An arbitrary name for this identity certificate or
+                certificate chain.";
+            }
+            leaf certificate-type {
+               type enumeration {
+                enum endorsement-cert {
+                     value 0;                                                                                    }
+                enum attestation-cert {
+                     value 1;
+                }
+               }
+               description  "Type of this certificate";
+            }
+            leaf certificate-value {
+              type ietfct:end-entity-cert-cms;
+              description
+            "The binary signed public endorsement key (EK), attestation key(AK) and corresponding
+                claims (EK,AK Certificate). In a TPM 2.0 the EK,AK Certificate
+                resides in a well-defined NVRAM location by the TPM
+                vendor.";
+            }
         }
       }
     }
@@ -1092,6 +1112,16 @@ Internet-Draft                    BRAT                         July 2019
 
    There are always some.
 
+
+
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 20]
+
+Internet-Draft                    BRAT                         July 2019
+
+
 5.  Acknowledgements
 
    Not yet.
@@ -1115,13 +1145,6 @@ Internet-Draft                    BRAT                         July 2019
 
    o  Removed event-string in last-entry
 
-
-
-Birkholz, et al.         Expires January 6, 2020               [Page 20]
-
-Internet-Draft                    BRAT                         July 2019
-
-
 7.  References
 
 7.1.  Normative References
@@ -1143,6 +1166,17 @@ Internet-Draft                    BRAT                         July 2019
               <https://www.rfc-editor.org/info/rfc2119>.
 
 7.2.  Informative References
+
+
+
+
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 21]
+
+Internet-Draft                    BRAT                         July 2019
+
 
    [I-D.birkholz-attestation-terminology]
               Birkholz, H., Wiseman, M., and H. Tschofenig, "Reference
@@ -1170,14 +1204,6 @@ Authors' Addresses
    Email: michael.eckel@huawei.com
 
 
-
-
-
-Birkholz, et al.         Expires January 6, 2020               [Page 21]
-
-Internet-Draft                    BRAT                         July 2019
-
-
    Shwetha Bhandari
    Cisco Systems
 
@@ -1194,6 +1220,18 @@ Internet-Draft                    BRAT                         July 2019
    Cisco Systems
 
    Email: evoit@cisco.com
+
+
+
+
+
+
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 22]
+
+Internet-Draft                    BRAT                         July 2019
 
 
    Guy C. Fedorkow
@@ -1229,4 +1267,22 @@ Internet-Draft                    BRAT                         July 2019
 
 
 
-Birkholz, et al.         Expires January 6, 2020               [Page 22]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Birkholz, et al.         Expires January 9, 2020               [Page 23]
