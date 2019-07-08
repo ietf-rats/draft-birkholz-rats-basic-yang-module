@@ -3,13 +3,16 @@
 
 
 TBD                                                          H. Birkholz
-Internet-Draft                                            Fraunhofer SIT
-Intended status: Standards Track                                M. Eckel
-Expires: January 9, 2020                                          Huawei
-                                                             S. Bhandari
+Internet-Draft                                                  M. Eckel
+Intended status: Standards Track                          Fraunhofer SIT
+Expires: January 9, 2020                                     S. Bhandari
                                                                B. Sulzen
                                                                  E. Voit
                                                                    Cisco
+                                                                  L. Xia
+                                                                  Huawei
+                                                               T. Laffey
+                                                                     HPE
                                                              G. Fedorkow
                                                                  Juniper
                                                            July 08, 2019
@@ -46,9 +49,6 @@ Status of This Memo
    material or to cite them other than as "work in progress."
 
    This Internet-Draft will expire on January 9, 2020.
-
-
-
 
 
 
@@ -1646,12 +1646,12 @@ Authors' Addresses
 
 
    Michael Eckel
-   Huawei Technologies
-   Feldbergstrasse 78
-   Darmstadt  64293
+   Fraunhofer SIT
+   Rheinstrasse 75
+   Darmstadt  64295
    Germany
 
-   Email: michael.eckel@huawei.com
+   Email: michael.eckel@sit.fraunhofer.de
 
 
    Shwetha Bhandari
@@ -1682,27 +1682,27 @@ Birkholz, et al.         Expires January 9, 2020               [Page 30]
 Internet-Draft                    BRAT                         July 2019
 
 
+   Liang Xia (Frank)
+   Huawei Technologies
+   101 Software Avenue, Yuhuatai District
+   Nanjing, Jiangsu  210012
+   China
+
+   Email: Frank.Xialiang@huawei.com
+
+
+   Tom Laffey
+   Hewlett Packard Enterprise
+
+   Email: tom.laffey@hpe.com
+
+
    Guy C. Fedorkow
    Juniper Networks
    10 Technology Park Drive
    Westford, Massachusetts  01886
 
    Email: gfedorkow@juniper.net
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

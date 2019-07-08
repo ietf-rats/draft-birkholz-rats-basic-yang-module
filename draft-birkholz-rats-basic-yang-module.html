@@ -300,7 +300,7 @@ ul.toc li {
   <meta name="generator" content="xml2rfc version 2.22.2 - https://tools.ietf.org/tools/xml2rfc" />
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
-  <meta name="dct.creator" content="Birkholz, H., Eckel, M., Bhandari, S., Sulzen, B., Voit, E., and G. Fedorkow" />
+  <meta name="dct.creator" content="Birkholz, H., Eckel, M., Bhandari, S., Sulzen, B., Voit, E., Xia, L., Laffey, T., and G. Fedorkow" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-birkholz-rats-basic-yang-module-latest" />
   <meta name="dct.issued" scheme="ISO8601" content="2019-07-08" />
   <meta name="dct.abstract" content="This document defines a YANG RPC and a minimal datastore tree required to retrieve attestation evidence about integrity measurements from a composite device with one or more roots of trust for reporting. Complementary measurement logs are also provided by the YANG RPC originating from one or more roots of trust of measurement. The module defined requires a TPM 2.0 and corresponding Trusted Software Stack included in the device components of the composite device the YANG server is running on." />
@@ -319,18 +319,14 @@ ul.toc li {
 </tr>
 <tr>
 <td class="left">Internet-Draft</td>
-<td class="right">Fraunhofer SIT</td>
-</tr>
-<tr>
-<td class="left">Intended status: Standards Track</td>
 <td class="right">M. Eckel</td>
 </tr>
 <tr>
-<td class="left">Expires: January 9, 2020</td>
-<td class="right">Huawei</td>
+<td class="left">Intended status: Standards Track</td>
+<td class="right">Fraunhofer SIT</td>
 </tr>
 <tr>
-<td class="left"></td>
+<td class="left">Expires: January 9, 2020</td>
 <td class="right">S. Bhandari</td>
 </tr>
 <tr>
@@ -344,6 +340,22 @@ ul.toc li {
 <tr>
 <td class="left"></td>
 <td class="right">Cisco</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">L. Xia</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">Huawei</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">T. Laffey</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">HPE</td>
 </tr>
 <tr>
 <td class="left"></td>
@@ -1736,18 +1748,18 @@ module ietf-basic-remote-attestation {
 		<span class="family-name">Eckel</span>
 	  </span>
 	</span>
-	<span class="org vcardline">Huawei Technologies</span>
+	<span class="org vcardline">Fraunhofer SIT</span>
 	<span class="adr">
-	  <span class="vcardline">Feldbergstrasse 78</span>
+	  <span class="vcardline">Rheinstrasse 75</span>
 
 	  <span class="vcardline">
 		<span class="locality">Darmstadt</span>,  
 		<span class="region"></span>
-		<span class="code">64293</span>
+		<span class="code">64295</span>
 	  </span>
 	  <span class="country-name vcardline">Germany</span>
 	</span>
-	<span class="vcardline">EMail: <a href="mailto:michael.eckel@huawei.com">michael.eckel@huawei.com</a></span>
+	<span class="vcardline">EMail: <a href="mailto:michael.eckel@sit.fraunhofer.de">michael.eckel@sit.fraunhofer.de</a></span>
 
   </address>
 </div><div class="avoidbreak">
@@ -1811,6 +1823,49 @@ module ietf-basic-remote-attestation {
 	  <span class="country-name vcardline"></span>
 	</span>
 	<span class="vcardline">EMail: <a href="mailto:evoit@cisco.com">evoit@cisco.com</a></span>
+
+  </address>
+</div><div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Liang Xia (Frank)</span> 
+	  <span class="n hidden">
+		<span class="family-name">Xia</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Huawei Technologies</span>
+	<span class="adr">
+	  <span class="vcardline">101 Software Avenue, Yuhuatai District</span>
+
+	  <span class="vcardline">
+		<span class="locality">Nanjing</span>,  
+		<span class="region">Jiangsu</span> 
+		<span class="code">210012</span>
+	  </span>
+	  <span class="country-name vcardline">China</span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:Frank.Xialiang@huawei.com">Frank.Xialiang@huawei.com</a></span>
+
+  </address>
+</div><div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Tom Laffey</span> 
+	  <span class="n hidden">
+		<span class="family-name">Laffey</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Hewlett Packard Enterprise</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:tom.laffey@hpe.com">tom.laffey@hpe.com</a></span>
 
   </address>
 </div><div class="avoidbreak">
