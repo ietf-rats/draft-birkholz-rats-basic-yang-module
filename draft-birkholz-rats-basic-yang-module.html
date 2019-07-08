@@ -302,7 +302,7 @@ ul.toc li {
 
   <meta name="dct.creator" content="Birkholz, H., Eckel, M., Bhandari, S., Sulzen, B., Voit, E., and G. Fedorkow" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-birkholz-rats-basic-yang-module-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2019-05-23" />
+  <meta name="dct.issued" scheme="ISO8601" content="2019-07-08" />
   <meta name="dct.abstract" content="This document defines a YANG RPC and a minimal datastore tree required to retrieve attestation evidence about integrity measurements from a composite device with one or more roots of trust for reporting. Complementary measurement logs are also provided by the YANG RPC originating from one or more roots of trust of measurement. The module defined requires a TPM 2.0 and corresponding Trusted Software Stack included in the device components of the composite device the YANG server is running on." />
   <meta name="description" content="This document defines a YANG RPC and a minimal datastore tree required to retrieve attestation evidence about integrity measurements from a composite device with one or more roots of trust for reporting. Complementary measurement logs are also provided by the YANG RPC originating from one or more roots of trust of measurement. The module defined requires a TPM 2.0 and corresponding Trusted Software Stack included in the device components of the composite device the YANG server is running on." />
 
@@ -326,7 +326,7 @@ ul.toc li {
 <td class="right">M. Eckel</td>
 </tr>
 <tr>
-<td class="left">Expires: November 24, 2019</td>
+<td class="left">Expires: January 9, 2020</td>
 <td class="right">Huawei</td>
 </tr>
 <tr>
@@ -355,7 +355,7 @@ ul.toc li {
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">May 23, 2019</td>
+<td class="right">July 08, 2019</td>
 </tr>
 
     	
@@ -371,7 +371,7 @@ ul.toc li {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on November 24, 2019.</p>
+<p>This Internet-Draft will expire on January 9, 2020.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2019 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -430,18 +430,18 @@ ul.toc li {
 &lt;CODE BEGINS&gt;
 module: ietf-basic-remote-attestation
   +--ro rats-support-structures
-     +--ro supported-algos*            uint16
+     +--ro supported-algos*   uint16
      +--ro tpms* [tpm_name]
      |  +--ro tpm_name              string
      |  +--ro tpm-physical-index?   int32 {ietfhw:entity-mib}?
+     |  +--ro certificates* []
+     |     +--ro certificate
+     |        +--ro certificate-name?    string
+     |        +--ro certificate-type?    enumeration
+     |        +--ro certificate-value?   ietfct:end-entity-cert-cms
      +--ro compute-nodes* [node-name]
-     |  +--ro node-name              string
-     |  +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
-     +--ro endorsement-certificates
-        +--ro certificate* [tpm_name]
-           +--ro tpm_name                   string
-           +--ro tpm-physical-index?        int32 {ietfhw:entity-mib}?
-           +--ro endorsement-certificate    binary
+        +--ro node-name              string
+        +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
 
   rpcs:
     +---x tpm2-challenge-response-attestation
@@ -466,8 +466,9 @@ module: ietf-basic-remote-attestation
     |  |  |     |  +---w pub-key-id?             binary
     |  |  |     +--:(uuid)
     |  |  |        +---w uuid-value?             binary
-    |  |  +---w tpm_name?                     string
-    |  |  +---w tpm-physical-index?           int32 {ietfhw:entity-mib}?
+    |  |  +---w tpms* [tpm_name]
+    |  |     +---w tpm_name              string
+    |  |     +---w tpm-physical-index?   int32 {ietfhw:entity-mib}?
     |  +--ro output
     |     +--ro tpm2-attestation-response* [tpm_name]
     |        +--ro tpm_name               string
@@ -529,13 +530,12 @@ module: ietf-basic-remote-attestation
        |  +---w log-entry-quantity?   uint16
        +--ro output
           +--ro system-event-logs
-             +--ro node-data* [node-name]
+             +--ro node-data* [node-name tpm_name]
                 +--ro node-name              string
                 +--ro node-physical-index?   int32 {ietfhw:entity-mib}?
                 +--ro up-time?               uint32
-                +--ro tpm-updated* [tpm_name]
-                |  +--ro tpm_name              string
-                |  +--ro tpm-physical-index?   int32 {ietfhw:entity-mib}?
+                +--ro tpm_name               string
+                +--ro tpm-physical-index?    int32 {ietfhw:entity-mib}?
                 +--ro log-result
                    +--ro (log-type)
                       +--:(bios)
@@ -1025,7 +1025,12 @@ module ietf-basic-remote-attestation {
         uses signature-scheme;
         uses attestation-key-identifier;
       }
+      list tpms {
+      key tpm_name; 
+      description
+      "TPMs to fetch the attestation information.";
       uses tpm-name;
+      }
     }
     output {
       list tpm2-attestation-response {
@@ -1174,18 +1179,13 @@ module ietf-basic-remote-attestation {
         description
           "The requested data of the measurement event logs";
         list node-data {
-          key node-name;
+          key "node-name tpm_name";
           description
             "Event logs of a node in a distributed system
              identified by the node name";
           uses compute-node;
           uses node-uptime;
-          list tpm-updated {
-            key tpm_name;
-            description
-              "TPM these events may have recorded data in";
-            uses tpm-name;
-          }
+          uses tpm-name;
           container log-result {
             description
               "The requested entries of the corresponding log.";
@@ -1214,6 +1214,36 @@ module ietf-basic-remote-attestation {
       description
       "A list of TPMs in this composite
        device that rats can be conducted with.";
+      list certificates {
+        description
+          "The TPM's endorsement-certificate.";
+        container certificate {
+            leaf certificate-name {
+              type string;
+              description
+                "An arbitrary name for this identity certificate or
+                certificate chain.";
+            }
+            leaf certificate-type {
+               type enumeration {
+                enum endorsement-cert {
+                     value 0;                                                                                    }
+                enum attestation-cert {
+                     value 1;
+                }
+               }
+               description  "Type of this certificate";
+            }
+            leaf certificate-value {
+              type ietfct:end-entity-cert-cms;
+              description
+            "The binary signed public endorsement key (EK), attestation key(AK) and corresponding
+                claims (EK,AK Certificate). In a TPM 2.0 the EK,AK Certificate
+                resides in a well-defined NVRAM location by the TPM
+                vendor.";
+            }
+        }
+      }
     }
     list compute-nodes {
       key node-name;
@@ -1222,26 +1252,7 @@ module ietf-basic-remote-attestation {
         "A list names of hardware components in this composite
          device that rats can be conducted with.";
     }
-    container endorsement-certificates {
-      list certificate {
-        key tpm_name;
-        uses tpm-name;
-        description
-          "The TPM's endorsement-certificate.";
-        leaf endorsement-certificate {
-          type binary;
-          mandatory true;
-          description
-            "The signed pulic endorsement key (EK) and corresponding
-            claims (EK Certificate). In a TPM 2.0 the EK Certificate
-            resides in a well-defined NVRAM location by the TPM
-            vednor.";
-        }
-      }
-      description
-      "Basic information elements to enable RATS.";
     }
-  }
 }
 &lt;CODE ENDS&gt;
 </pre>
@@ -1286,7 +1297,7 @@ module ietf-basic-remote-attestation {
 <tr>
 <td class="reference"><b id="I-D.ietf-netconf-crypto-types">[I-D.ietf-netconf-crypto-types]</b></td>
 <td class="top">
-<a>Watsen, K.</a> and <a>H. Wang</a>, "<a href="https://tools.ietf.org/html/draft-ietf-netconf-crypto-types-06">Common YANG Data Types for Cryptography</a>", Internet-Draft draft-ietf-netconf-crypto-types-06, April 2019.</td>
+<a>Watsen, K.</a> and <a>H. Wang</a>, "<a href="https://tools.ietf.org/html/draft-ietf-netconf-crypto-types-10">Common YANG Data Types for Cryptography</a>", Internet-Draft draft-ietf-netconf-crypto-types-10, July 2019.</td>
 </tr>
 <tr>
 <td class="reference"><b id="RFC2119">[RFC2119]</b></td>
