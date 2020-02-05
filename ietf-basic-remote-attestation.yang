@@ -971,25 +971,113 @@ module ietf-basic-remote-attestation {
   container rats-support-structures {
     config false;
     description
-    "The datastore definition enabling verifiers or relying
-     parties to discover the information necessary to use the
-     remote attestation RPCs appropriately.";
+    "The datastore definition enabling verifiers or relying parties to discover the information necessary to use the remote attestation RPCs appropriately.";
+
+    container device-info {
+	leaf product-name {
+    	    type string;
+	    description 
+		"The product name is needed for showing attestation result.";
+	}
+
+	leaf product-type {
+	    type string;
+	    description 
+		"The product type is needed for showing attestation result."
+	}
+
+	leaf software-version {
+	    type string;
+	    description 
+		"The version of the software running on the device.";
+	}
+
+	leaf-list boottime-patch-version {
+	    type string;
+	    description 
+		"The version of the patch loaded in boot-time. If only one patch can be loaded, leaf type is ok. It need to be discussed.";
+	}
+		
+	leaf-list boottime-module-version {
+	    type string;
+	    description 
+		"The version of the dymanic modules loaded in boot-time. More than one modules can be loaded.";
+	}
+
+	leaf-list runtime-patch-version {
+	    type string;
+	    description 
+		"The version of the patch loaded after device has booted. If only one patch can be loaded, leaf type is ok. It need to be discussed.";
+	}
+
+	leaf-list runtime-module-version {
+	    type string;
+	    description 
+		"The version of the dymanic modules loaded after device has booted. More than one modules can be loaded.";
+	}
+    }
+
     leaf-list supported-algos {
       type uint16;
       description
         "Supported TPM_ALG_ID values for the TPM in question.
         Will include ComponentIndex soon.";
     }
-    list tpms {
-      key tpm_name;
-      uses tpm-name;
+
+    list compute-nodes {
+      key node-id;
+      uses compute-node-identifier;
       description
-      "A list of TPMs in this composite
-       device that rats can be conducted with.";
-      list certificates {
+	"A list names of hardware componnets in this composite device that RATS can be conducted with.";
+      
+      leaf node-name {
+        type string;
+	description
+	  "Name of the compute node.";
+      }
+
+      leaf node-location {
+	type string;
+	description
+	  "Location of the compute node, such as slot number.";
+      }    
+    
+      list tpms {
+        key tpm-name;
+        uses tpm-identifier;
         description
-          "The TPM's endorsement-certificate.";
-	container certificate {
+      	  "A list of TPMs in this composite device that rats can be conducted with.";
+
+	leaf tpm-manufacturer {
+	  type string;
+	  description
+	    "TPM manufacturer name.";
+	}
+
+	leaf tpm-firmware-version {
+	  type string;
+	  description 
+	    "TPM firmware version.";
+	}
+
+	leaf tpm-specification-version {
+	  type string;
+	  description 
+	    "TPM1.2 or TPM2.0.";
+	}
+
+	leaf tpm-status {
+	  type string;
+	  description
+	    "TPM chip self-test status, normal or abnormal.";
+	}
+
+        list certificates {
+          description
+	    "The TPM's certificates, including EK certificates and AK certificates.";
+	  container certificate {
+	    description
+		"Three types of certificates can be accessed via this statement, including Initial Attestation Key Cert, Local Attestation Key Cert or Endorsement Key Cert.";
     	    leaf certificate-name {
               type string;
               description
@@ -997,32 +1085,42 @@ module ietf-basic-remote-attestation {
                 certificate chain.";
             }
 	    leaf certificate-type {
-	       type enumeration {
+	      type enumeration {
 	        enum endorsement-cert {
-		     value 0;                                                                                    }
-		enum attestation-cert {
-		     value 1;
+		     value 0;
+		     description
+			"EK Cert type.";
 		}
-	       }
-	       description  "Type of this certificate";
+		enum initial-attestation-cert {
+		     value 1;
+		     description
+			"IAK Cert type";
+		}
+		enum local-attestation-cert {
+		     value 2;
+		     description
+			"LAK Cert type";
+		}
+	      }
+	      description  "Type of this certificate";
 	    }
+
             leaf certificate-value {
               type ietfct:end-entity-cert-cms;
               description
-    	    "The binary signed public endorsement key (EK), attestation key(AK) and corresponding
+    	    	"The binary signed public endorsement key (EK), attestation key(AK) and corresponding
                 claims (EK,AK Certificate). In a TPM 2.0 the EK,AK Certificate
-                resides in a well-defined NVRAM location by the TPM
-                vendor.";
+                resides in a well-defined NVRAM location by the TPM vendor.
+		Maybe certificate-value defined as binary type is a simple way.";
             }
+
+	    leaf lak-public-structure {
+	      type binary;
+	      description
+		"Marshalled LAK public structure, used for LAK Cert verification";
+    	    }
 	}
       }
     }
-    list compute-nodes {
-      key node-name;
-      uses compute-node;
-      description
-        "A list names of hardware components in this composite
-         device that rats can be conducted with.";
-    }
   }
-}
+}    
