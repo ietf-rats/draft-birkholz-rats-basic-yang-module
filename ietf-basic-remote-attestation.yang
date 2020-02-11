@@ -305,11 +305,11 @@ module ietf-basic-remote-attestation {
     }
   }
 
-  grouping tpm-name {
+  grouping tpm-identifier {
     description
       "In a system with multiple-TPMs get the data from a specific TPM
        identified by the name and physical-index.";
-    leaf tpm_name {
+    leaf tpm-name {
       type string;
       description
         "Name of the TPM or All";
@@ -326,14 +326,14 @@ module ietf-basic-remote-attestation {
         "RFC 6933: Entity MIB (Version 4) - entPhysicalIndex";
     }
   }
-  grouping compute-node {
+  grouping compute-node-identifier {
     description
       "In a distributed system with multiple compute nodes
        this is the node identified by name and physical-index.";
-    leaf node-name {
+    leaf node-id {
        type string;
        description
-         "Name of the compute node or All";
+         "Compute node ID, such as Board Serial Number.";
     }
     leaf node-physical-index {
       if-feature ietfhw:entity-mib;
@@ -632,7 +632,7 @@ module ietf-basic-remote-attestation {
       type string;
       description
         "Name of the template used for event logs
-        for e.g. ima, ima-ng";
+        for e.g. ima, ima-ng, ima-sig";
     }
     leaf filename-hint {
       type string;
@@ -643,6 +643,11 @@ module ietf-basic-remote-attestation {
       type binary;
       description
         "Hash of filedata";
+    }
+    leaf filedata-hash-algorithm {
+      type binary;
+      description
+	"Algorithm used for filedata hash";
     }
     leaf template-hash-algorithm {
       type string;
@@ -792,55 +797,65 @@ module ietf-basic-remote-attestation {
            in the reference challenge-response interaction model for
            remote attestation. Corresponding values are based on
            TPM 2.0 structure definitions";
-        uses tpm20-pcr-selection;
         uses nonce;
-        uses tpm20-signature-scheme;
-        uses tpm20-attestation-key-identifier;
-      }
-      list tpms {
-      key tpm_name; 
-      description
-      "TPMs to fetch the attestation information.";
-      uses tpm-name;
+	list challenge-objects {
+	  key "node-id tpm-name";
+	  description
+	    "Nodes to fetch the attestation information, PCR selection and AK identifier.";
+	    uses compute-node-identifier;
+	    uses tpm-identifier;
+	    uses tpm20-pcr-selection;
+	    uses tpm20-signature-scheme;
+	    uses tpm20-attestation-key-identifier;
+	}
       }
     }
     output {
       list tpm20-attestation-response {
-        key tpm_name;
+        key "node-id tpm-name";
         description
-          "The binary output of TPM2b_Quote. An TPMS_ATTEST structure
-          including a length, encapsulated in a signature";
-        uses tpm-name;
+          "The binary output of TPM2b_Quote in one TPM chip of the node which identified by node-id. An TPMS_ATTEST structure including a length, encapsulated in a signature";
+        uses tpm-identifier;
         uses node-uptime;
-        uses compute-node;
-        container tpms-attest {
-          leaf pcrdigest {
-            type binary;
-            description
-              "split out value of TPMS_QUOTE_INFO for convenience";
-          }
-          leaf tpms-attest-result {
-            type binary;
-            description
-              "The complete TPM generate structure including
-              signature.";
-          }
-          leaf tpms-attest-result-length {
-            type uint32;
-            description
-              "Length of attest result provided by the TPM structure.";
-          }
-          description
-            "A composite of value and length and list of selected
-            pcrs (original name: [type]attested)";
-        }
-        leaf tpmt-signature {
+        uses compute-node-identifier;
+
+	leaf quote {
+	  type binary;
+	  description
+	    "Quote data returned by TPM Quote, including PCR selection, PCR digest and etc.";
+	}
+        leaf quote-signature {
           type binary;
           description
-            "Split out value of the signature for convenience.
-            TODO: check for length values that complent binary value
-            data node leafs.";
+            "Quote signature returned by TPM Quote.";
         }
+	list pcr-bank-values {
+	  key algo-registry-type;
+	  description
+	    "PCR values in each PCR bank.";
+	  uses hash-algo;
+	    
+	  list pcr-values {
+	    key pcr-index;
+	    description
+	      "List of one PCR bank.";
+	    leaf pcr-index {
+	      type uint16;
+	      description
+		"PCR index number.";
+	    }
+	    leaf pcr-value {
+	      type string;
+	      description
+		"PCR value.";
+	    }
+	  }
+	}
+	leaf pcr-digest-algo-in-quote {
+	  uses hash-algo;
+	  description
+	    "The hash algorithm for PCR value digest in quote.";
+	}
       }
     }
   }
@@ -852,7 +867,7 @@ module ietf-basic-remote-attestation {
     input {
       uses nonce;
       uses tpm20-signature-scheme;
-      uses tpm-name;
+      uses tpm-identifier;
       leaf certificate-name {
          type string;
          description
@@ -862,13 +877,13 @@ module ietf-basic-remote-attestation {
     }
     output {
       list attestation-certificates {
-        key tpm_name;
+        key tpm-name;
         description
           "Attestation Certificate data from a TPM identified by the TPM
           name";
-        uses tpm-name;
+        uses tpm-identifier;
         uses node-uptime;
-        uses compute-node;
+        uses compute-node-identifier;
         leaf certificate-name {
           type string;
           description
