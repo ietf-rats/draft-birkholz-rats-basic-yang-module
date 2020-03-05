@@ -1,445 +1,1025 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>YANG Module for Basic Challenge-Response-based Remote Attestation Procedures</title>
+<meta content="Henk Birkholz" name="author">
+<meta content="Michael Eckel" name="author">
+<meta content="Shwetha Bhandari" name="author">
+<meta content="Bill Sulzen" name="author">
+<meta content="Eric Voit" name="author">
+<meta content="Liang Xia (Frank)" name="author">
+<meta content="Tom Laffey" name="author">
+<meta content="Guy C. Fedorkow" name="author">
+<meta content="
+       This document defines a YANG RPC and a minimal datastore tree required to retrieve attestation evidence about integrity measurements from a composite device with one or more roots of trust for reporting. Complementary measurement logs are also provided by the YANG RPC originating from one or more roots of trust of measurement. The module defined requires a TPM 2.0 and corresponding Trusted Software Stack included in the device components of the composite device the YANG server is running on. 
+    " name="description">
+<meta content="xml2rfc 2.40.1" name="generator">
+<meta content="Internet-Draft" name="keyword">
+<meta content="draft-birkholz-rats-basic-yang-module-latest" name="ietf.draft">
+<link href="draft-birkholz-rats-basic-yang-module.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@import url('https://martinthomson.github.io/i-d-template/fonts.css');
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head profile="http://www.w3.org/2006/03/hcard http://dublincore.org/documents/2008/08/04/dc-html/">
-  <meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
-
-  <title>YANG Module for Basic Challenge-Response-based Remote Attestation Procedures</title>
-
-  
-<style type="text/css">/*<![CDATA[*/
-
+html {
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --small-font-size: 14.5px;
+}
 body {
-  font: 16px "Helvetica Neue","Open Sans",Helvetica,Calibri,sans-serif;
-  color: #333;
-  font-size-adjust: 0.5;
-  line-height: 24px;
-  margin: 75px auto;
   max-width: 624px;
+  margin: 75px auto;
   padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
 }
 
-.title, .filename, h1, h2, h3, h4, h5 {
-  font: 16px "Roboto Condensed","Helvetica Neue","Open Sans",Helvetica,Calibri,sans-serif;
-  font-size-adjust: 0.5;
-  font-weight: bold;
-  color: #333;
-  line-height: 100%;
-  margin: 1.2em 0 0.3em;
-}
-.title, #rfc\.title h1 { font-size: 32px; }
-h1, section h1, h2, section h2, section h3, nav h2 { font-size: 20px; }
-h3, section h4, h4, section h5 { font-size: 16px; }
-h1 a[href], h2 a[href], h3 a[href], h4 a[href] {
-  color: #333;
-}
-
-table {
-  margin-left: 0em;
-  border-collapse: collapse;
-}
-th {
-  text-align: left;
-  border-bottom: 2px solid #ddd;
-}
-td {
-  border-top: 1px solid #ddd;
-  vertical-align: top;
-}
-tr:nth-child(2n+1) > td,
-tr:nth-child(2n+1) > th {
-  background-color: #f9f9f9;
-}
-td.reference {
-  max-width: 200px;
-  border-top: none;
-  padding-right: 1em;
-}
-.right {
-  text-align: right;
-}
-
-
-table.header, table#rfc\.headerblock {
-  width: 100%;
-}
-table.header td, table#rfc\.headerblock td {
-  border: none;
-  background-color: transparent;
-  color: black;
-  padding: 0;
-}
-.filename {
-  display: block;
-  color: rgb(119, 119, 119);
-  font-size: 20px;
-  font-weight: normal;
-  line-height: 100%;
-  margin: 10px 0 32px;
-}
-#rfc\.abstract+p, #rfc\.abstract+p code, #rfc\.abstract+p samp, #rfc\.abstract+p tt {
-  font-size: 20px;
-  line-height: 28px;
-}
-
-samp, tt, code, pre, span.tt {
-  font-size: 13.5px;
-  font-family: Consolas, monospace;
-  font-size-adjust: none;
-}
-pre {
-  background-color: #eee;
-  border: 1px solid #ddd;
-  overflow-x: auto;
-  padding: 5px;
-  margin: 5px;
-}
-.figure, caption {
-  font-style: italic;
-  margin: 0 1.5em;
-  text-align: left;
-}
-
-address {
-  margin: 16px 2px;
-  line-height: 20px;
-}
-.vcard {
-  font-style: normal;
-}
-.vcardline {
-  display: block;
-}
-.vcardline .fn, address b {
-  font-weight: normal;
-}
-.vcardline .hidden {
+.ears {
   display: none;
 }
 
-dl {
+/* headings */
+#title, h1, h2, h3, h4, h5, h6 {
+  font-family: "Cabin Condensed", sans-serif;
+  font-weight: 600;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+#title {
+  padding: 1em 0 0.2em;
+  font-size: 32px;
+  line-height: 40px;
+  clear: both;
+}
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 26px;
+}
+h4, h5, h6 {
+  font-size: 18px;
+  line-height: 22px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+}
+#abstract+p, #abstract+p code, #abstract+p samp, #abstract+p tt {
+  font-size: 18px;
+  line-height: 24px;
+}
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div, span {
+  position: relative;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+.alignCenter.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  border: none;
+  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+     support flexbox yet.
+  */
+  display: table;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 1em 2em;
+}
+ol ol, ul ul, ol ul, ul ol {
   margin-left: 1em;
 }
-dl.dl-horizontal: {
-  margin-left: 0;
+li {
+  margin: 0 0 0.25em 0;
+}
+.ulCompact li {
+  margin: 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+}
+ul.empty li, .ulEmpty li {
+  margin-top: 0.5em;
+}
+ul.compact, .ulCompact,
+ol.compact, .olCompact {
+  line-height: 100%;
+  margin: 0 0 0 2em;
+}
+
+/* definition lists */
+dl {
 }
 dl > dt {
   float: left;
   margin-right: 1em;
 }
-dl.nohang > dt {
-  float: none;
-}
 dl > dd {
-  margin-bottom: .5em;
+  margin-bottom: .8em;
+  min-height: 1.3em;
 }
-dl.compact > dd {
+dl.compact > dd, .dlCompact > dd {
   margin-bottom: 0em;
 }
 dl > dd > dl {
   margin-top: 0.5em;
   margin-bottom: 0em;
 }
-ul.empty {
-  list-style-type: none;
-}
-ul.empty li {
-  margin-top: .5em;
-}
 
-hr {
-  border: 0;
-  border-top: 1px solid #eee;
-}
-hr.noprint {
-  display: none;
-}
-
-a {
+/* links */
+a, a[href].selfRef:hover {
   text-decoration: none;
 }
+a[href].selfRef {
+  color: var(--text-color);
+}
 a[href] {
-  color: #2a6496;
+  color: var(--link-color);
 }
 a[href]:hover {
-  background-color: #eee;
+  text-decoration: underline;
+}
+a[href].selfRef:hover {
+  background-color: var(--highlight-color);
 }
 
-p, ol, ul, li {
-  padding: 0;
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px 'Oxygen Mono', monospace;
 }
-p {
+pre {
+  border: 1px solid var(--line-color);
+  line-height: 17px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
   margin: 0.5em 0;
 }
-ol, ul {
-  margin: 0.2em 0 0.2em 2em;
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
 }
-li {
-  margin: 0.2em 0;
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
 }
-address {
-  font-style: normal;
+@media screen {
+  pre {
+    display: inline-block;
+    overflow-x: auto;
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  pre + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+  table {
+    display: inline-block;
+    overflow-x: auto;
+  }
 }
 
-ul.toc ul {
-  margin: 0 0 0 2em;
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
 }
-ul.toc li {
-  list-style: none;
+blockquote {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  margin: 1em 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.5em 0.75em;
+}
+th {
+  text-align: left;
+  background-color: #eee;
+}
+tr:nth-child(2n) > td {
+  background-color: var(--background-color);
+}
+tr:nth-child(2n+1) > td {
+  background-color: var(--highlight-color);
+}
+thead+tbody tr:nth-child(2n) > td {
+  background-color: var(--highlight-color);
+}
+thead+tbody tr:nth-child(2n+1) > td {
+  background-color: var(--background-color);
+}
+table caption {
+  font-style: italic;
+  margin: 0.3em 0;
+  padding: 0;
+  text-align: left;
+}
+table p {
+  /* XXX to avoid bottom margin on table row signifiers. If paragraphs should
+     be allowed within tables more generally, it would be far better to select on a class. */
   margin: 0;
 }
 
-@media screen and (min-width: 924px) {
-  body {
-    padding-right: 350px;
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  visibility: hidden;
+  user-select: none;
+}
+a.pilcrow[href] { color: #ddd; }
+a.pilcrow[href]:hover { text-decoration: none; }
+@media screen {
+  :hover > a.pilcrow {
+    visibility: visible;
   }
-  body>ul.toc, body>#rfc\.toc {
+  a.pilcrow:hover {
+    background-color: transparent;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+}
+
+.role {
+  font-variant: all-small-caps;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 8em;
+}
+#identifiers dt {
+  width: var(--identifier-width);
+  margin: 0;
+  clear: left;
+  float: left;
+  text-align: right;
+}
+#identifiers dd {
+  margin: 0 0 0 calc(1em + var(--identifier-width));
+  min-width: 5em;
+}
+#identifiers .authors .author {
+  display: inline-block;
+  margin-right: 1.5em;
+}
+#identifiers .authors .org {
+  font-style: italic;
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: left;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+}
+#toc nav ul {
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+#toc nav li {
+  line-height: 1.3em;
+  margin: 0.75em 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+/* references */
+.references dt {
+  text-align: right;
+  font-weight: bold;
+  min-width: 7em;
+}
+.references dd {
+  margin-left: 8em;
+  overflow: auto;
+}
+
+.refInstance {
+  margin-bottom: 1.25em;
+}
+
+.references .ascii {
+  margin-bottom: 0.25em;
+}
+
+/* index */
+.index ul {
+  margin: 0 0 0 1em;
+  padding: 0;
+  list-style: none;
+}
+.index ul ul {
+  margin: 0;
+}
+.index li {
+  margin: 0;
+  text-indent: -2em;
+  padding-left: 2em;
+  padding-bottom: 5px;
+}
+.indexIndex {
+  margin: 0.5em 0 1em;
+}
+.index a {
+  font-weight: 700;
+}
+/* make the index two-column on all but the smallest screens */
+@media (min-width: 600px) {
+  .index ul {
+    column-count: 2;
+    column-gap: 20px;
+  }
+  .index ul ul {
+    column-count: 1;
+    column-gap: 0;
+  }
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  margin: 1em 0;
+}
+address.vcard .nameRole {
+  font-weight: 700;
+  margin-left: 0;
+}
+address.vcard .label {
+  margin: 0.5em 0;
+}
+address.vcard .type {
+  display: none;
+}
+.alternative-contact {
+  margin: 1.5em 0 1em;
+}
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 600px) {
+  #authors-addresses > section {
+    display: relative;
+    padding: 32px 0 0;
+    column-count: 2;
+    column-gap: 20px;
+  }
+  #name-authors-address {
+    position: absolute;
+    top: 0px;
+    column-span: all;
+  }
+  /* hack for break-inside: avoid-column */
+  #authors-addresses address {
+    display: inline-block;
+    break-inside: avoid-column;
+  }
+}
+
+/* temporary notes */
+.rfcEditorRemove::before {
+  position: absolute;
+  top: 0.2em;
+  right: 0.2em;
+  padding: 0.2em;
+  content: "The RFC Editor will remove this note";
+  color: #b76427;
+  background-color: rgba(249, 232, 105, 0.3);
+}
+.rfcEditorRemove {
+  position: relative;
+  padding-top: 1.8em;
+  background-color: rgba(249, 232, 105, 0.3);
+  border-radius: 3px;
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+/* alternative layout for smaller screens */
+@media screen and (max-width: 953px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+  }
+  #toc.active {
+      opacity: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 2px 0 2px 6px;
+    padding-right: 1em;
+    font-size: 18px;
+    line-height: 24px;
+    min-width: 190px;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  #toc h2::before { /* css hamburger */
+    float: right;
+    position: relative;
+    width: 1em;
+    height: 1px;
+    left: -164px;
+    margin: 8px 0 0 0;
+    background: white none repeat scroll 0 0;
+    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+    content: "";
+  }
+  #toc nav {
+    display: none;
+    background-color: var(--background-color);
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+  #toc.active nav {
+    display: block;
+  }
+  /* Make the collapsed ToC header render white on gray also when it's a link */
+  #toc h2 a,
+  #toc h2 a:link,
+  #toc h2 a:focus,
+  #toc h2 a:hover,
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+  #toc a.toplink {
+    margin-top: 2px;
+  }
+}
+
+/* alternative layout for wide screens */
+@media screen and (min-width: 954px) {
+  body {
+    padding-right: 380px;
+  }
+  #toc {
     position: fixed;
     bottom: 0;
     right: 0;
-    right: calc(50vw - 500px);
-    width: 300px;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
     z-index: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 2em;
     overflow: auto;
     overscroll-behavior: contain;
+    scrollbar-width: thin;
   }
-  body>#rfc\.toc {
-    top: 55px;
+  #toc nav > ul  {
+    margin-bottom: 2em;
   }
-  body>ul.toc {
-    top: 100px;
-  }
-
-  ul.toc {
+  #toc ul {
     margin: 0 0 0 4px;
-    font-size: 12px;
-    line-height: 20px;
+    font-size: var(--small-font-size);
   }
-  ul.toc ul {
-    margin-left: 1.2em;
+  #toc ul p, #toc ul li {
+    margin: 2px 0;
+    line-height: 22px;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre {
+    page-break-inside: avoid;
+  }
+  figure {
+    overflow: scroll;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  h2+*, h3+*, h4+*, h5+*, h6+* {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
   }
 }
 
-.github-fork-ribbon-wrapper {
-  display: none;
-}
-@media screen and (min-width: 800px) {
-  /* "Fork me on GitHub" CSS ribbon based on
-   * https://github.com/simonwhitaker/github-fork-ribbon-css
-   */
-  .github-fork-ribbon {
-    position: absolute;
-    padding: 2px 0;
-    background-color: #a00;
-    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.15));
-    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.5);
-    font: 700 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
-
-    pointer-events: auto;
-
-    top: 38px;
-    right: -45px;
-
-    transform: rotate(45deg);
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
   }
-
-  .github-fork-ribbon a[href],
-  .github-fork-ribbon a[href]:hover {
-    color: #fff;
-    background-color: transparent;
-    text-decoration: none;
-    text-shadow: 0 -1px rgba(0, 0, 0, 0.5);
-    text-align: center;
-
-    width: 190px;
-    line-height: 18px;
-
-    display: inline-block;
-    padding: 2px 0;
-
-    border: 1.5px dotted #fff;
-    border-color: rgba(255, 255, 255, 0.6);
+  @top-center {
+    content: normal;
+    border: none;
   }
-
-  .github-fork-ribbon-wrapper {
-    display: block;
-    width: 130px;
-    height: 130px;
-    position: absolute;
-    overflow: hidden;
-    top: 0; right: 0;
-    z-index: 2;
-    pointer-events: none;
+  @top-right {
+    content: normal;
+    border: none;
   }
 }
-@media screen and (min-width: 1000px) {
-  .github-fork-ribbon-wrapper {
-    position: fixed;
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Changes introduced to fix issues found during implementation */
+
+/* Separate body from document info even without intervening H1 */
+section {
+  clear: both;
+}
+
+/* Top align author divs, to avoid names without organization dropping level with org names */
+.author {
+  vertical-align: top;
+}
+
+/* Style section numbers with more space between number and title */
+.section-number {
+  padding-right: 0.5em;
+}
+
+/* Add styling for a link in the ToC that points to the top of the document */
+a.toplink {
+  float: right;
+  margin: 8px 0.5em 0;
+}
+
+/* Fix the dl styling to match the RFC 7992 attributes */
+dl > dt,
+dl.dlParallel > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl.dlNewline > dt {
+  float: none;
+}
+
+/* Provide styling for table cell text alignment */
+table td.text-left,
+table th.text-left {
+  text-align: left;
+}
+table td.text-center,
+table th.text-center {
+  text-align: center;
+}
+table td.text-right,
+table th.text-right {
+  text-align: right;
+}
+
+/* Make the alternative author contact information look less like just another
+   author, and group it closer with the primary author contact information */
+.alternative-contact {
+  margin: 0.5em 0 0.25em 0;
+}
+address .non-ascii {
+  margin: 0 0 0 2em;
+}
+
+/* With it being possible to set tables with alignment
+  left, center, and right, { width: 100%; } does not make sense */
+table {
+  width: auto;
+}
+
+/* Avoid reference text that sits in a block with very wide left margin,
+   because of a long floating dt label.*/
+.references dd {
+  overflow: visible;
+}
+
+/* Control caption placement */
+caption {
+  caption-side: bottom;
+}
+
+/* Limit the width of the author address vcard, so names in right-to-left
+   script don't end up on the other side of the page. */
+
+address.vcard {
+  max-width: 20em;
+  margin-right: auto;
+}
+
+/* For address alignment dependent on LTR or RTL scripts */
+address div.left {
+  text-align: left;
+}
+address div.right {
+  text-align: right;
+}
+
+/* Provide table alignment support.  We can't use the alignX classes above
+   since they do unwanted things with caption and other styling. */
+table.right {
+ margin-left: auto;
+ margin-right: 0;
+}
+table.center {
+ margin-left: auto;
+ margin-right: auto;
+}
+table.left {
+ margin-left: 0;
+ margin-right: auto;
+}
+
+/* Give the table caption label the same styling as the figcaption */
+
+@media print {
+  .toplink {
+    display: none;
   }
-  /*]]>*/</style>
-  <meta name="viewport" content="initial-scale=1.0">
 
+  /* avoid overwriting the top border line with the ToC header */
+  #toc {
+    padding-top: 1px;
+  }
 
-  <link href="#rfc.toc" rel="Contents">
-<link href="#rfc.section.1" rel="Chapter" title="1 Introduction">
-<link href="#rfc.section.1.1" rel="Chapter" title="1.1 Requirements notation">
-<link href="#rfc.section.2" rel="Chapter" title="2 The YANG Module for Basic Remote Attestation Procedures">
-<link href="#rfc.section.2.1" rel="Chapter" title="2.1 Tree format">
-<link href="#rfc.section.2.2" rel="Chapter" title="2.2 Raw Format">
-<link href="#rfc.section.3" rel="Chapter" title="3 IANA considerations">
-<link href="#rfc.section.4" rel="Chapter" title="4 Security Considerations">
-<link href="#rfc.section.5" rel="Chapter" title="5 Acknowledgements">
-<link href="#rfc.section.6" rel="Chapter" title="6 Change Log">
-<link href="#rfc.references" rel="Chapter" title="7 References">
-<link href="#rfc.references.1" rel="Chapter" title="7.1 Normative References">
-<link href="#rfc.references.2" rel="Chapter" title="7.2 Informative References">
-<link href="#rfc.authors" rel="Chapter">
+  /* Avoid page breaks inside dl and author address entries */
+  dd {
+    page-break-before: avoid;
+  }
+  .vcard {
+    page-break-inside: avoid;
+  }
 
-
-  <meta name="generator" content="xml2rfc version 2.22.2 - https://tools.ietf.org/tools/xml2rfc" />
-  <link rel="schema.dct" href="http://purl.org/dc/terms/" />
-
-  <meta name="dct.creator" content="Birkholz, H., Eckel, M., Bhandari, S., Sulzen, B., Voit, E., Xia, L., Laffey, T., and G. Fedorkow" />
-  <meta name="dct.identifier" content="urn:ietf:id:draft-birkholz-rats-basic-yang-module-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2019-07-08" />
-  <meta name="dct.abstract" content="This document defines a YANG RPC and a minimal datastore tree required to retrieve attestation evidence about integrity measurements from a composite device with one or more roots of trust for reporting. Complementary measurement logs are also provided by the YANG RPC originating from one or more roots of trust of measurement. The module defined requires a TPM 2.0 and corresponding Trusted Software Stack included in the device components of the composite device the YANG server is running on." />
-  <meta name="description" content="This document defines a YANG RPC and a minimal datastore tree required to retrieve attestation evidence about integrity measurements from a composite device with one or more roots of trust for reporting. Complementary measurement logs are also provided by the YANG RPC originating from one or more roots of trust of measurement. The module defined requires a TPM 2.0 and corresponding Trusted Software Stack included in the device components of the composite device the YANG server is running on." />
-
+}
+/* Tweak the bcp14 keyword presentation */
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+</style>
+<link href="rfc-local.css" rel="stylesheet" type="text/css">
 </head>
-
 <body>
-
-  <table class="header">
-    <tbody>
-    
-    	<tr>
-<td class="left">RATS Working Group</td>
-<td class="right">H. Birkholz</td>
-</tr>
-<tr>
+<table class="ears">
+<thead><tr>
 <td class="left">Internet-Draft</td>
-<td class="right">M. Eckel</td>
-</tr>
-<tr>
-<td class="left">Intended status: Standards Track</td>
-<td class="right">Fraunhofer SIT</td>
-</tr>
-<tr>
-<td class="left">Expires: January 9, 2020</td>
-<td class="right">S. Bhandari</td>
-</tr>
-<tr>
-<td class="left"></td>
-<td class="right">B. Sulzen</td>
-</tr>
-<tr>
-<td class="left"></td>
-<td class="right">E. Voit</td>
-</tr>
-<tr>
-<td class="left"></td>
-<td class="right">Cisco</td>
-</tr>
-<tr>
-<td class="left"></td>
-<td class="right">L. Xia</td>
-</tr>
-<tr>
-<td class="left"></td>
-<td class="right">Huawei</td>
-</tr>
-<tr>
-<td class="left"></td>
-<td class="right">T. Laffey</td>
-</tr>
-<tr>
-<td class="left"></td>
-<td class="right">HPE</td>
-</tr>
-<tr>
-<td class="left"></td>
-<td class="right">G. Fedorkow</td>
-</tr>
-<tr>
-<td class="left"></td>
-<td class="right">Juniper</td>
-</tr>
-<tr>
-<td class="left"></td>
-<td class="right">July 08, 2019</td>
-</tr>
-
-    	
-    </tbody>
-  </table>
-
-  <p class="title">YANG Module for Basic Challenge-Response-based Remote Attestation Procedures<br />
-  <span class="filename">draft-birkholz-rats-basic-yang-module-latest</span></p>
-  
-  <h1 id="rfc.abstract"><a href="#rfc.abstract">Abstract</a></h1>
-<p>This document defines a YANG RPC and a minimal datastore tree required to retrieve attestation evidence about integrity measurements from a composite device with one or more roots of trust for reporting. Complementary measurement logs are also provided by the YANG RPC originating from one or more roots of trust of measurement. The module defined requires a TPM 2.0 and corresponding Trusted Software Stack included in the device components of the composite device the YANG server is running on.</p>
-<h1 id="rfc.status"><a href="#rfc.status">Status of This Memo</a></h1>
-<p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
-<p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
-<p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on January 9, 2020.</p>
-<h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
-<p>Copyright (c) 2019 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
-<p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
-
-  
-  <hr class="noprint" />
-  <h1 class="np" id="rfc.toc"><a href="#rfc.toc">Table of Contents</a></h1>
-  <ul class="toc">
-
-  	<li>1.   <a href="#rfc.section.1">Introduction</a>
+<td class="center">BRAT</td>
+<td class="right">March 2020</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Birkholz, et al.</td>
+<td class="center">Expires 6 September 2020</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">RATS Working Group</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-birkholz-rats-basic-yang-module-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2020-03-05" class="published">5 March 2020</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Standards Track</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2020-09-06">6 September 2020</time></dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">H. Birkholz</div>
+<div class="org">Fraunhofer SIT</div>
+</div>
+<div class="author">
+      <div class="author-name">M. Eckel</div>
+<div class="org">Fraunhofer SIT</div>
+</div>
+<div class="author">
+      <div class="author-name">S. Bhandari</div>
+<div class="org">Cisco</div>
+</div>
+<div class="author">
+      <div class="author-name">B. Sulzen</div>
+<div class="org">Cisco</div>
+</div>
+<div class="author">
+      <div class="author-name">E. Voit</div>
+<div class="org">Cisco</div>
+</div>
+<div class="author">
+      <div class="author-name">L. Xia</div>
+<div class="org">Huawei</div>
+</div>
+<div class="author">
+      <div class="author-name">T. Laffey</div>
+<div class="org">HPE</div>
+</div>
+<div class="author">
+      <div class="author-name">G. Fedorkow</div>
+<div class="org">Juniper</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">YANG Module for Basic Challenge-Response-based Remote Attestation Procedures</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">This document defines a YANG RPC and a minimal datastore tree required to retrieve attestation evidence about integrity measurements from a composite device with one or more roots of trust for reporting. Complementary measurement logs are also provided by the YANG RPC originating from one or more roots of trust of measurement. The module defined requires a TPM 2.0 and corresponding Trusted Software Stack included in the device components of the composite device the YANG server is running on.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 6 September 2020.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2020 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Simplified BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Simplified BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="toc ulEmpty">
+<li class="toc ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1"><a href="#section-1" class="xref">1</a>.  <a href="#name-introduction" class="xref">Introduction</a><a href="#section-toc.1-1.1.1" class="pilcrow">¶</a></p>
+<ul class="toc ulEmpty">
+<li class="toc ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1"><a href="#section-1.1" class="xref">1.1</a>.  <a href="#name-requirements-notation" class="xref">Requirements notation</a><a href="#section-toc.1-1.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-<ul><li>1.1.   <a href="#rfc.section.1.1">Requirements notation</a>
+</ul>
 </li>
-</ul><li>2.   <a href="#rfc.section.2">The YANG Module for Basic Remote Attestation Procedures</a>
+<li class="toc ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="xref">2</a>.  <a href="#name-the-yang-module-for-basic-r" class="xref">The YANG Module for Basic Remote Attestation Procedures</a><a href="#section-toc.1-1.2.1" class="pilcrow">¶</a></p>
+<ul class="toc ulEmpty">
+<li class="toc ulEmpty" id="section-toc.1-1.2.2.1">
+                <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="xref">2.1</a>.  <a href="#name-tree-format" class="xref">Tree format</a><a href="#section-toc.1-1.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-<ul><li>2.1.   <a href="#rfc.section.2.1">Tree format</a>
+<li class="toc ulEmpty" id="section-toc.1-1.2.2.2">
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="xref">2.2</a>.  <a href="#name-raw-format" class="xref">Raw Format</a><a href="#section-toc.1-1.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
-<li>2.2.   <a href="#rfc.section.2.2">Raw Format</a>
+</ul>
 </li>
-</ul><li>3.   <a href="#rfc.section.3">IANA considerations</a>
+<li class="toc ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-iana-considerations" class="xref">IANA considerations</a><a href="#section-toc.1-1.3.1" class="pilcrow">¶</a></p>
 </li>
-<li>4.   <a href="#rfc.section.4">Security Considerations</a>
+<li class="toc ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-security-considerations" class="xref">Security Considerations</a><a href="#section-toc.1-1.4.1" class="pilcrow">¶</a></p>
 </li>
-<li>5.   <a href="#rfc.section.5">Acknowledgements</a>
+<li class="toc ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-acknowledgements" class="xref">Acknowledgements</a><a href="#section-toc.1-1.5.1" class="pilcrow">¶</a></p>
 </li>
-<li>6.   <a href="#rfc.section.6">Change Log</a>
+<li class="toc ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-change-log" class="xref">Change Log</a><a href="#section-toc.1-1.6.1" class="pilcrow">¶</a></p>
 </li>
-<li>7.   <a href="#rfc.references">References</a>
+<li class="toc ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="xref">7</a>.  <a href="#name-references" class="xref">References</a><a href="#section-toc.1-1.7.1" class="pilcrow">¶</a></p>
+<ul class="toc ulEmpty">
+<li class="toc ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="xref">7.1</a>.  <a href="#name-normative-references" class="xref">Normative References</a><a href="#section-toc.1-1.7.2.1.1" class="pilcrow">¶</a></p>
 </li>
-<ul><li>7.1.   <a href="#rfc.references.1">Normative References</a>
+<li class="toc ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="xref">7.2</a>.  <a href="#name-informative-references" class="xref">Informative References</a><a href="#section-toc.1-1.7.2.2.1" class="pilcrow">¶</a></p>
 </li>
-<li>7.2.   <a href="#rfc.references.2">Informative References</a>
+</ul>
 </li>
-</ul><li><a href="#rfc.authors">Authors' Addresses</a>
+<li class="toc ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-appendix.a" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a><a href="#section-toc.1-1.8.1" class="pilcrow">¶</a></p>
 </li>
-
-
-  </ul>
-
-  <h1 id="rfc.section.1">
-<a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a>
-</h1>
-<p id="rfc.section.1.p.1">This document is based on the terminology defined in the <a href="#I-D.birkholz-attestation-terminology" class="xref">[I-D.birkholz-attestation-terminology]</a> and uses the interaction model and information elements defined in the <a href="#I-D.birkholz-rats-reference-interaction-model" class="xref">[I-D.birkholz-rats-reference-interaction-model]</a> document. The currently supported hardware security module (HWM) - sometimes also referred to as an embedded secure element(eSE) - is the Trusted Platform Module (TPM) 2.0 specified by the Trusted Computing Group (TCG). One ore more TPM 2.0 embedded in the components of a composite device - sometimes also referred to as an aggregate device - are required in order to use the YANG module defined in this document. A TPM 2.0 is used as a root of trust for reporting (RTR) in order to retrieve attestation evidence from a composite device. Additionally, it is used as a root of trust for measurement (RTM) in order to provide event logs - sometimes also referred to as measurement logs.</p>
-<h1 id="rfc.section.1.1">
-<a href="#rfc.section.1.1">1.1.</a> <a href="#requirements-notation" id="requirements-notation">Requirements notation</a>
-</h1>
-<p id="rfc.section.1.1.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;NOT RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in RFC 2119, BCP 14 <a href="#RFC2119" class="xref">[RFC2119]</a>.</p>
-<h1 id="rfc.section.2">
-<a href="#rfc.section.2">2.</a> <a href="#the-yang-module-for-basic-remote-attestation-procedures" id="the-yang-module-for-basic-remote-attestation-procedures">The YANG Module for Basic Remote Attestation Procedures</a>
-</h1>
-<p id="rfc.section.2.p.1">One or more TPM 2.0 MUST be embedded in the composite device that is providing attestation evidence via the YANG module defined in this document. The ietf-basic-remote-attestation YANG module enables a composite device to take on the role of Claimant and Attester in accordance with the Remote Attestation Procedures (RATS) architecture <a href="#I-D.birkholz-attestation-terminology" class="xref">[I-D.birkholz-attestation-terminology]</a> and the corresponding challenge-response interaction model defined in the <a href="#I-D.birkholz-rats-reference-interaction-model" class="xref">[I-D.birkholz-rats-reference-interaction-model]</a> document. A fresh nonce with an appropriate amount of entropy MUST be supplied by the YANG client in order to enable a proof-of-freshness with respect to the attestation evidence provided by the attester running the YANG datastore. The functions of this YANG module are restricted to 0-1 TPM 2.0 per hardware component.</p>
-<h1 id="rfc.section.2.1">
-<a href="#rfc.section.2.1">2.1.</a> <a href="#tree-format" id="tree-format">Tree format</a>
-</h1>
-<pre>
-&lt;CODE BEGINS&gt;
+</ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">This document is based on the terminology defined in the <span>[<a href="#I-D.birkholz-attestation-terminology" class="xref">I-D.birkholz-attestation-terminology</a>]</span> and uses the interaction model and information elements defined in the <span>[<a href="#I-D.birkholz-rats-reference-interaction-model" class="xref">I-D.birkholz-rats-reference-interaction-model</a>]</span> document. The currently supported hardware security module (HWM) - sometimes also referred to as an embedded secure element(eSE) - is the Trusted Platform Module (TPM) 2.0 specified by the Trusted Computing Group (TCG). One ore more TPM 2.0 embedded in the components of a composite device - sometimes also referred to as an aggregate device - are required in order to use the YANG module defined in this document. A TPM 2.0 is used as a root of trust for reporting (RTR) in order to retrieve attestation evidence from a composite device. Additionally, it is used as a root of trust for measurement (RTM) in order to provide event logs - sometimes also referred to as measurement logs.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<div id="requirements-notation">
+<section id="section-1.1">
+        <h3 id="name-requirements-notation">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-requirements-notation" class="section-name selfRef">Requirements notation</a>
+        </h3>
+<p id="section-1.1-1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in RFC
+2119, BCP 14 <span>[<a href="#RFC2119" class="xref">RFC2119</a>]</span>.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="the-yang-module-for-basic-remote-attestation-procedures">
+<section id="section-2">
+      <h2 id="name-the-yang-module-for-basic-r">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-the-yang-module-for-basic-r" class="section-name selfRef">The YANG Module for Basic Remote Attestation Procedures</a>
+      </h2>
+<p id="section-2-1">One or more TPM 2.0 MUST be embedded in the composite device that is providing attestation evidence via the YANG module defined in this document. The ietf-basic-remote-attestation YANG module enables a composite device to take on the role of Claimant and Attester in accordance with the Remote Attestation Procedures (RATS) architecture <span>[<a href="#I-D.birkholz-attestation-terminology" class="xref">I-D.birkholz-attestation-terminology</a>]</span> and the corresponding challenge-response interaction model defined in the <span>[<a href="#I-D.birkholz-rats-reference-interaction-model" class="xref">I-D.birkholz-rats-reference-interaction-model</a>]</span> document. A fresh nonce with an appropriate amount of entropy MUST be supplied by the YANG client in order to enable a proof-of-freshness with respect to the attestation evidence provided by the attester running the YANG datastore. The functions of this YANG module are restricted to 0-1 TPM 2.0 per hardware component.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<div id="tree-format">
+<section id="section-2.1">
+        <h3 id="name-tree-format">
+<a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-tree-format" class="section-name selfRef">Tree format</a>
+        </h3>
+<div id="section-2.1-1">
+<pre class="sourcecode lang-YANG">&lt;CODE BEGINS&gt;
 module: ietf-basic-remote-attestation
   +--ro rats-support-structures
      +--ro supported-algos*   uint16
@@ -624,17 +1204,22 @@ module: ietf-basic-remote-attestation
                                +--ro template-hash?             binary
                                +--ro pcr-index?                 uint16
                                +--ro signature?                 binary
-&lt;CODE ENDS&gt;
-</pre>
-<h1 id="rfc.section.2.2">
-<a href="#rfc.section.2.2">2.2.</a> <a href="#raw-format" id="raw-format">Raw Format</a>
-</h1>
-<pre>
-&lt;CODE BEGINS&gt;
+
+&lt;CODE ENDS&gt;</pre><a href="#section-2.1-1" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="raw-format">
+<section id="section-2.2">
+        <h3 id="name-raw-format">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-raw-format" class="section-name selfRef">Raw Format</a>
+        </h3>
+<div id="section-2.2-1">
+<pre class="sourcecode lang-YANG">&lt;CODE BEGINS&gt;
 module ietf-basic-remote-attestation {
   namespace "urn:ietf:params:xml:ns:yang:ietf-basic-remote-attestation";
   prefix "yang-brat";
-  
+
   import ietf-yang-types {
     prefix yang;
   }
@@ -644,7 +1229,7 @@ module ietf-basic-remote-attestation {
   import ietf-crypto-types {
       prefix ietfct;
   }
-  
+
   organization
    "Fraunhofer SIT";
   contact
@@ -661,7 +1246,7 @@ module ietf-basic-remote-attestation {
   reference
     "draft-birkholz-yang-basic-remote-attestation";
   }
-  
+
   grouping hash-algo {
     description
       "A selector for the hashing algorithm";
@@ -694,7 +1279,7 @@ module ietf-basic-remote-attestation {
       }
     }
   }
-  
+
   grouping hash {
     description
       "The hash value including hash-algo identifier";
@@ -714,7 +1299,7 @@ module ietf-basic-remote-attestation {
       }
     }
   }
-  
+
   grouping nonce {
     description
       "A nonce to show freshness and counter replays.";
@@ -938,11 +1523,11 @@ module ietf-basic-remote-attestation {
     }
   }
 
-  grouping tpm-name {
+  grouping tpm-identifier {
     description
       "In a system with multiple-TPMs get the data from a specific TPM
        identified by the name and physical-index.";
-    leaf tpm_name {
+    leaf tpm-name {
       type string;
       description
         "Name of the TPM or All";
@@ -959,14 +1544,14 @@ module ietf-basic-remote-attestation {
         "RFC 6933: Entity MIB (Version 4) - entPhysicalIndex";
     }
   }
-  grouping compute-node {
+  grouping compute-node-identifier {
     description
       "In a distributed system with multiple compute nodes
        this is the node identified by name and physical-index.";
-    leaf node-name {
+    leaf node-id {
        type string;
        description
-         "Name of the compute node or All";
+         "Compute node ID, such as Board Serial Number.";
     }
     leaf node-physical-index {
       if-feature ietfhw:entity-mib;
@@ -1042,7 +1627,7 @@ module ietf-basic-remote-attestation {
     leaf fixed {
       type binary;
       description
-        "This SHALL always be the string &#8216;QUOT&#8217; or &#8216;QUO2&#8217;
+        "This SHALL always be the string 'QUOT' or 'QUO2'
         (length is 4 bytes).";
     }
     leaf external-data {
@@ -1059,7 +1644,7 @@ module ietf-basic-remote-attestation {
       type binary;
       description
         "Signature over SHA-1 hash of tpm12-quote-info2'.";
-    } 
+    }
   }
 
   grouping tpm12-quote-info {
@@ -1265,7 +1850,7 @@ module ietf-basic-remote-attestation {
       type string;
       description
         "Name of the template used for event logs
-        for e.g. ima, ima-ng";
+        for e.g. ima, ima-ng, ima-sig";
     }
     leaf filename-hint {
       type string;
@@ -1276,6 +1861,11 @@ module ietf-basic-remote-attestation {
       type binary;
       description
         "Hash of filedata";
+    }
+    leaf filedata-hash-algorithm {
+      type binary;
+      description
+        "Algorithm used for filedata hash";
     }
     leaf template-hash-algorithm {
       type string;
@@ -1425,54 +2015,64 @@ module ietf-basic-remote-attestation {
            in the reference challenge-response interaction model for
            remote attestation. Corresponding values are based on
            TPM 2.0 structure definitions";
-        uses tpm20-pcr-selection;
         uses nonce;
-        uses tpm20-signature-scheme;
-        uses tpm20-attestation-key-identifier;
-      }
-      list tpms {
-      key tpm_name; 
-      description
-      "TPMs to fetch the attestation information.";
-      uses tpm-name;
+        list challenge-objects {
+          key "node-id tpm-name";
+          description
+            "Nodes to fetch the attestation information, PCR selection and AK identifier.";
+            uses compute-node-identifier;
+            uses tpm-identifier;
+            uses tpm20-pcr-selection;
+            uses tpm20-signature-scheme;
+            uses tpm20-attestation-key-identifier;
+        }
       }
     }
     output {
       list tpm20-attestation-response {
-        key tpm_name;
+        key "node-id tpm-name";
         description
-          "The binary output of TPM2b_Quote. An TPMS_ATTEST structure
-          including a length, encapsulated in a signature";
-        uses tpm-name;
+          "The binary output of TPM2b_Quote in one TPM chip of the node which identified by node-id. An TPMS_ATTEST structure including a length, encapsulated in a signature";
+        uses tpm-identifier;
         uses node-uptime;
-        uses compute-node;
-        container tpms-attest {
-          leaf pcrdigest {
-            type binary;
-            description
-              "split out value of TPMS_QUOTE_INFO for convenience";
-          }
-          leaf tpms-attest-result {
-            type binary;
-            description
-              "The complete TPM generate structure including
-              signature.";
-          }
-          leaf tpms-attest-result-length {
-            type uint32;
-            description
-              "Length of attest result provided by the TPM structure.";
-          }
-          description
-            "A composite of value and length and list of selected
-            pcrs (original name: [type]attested)";
-        }
-        leaf tpmt-signature {
+        uses compute-node-identifier;
+
+        leaf quote {
           type binary;
           description
-            "Split out value of the signature for convenience.
-            TODO: check for length values that complent binary value
-            data node leafs.";
+            "Quote data returned by TPM Quote, including PCR selection, PCR digest and etc.";
+        }
+        leaf quote-signature {
+          type binary;
+          description
+            "Quote signature returned by TPM Quote.";
+        }
+        list pcr-bank-values {
+          key algo-registry-type;
+          description
+            "PCR values in each PCR bank.";
+          uses hash-algo;
+
+          list pcr-values {
+            key pcr-index;
+            description
+              "List of one PCR bank.";
+            leaf pcr-index {
+              type uint16;
+              description
+                "PCR index number.";
+            }
+            leaf pcr-value {
+              type string;
+              description
+                "PCR value.";
+            }
+          }
+        }
+        leaf pcr-digest-algo-in-quote {
+          uses hash-algo;
+          description
+            "The hash algorithm for PCR value digest in quote.";
         }
       }
     }
@@ -1485,7 +2085,7 @@ module ietf-basic-remote-attestation {
     input {
       uses nonce;
       uses tpm20-signature-scheme;
-      uses tpm-name;
+      uses tpm-identifier;
       leaf certificate-name {
          type string;
          description
@@ -1495,19 +2095,19 @@ module ietf-basic-remote-attestation {
     }
     output {
       list attestation-certificates {
-        key tpm_name;
+        key tpm-name;
         description
           "Attestation Certificate data from a TPM identified by the TPM
           name";
-        uses tpm-name;
+        uses tpm-identifier;
         uses node-uptime;
-        uses compute-node;
+        uses compute-node-identifier;
         leaf certificate-name {
           type string;
           description
             "An arbitrary name for this identity certificate or
             certificate chain.";
-        }      
+        }
         leaf attestation-certificate {
           type ietfct:end-entity-cert-cms;
           description
@@ -1518,7 +2118,7 @@ module ietf-basic-remote-attestation {
       }
     }
   }
-  
+
   rpc log-retrieval {
     description
       "Logs Entries are either identified via indices or via providing
@@ -1539,10 +2139,10 @@ module ietf-basic-remote-attestation {
             leaf last-entry-value {
               type binary;
               description
-                "Content of an log event which matches 1:1 with a 
-                unique event record contained within the log.  Log 
-                entries subsequent to this will be passed to the 
-                requester.  Note: if log entry values are not unique, 
+                "Content of an log event which matches 1:1 with a
+                unique event record contained within the log.  Log
+                entries subsequent to this will be passed to the
+                requester.  Note: if log entry values are not unique,
                 this MUST return an error.";
             }
           }
@@ -1552,9 +2152,9 @@ module ietf-basic-remote-attestation {
             leaf index-number {
               type uint64;
               description
-                "The numeric index number of a log entry.  Zero means 
+                "The numeric index number of a log entry.  Zero means
                 to start at the beginning of the log.   Entries
-                subsequent to this will be passed to the 
+                subsequent to this will be passed to the
                 requester.";
             }
           }
@@ -1575,10 +2175,10 @@ module ietf-basic-remote-attestation {
       leaf log-entry-quantity {
         type uint16;
         description
-          "The number of log entries to be returned. If omitted, it 
+          "The number of log entries to be returned. If omitted, it
           means all of them.";
       }
-    } 
+    }
     output {
       container system-event-logs {
         description
@@ -1604,25 +2204,69 @@ module ietf-basic-remote-attestation {
   container rats-support-structures {
     config false;
     description
-    "The datastore definition enabling verifiers or relying
-     parties to discover the information necessary to use the
-     remote attestation RPCs appropriately.";
+      "The datastore definition enabling verifiers or relying parties to discover the information necessary to use the remote attestation RPCs appropriately.";
+
     leaf-list supported-algos {
       type uint16;
       description
         "Supported TPM_ALG_ID values for the TPM in question.
         Will include ComponentIndex soon.";
     }
-    list tpms {
-      key tpm_name;
-      uses tpm-name;
+
+    list compute-nodes {
+      key node-id;
+      uses compute-node-identifier;
       description
-      "A list of TPMs in this composite
-       device that rats can be conducted with.";
-      list certificates {
+        "A list names of hardware componnets in this composite device that RATS can be conducted with.";
+
+      leaf node-name {
+        type string;
         description
-          "The TPM's endorsement-certificate.";
-        container certificate {
+          "Name of the compute node.";
+      }
+
+      leaf node-location {
+        type string;
+        description
+          "Location of the compute node, such as slot number.";
+      }
+
+      list tpms {
+        key tpm-name;
+        uses tpm-identifier;
+        description
+          "A list of TPMs in this composite device that rats can be conducted with.";
+
+        leaf tpm-manufacturer {
+          type string;
+          description
+            "TPM manufacturer name.";
+        }
+
+        leaf tpm-firmware-version {
+          type string;
+          description
+            "TPM firmware version.";
+        }
+
+        leaf tpm-specification-version {
+          type string;
+          description
+            "TPM1.2 or TPM2.0.";
+        }
+
+        leaf tpm-status {
+          type string;
+          description
+            "TPM chip self-test status, normal or abnormal.";
+        }
+
+        list certificates {
+          description
+            "The TPM's certificates, including EK certificates and AK certificates.";
+          container certificate {
+            description
+                "Three types of certificates can be accessed via this statement, including Initial Attestation Key Cert, Local Attestation Key Cert or Endorsement Key Cert.";
             leaf certificate-name {
               type string;
               description
@@ -1630,268 +2274,228 @@ module ietf-basic-remote-attestation {
                 certificate chain.";
             }
             leaf certificate-type {
-               type enumeration {
+              type enumeration {
                 enum endorsement-cert {
-                     value 0;                                                                                    }
-                enum attestation-cert {
-                     value 1;
+                     value 0;
+                     description
+                        "EK Cert type.";
                 }
-               }
-               description  "Type of this certificate";
+                enum initial-attestation-cert {
+                     value 1;
+                     description
+                        "IAK Cert type";
+                }
+                enum local-attestation-cert {
+                     value 2;
+                     description
+                        "LAK Cert type";
+                }
+              }
+              description  "Type of this certificate";
             }
+
             leaf certificate-value {
               type ietfct:end-entity-cert-cms;
               description
-            "The binary signed public endorsement key (EK), attestation key(AK) and corresponding
+                "The binary signed public endorsement key (EK), attestation key(AK) and corresponding
                 claims (EK,AK Certificate). In a TPM 2.0 the EK,AK Certificate
-                resides in a well-defined NVRAM location by the TPM
-                vendor.";
+                resides in a well-defined NVRAM location by the TPM vendor.
+                Maybe certificate-value defined as binary type is a simple way.";
+            }
+
+            leaf lak-public-structure {
+              type binary;
+              description
+                "Marshalled LAK public structure, used for LAK Cert verification";
             }
         }
       }
     }
-    list compute-nodes {
-      key node-name;
-      uses compute-node;
-      description
-        "A list names of hardware components in this composite
-         device that rats can be conducted with.";
-    }
   }
 }
-&lt;CODE ENDS&gt;
-</pre>
-<h1 id="rfc.section.3">
-<a href="#rfc.section.3">3.</a> <a href="#iana-considerations" id="iana-considerations">IANA considerations</a>
-</h1>
-<p id="rfc.section.3.p.1">This document will include requests to IANA:</p>
-<p id="rfc.section.3.p.2">To be defined yet.</p>
-<h1 id="rfc.section.4">
-<a href="#rfc.section.4">4.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a>
-</h1>
-<p id="rfc.section.4.p.1">There are always some.</p>
-<h1 id="rfc.section.5">
-<a href="#rfc.section.5">5.</a> <a href="#acknowledgements" id="acknowledgements">Acknowledgements</a>
-</h1>
-<p id="rfc.section.5.p.1">Not yet.</p>
-<h1 id="rfc.section.6">
-<a href="#rfc.section.6">6.</a> <a href="#change-log" id="change-log">Change Log</a>
-</h1>
-<p id="rfc.section.6.p.1">Changes from version 00 to version 01:</p>
-<p></p>
 
-<ul>
-<li>Addressed author&#8217;s comments</li>
-<li>Extended complementary details about attestation-certificates</li>
-<li>Relabeled chunk-size to log-entry-quantity</li>
-<li>Relabeled location with compute-node or tpm-name where appropriate</li>
-<li>Added a valid entity-mib physical-index to compute-node and tpm-name to map it back to hardware inventory</li>
-<li>Relabeled name  to tpm_name</li>
-<li>Removed event-string in last-entry</li>
-</ul>
-<h1 id="rfc.references">
-<a href="#rfc.references">7.</a> References</h1>
-<h1 id="rfc.references.1">
-<a href="#rfc.references.1">7.1.</a> Normative References</h1>
-<table><tbody>
-<tr>
-<td class="reference"><b id="I-D.birkholz-rats-reference-interaction-model">[I-D.birkholz-rats-reference-interaction-model]</b></td>
-<td class="top">
-<a>Birkholz, H.</a> and <a>M. Eckel</a>, "<a href="https://tools.ietf.org/html/draft-birkholz-rats-reference-interaction-model-00">Reference Interaction Model for Challenge-Response-based Remote Attestation</a>", Internet-Draft draft-birkholz-rats-reference-interaction-model-00, March 2019.</td>
-</tr>
-<tr>
-<td class="reference"><b id="I-D.ietf-netconf-crypto-types">[I-D.ietf-netconf-crypto-types]</b></td>
-<td class="top">
-<a>Watsen, K.</a> and <a>H. Wang</a>, "<a href="https://tools.ietf.org/html/draft-ietf-netconf-crypto-types-10">Common YANG Data Types for Cryptography</a>", Internet-Draft draft-ietf-netconf-crypto-types-10, July 2019.</td>
-</tr>
-<tr>
-<td class="reference"><b id="RFC2119">[RFC2119]</b></td>
-<td class="top">
-<a>Bradner, S.</a>, "<a href="https://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997.</td>
-</tr>
-</tbody></table>
-<h1 id="rfc.references.2">
-<a href="#rfc.references.2">7.2.</a> Informative References</h1>
-<table><tbody><tr>
-<td class="reference"><b id="I-D.birkholz-attestation-terminology">[I-D.birkholz-attestation-terminology]</b></td>
-<td class="top">
-<a>Birkholz, H.</a>, <a>Wiseman, M.</a> and <a>H. Tschofenig</a>, "<a href="https://tools.ietf.org/html/draft-birkholz-attestation-terminology-02">Reference Terminology for Remote Attestation Procedures</a>", Internet-Draft draft-birkholz-attestation-terminology-02, July 2018.</td>
-</tr></tbody></table>
-<h1 id="rfc.authors"><a href="#rfc.authors">Authors' Addresses</a></h1>
-<div class="avoidbreak">
-  <address class="vcard">
-	<span class="vcardline">
-	  <span class="fn">Henk Birkholz</span> 
-	  <span class="n hidden">
-		<span class="family-name">Birkholz</span>
-	  </span>
-	</span>
-	<span class="org vcardline">Fraunhofer SIT</span>
-	<span class="adr">
-	  <span class="vcardline">Rheinstrasse 75</span>
-
-	  <span class="vcardline">
-		<span class="locality">Darmstadt</span>,  
-		<span class="region"></span>
-		<span class="code">64295</span>
-	  </span>
-	  <span class="country-name vcardline">Germany</span>
-	</span>
-	<span class="vcardline">EMail: <a href="mailto:henk.birkholz@sit.fraunhofer.de">henk.birkholz@sit.fraunhofer.de</a></span>
-
-  </address>
-</div><div class="avoidbreak">
-  <address class="vcard">
-	<span class="vcardline">
-	  <span class="fn">Michael Eckel</span> 
-	  <span class="n hidden">
-		<span class="family-name">Eckel</span>
-	  </span>
-	</span>
-	<span class="org vcardline">Fraunhofer SIT</span>
-	<span class="adr">
-	  <span class="vcardline">Rheinstrasse 75</span>
-
-	  <span class="vcardline">
-		<span class="locality">Darmstadt</span>,  
-		<span class="region"></span>
-		<span class="code">64295</span>
-	  </span>
-	  <span class="country-name vcardline">Germany</span>
-	</span>
-	<span class="vcardline">EMail: <a href="mailto:michael.eckel@sit.fraunhofer.de">michael.eckel@sit.fraunhofer.de</a></span>
-
-  </address>
-</div><div class="avoidbreak">
-  <address class="vcard">
-	<span class="vcardline">
-	  <span class="fn">Shwetha Bhandari</span> 
-	  <span class="n hidden">
-		<span class="family-name">Bhandari</span>
-	  </span>
-	</span>
-	<span class="org vcardline">Cisco Systems</span>
-	<span class="adr">
-	  
-	  <span class="vcardline">
-		<span class="locality"></span> 
-		<span class="region"></span>
-		<span class="code"></span>
-	  </span>
-	  <span class="country-name vcardline"></span>
-	</span>
-	<span class="vcardline">EMail: <a href="mailto:shwethab@cisco.com">shwethab@cisco.com</a></span>
-
-  </address>
-</div><div class="avoidbreak">
-  <address class="vcard">
-	<span class="vcardline">
-	  <span class="fn">Bill Sulzen</span> 
-	  <span class="n hidden">
-		<span class="family-name">Sulzen</span>
-	  </span>
-	</span>
-	<span class="org vcardline">Cisco Systems</span>
-	<span class="adr">
-	  
-	  <span class="vcardline">
-		<span class="locality"></span> 
-		<span class="region"></span>
-		<span class="code"></span>
-	  </span>
-	  <span class="country-name vcardline"></span>
-	</span>
-	<span class="vcardline">EMail: <a href="mailto:bsulzen@cisco.com">bsulzen@cisco.com</a></span>
-
-  </address>
-</div><div class="avoidbreak">
-  <address class="vcard">
-	<span class="vcardline">
-	  <span class="fn">Eric Voit</span> 
-	  <span class="n hidden">
-		<span class="family-name">Voit</span>
-	  </span>
-	</span>
-	<span class="org vcardline">Cisco Systems</span>
-	<span class="adr">
-	  
-	  <span class="vcardline">
-		<span class="locality"></span> 
-		<span class="region"></span>
-		<span class="code"></span>
-	  </span>
-	  <span class="country-name vcardline"></span>
-	</span>
-	<span class="vcardline">EMail: <a href="mailto:evoit@cisco.com">evoit@cisco.com</a></span>
-
-  </address>
-</div><div class="avoidbreak">
-  <address class="vcard">
-	<span class="vcardline">
-	  <span class="fn">Liang Xia (Frank)</span> 
-	  <span class="n hidden">
-		<span class="family-name">Xia</span>
-	  </span>
-	</span>
-	<span class="org vcardline">Huawei Technologies</span>
-	<span class="adr">
-	  <span class="vcardline">101 Software Avenue, Yuhuatai District</span>
-
-	  <span class="vcardline">
-		<span class="locality">Nanjing</span>,  
-		<span class="region">Jiangsu</span> 
-		<span class="code">210012</span>
-	  </span>
-	  <span class="country-name vcardline">China</span>
-	</span>
-	<span class="vcardline">EMail: <a href="mailto:Frank.Xialiang@huawei.com">Frank.Xialiang@huawei.com</a></span>
-
-  </address>
-</div><div class="avoidbreak">
-  <address class="vcard">
-	<span class="vcardline">
-	  <span class="fn">Tom Laffey</span> 
-	  <span class="n hidden">
-		<span class="family-name">Laffey</span>
-	  </span>
-	</span>
-	<span class="org vcardline">Hewlett Packard Enterprise</span>
-	<span class="adr">
-	  
-	  <span class="vcardline">
-		<span class="locality"></span> 
-		<span class="region"></span>
-		<span class="code"></span>
-	  </span>
-	  <span class="country-name vcardline"></span>
-	</span>
-	<span class="vcardline">EMail: <a href="mailto:tom.laffey@hpe.com">tom.laffey@hpe.com</a></span>
-
-  </address>
-</div><div class="avoidbreak">
-  <address class="vcard">
-	<span class="vcardline">
-	  <span class="fn">Guy C. Fedorkow</span> 
-	  <span class="n hidden">
-		<span class="family-name">Fedorkow</span>
-	  </span>
-	</span>
-	<span class="org vcardline">Juniper Networks</span>
-	<span class="adr">
-	  <span class="vcardline">10 Technology Park Drive</span>
-
-	  <span class="vcardline">
-		<span class="locality">Westford</span>,  
-		<span class="region">Massachusetts</span> 
-		<span class="code">01886</span>
-	  </span>
-	  <span class="country-name vcardline"></span>
-	</span>
-	<span class="vcardline">EMail: <a href="mailto:gfedorkow@juniper.net">gfedorkow@juniper.net</a></span>
-
-  </address>
+&lt;CODE ENDS&gt;</pre><a href="#section-2.2-1" class="pilcrow">¶</a>
 </div>
-
+</section>
+</div>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-3">
+      <h2 id="name-iana-considerations">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA considerations</a>
+      </h2>
+<p id="section-3-1">This document will include requests to IANA:<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">To be defined yet.<a href="#section-3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-4">
+      <h2 id="name-security-considerations">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-4-1">There are always some.<a href="#section-4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="acknowledgements">
+<section id="section-5">
+      <h2 id="name-acknowledgements">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
+      </h2>
+<p id="section-5-1">Not yet.<a href="#section-5-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="change-log">
+<section id="section-6">
+      <h2 id="name-change-log">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-change-log" class="section-name selfRef">Change Log</a>
+      </h2>
+<p id="section-6-1">Changes from version 00 to version 01:<a href="#section-6-1" class="pilcrow">¶</a></p>
+<ul>
+<li id="section-6-2.1">Addressed author's comments<a href="#section-6-2.1" class="pilcrow">¶</a>
+</li>
+<li id="section-6-2.2">Extended complementary details about attestation-certificates<a href="#section-6-2.2" class="pilcrow">¶</a>
+</li>
+<li id="section-6-2.3">Relabeled chunk-size to log-entry-quantity<a href="#section-6-2.3" class="pilcrow">¶</a>
+</li>
+<li id="section-6-2.4">Relabeled location with compute-node or tpm-name where appropriate<a href="#section-6-2.4" class="pilcrow">¶</a>
+</li>
+<li id="section-6-2.5">Added a valid entity-mib physical-index to compute-node and tpm-name to map it back to hardware inventory<a href="#section-6-2.5" class="pilcrow">¶</a>
+</li>
+<li id="section-6-2.6">Relabeled name  to tpm_name<a href="#section-6-2.6" class="pilcrow">¶</a>
+</li>
+<li id="section-6-2.7">Removed event-string in last-entry<a href="#section-6-2.7" class="pilcrow">¶</a>
+</li>
+</ul>
+</section>
+</div>
+<section id="section-7">
+      <h2 id="name-references">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<section id="section-7.1">
+        <h3 id="name-normative-references">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="I-D.birkholz-rats-reference-interaction-model">[I-D.birkholz-rats-reference-interaction-model]</dt>
+<dd>
+<span class="refAuthor">Birkholz, H.</span><span class="refAuthor"> and M. Eckel</span>, <span class="refTitle">"Reference Interaction Models for Remote Attestation Procedures"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-birkholz-rats-reference-interaction-model-02</span>, <time datetime="2020-01-07">7 January 2020</time>, <span>&lt;<a href="http://www.ietf.org/internet-drafts/draft-birkholz-rats-reference-interaction-model-02.txt">http://www.ietf.org/internet-drafts/draft-birkholz-rats-reference-interaction-model-02.txt</a>&gt;</span>. </dd>
+<dt id="I-D.ietf-netconf-crypto-types">[I-D.ietf-netconf-crypto-types]</dt>
+<dd>
+<span class="refAuthor">Watsen, K.</span><span class="refAuthor"> and H. Wang</span>, <span class="refTitle">"Common YANG Data Types for Cryptography"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-netconf-crypto-types-13</span>, <time datetime="2019-11-20">20 November 2019</time>, <span>&lt;<a href="http://www.ietf.org/internet-drafts/draft-ietf-netconf-crypto-types-13.txt">http://www.ietf.org/internet-drafts/draft-ietf-netconf-crypto-types-13.txt</a>&gt;</span>. </dd>
+<dt id="RFC2119">[RFC2119]</dt>
+<dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2119">https://www.rfc-editor.org/info/rfc2119</a>&gt;</span>. </dd>
+</dl>
+</section>
+<section id="section-7.2">
+        <h3 id="name-informative-references">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="I-D.birkholz-attestation-terminology">[I-D.birkholz-attestation-terminology]</dt>
+<dd>
+<span class="refAuthor">Birkholz, H.</span><span class="refAuthor">, Wiseman, M.</span><span class="refAuthor">, and H. Tschofenig</span>, <span class="refTitle">"Reference Terminology for Remote Attestation Procedures"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-birkholz-attestation-terminology-02</span>, <time datetime="2018-07-02">2 July 2018</time>, <span>&lt;<a href="http://www.ietf.org/internet-drafts/draft-birkholz-attestation-terminology-02.txt">http://www.ietf.org/internet-drafts/draft-birkholz-attestation-terminology-02.txt</a>&gt;</span>. </dd>
+</dl>
+</section>
+</section>
+<div id="authors-addresses">
+<section id="section-appendix.a">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Henk Birkholz</span></div>
+<div dir="auto" class="left"><span class="org">Fraunhofer SIT</span></div>
+<div dir="auto" class="left"><span class="street-address">Rheinstrasse 75</span></div>
+<div dir="auto" class="left">
+<span class="postal-code">64295</span> <span class="locality">Darmstadt</span>
+</div>
+<div dir="auto" class="left"><span class="country-name">Germany</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:henk.birkholz@sit.fraunhofer.de" class="email">henk.birkholz@sit.fraunhofer.de</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Michael Eckel</span></div>
+<div dir="auto" class="left"><span class="org">Fraunhofer SIT</span></div>
+<div dir="auto" class="left"><span class="street-address">Rheinstrasse 75</span></div>
+<div dir="auto" class="left">
+<span class="postal-code">64295</span> <span class="locality">Darmstadt</span>
+</div>
+<div dir="auto" class="left"><span class="country-name">Germany</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:michael.eckel@sit.fraunhofer.de" class="email">michael.eckel@sit.fraunhofer.de</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Shwetha Bhandari</span></div>
+<div dir="auto" class="left"><span class="org">Cisco Systems</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:shwethab@cisco.com" class="email">shwethab@cisco.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Bill Sulzen</span></div>
+<div dir="auto" class="left"><span class="org">Cisco Systems</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:bsulzen@cisco.com" class="email">bsulzen@cisco.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Eric Voit</span></div>
+<div dir="auto" class="left"><span class="org">Cisco Systems</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:evoit@cisco.com" class="email">evoit@cisco.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Liang Xia (Frank)</span></div>
+<div dir="auto" class="left"><span class="org">Huawei Technologies</span></div>
+<div dir="auto" class="left"><span class="street-address">101 Software Avenue, Yuhuatai District</span></div>
+<div dir="auto" class="left"><span class="locality">Nanjing</span></div>
+<div dir="auto" class="left">
+<span class="region">Jiangsu</span>, <span class="postal-code">210012</span>
+</div>
+<div dir="auto" class="left"><span class="country-name">China</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:Frank.Xialiang@huawei.com" class="email">Frank.Xialiang@huawei.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Tom Laffey</span></div>
+<div dir="auto" class="left"><span class="org">Hewlett Packard Enterprise</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:tom.laffey@hpe.com" class="email">tom.laffey@hpe.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Guy C. Fedorkow</span></div>
+<div dir="auto" class="left"><span class="org">Juniper Networks</span></div>
+<div dir="auto" class="left"><span class="street-address">10 Technology Park Drive</span></div>
+<div dir="auto" class="left"><span class="locality">Westford</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:gfedorkow@juniper.net" class="email">gfedorkow@juniper.net</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
 </body>
 </html>
-
